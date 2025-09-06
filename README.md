@@ -18,7 +18,6 @@ Membros:
 - [Installation](#installation)
 - [Running the Server](#running-the-server)
 - [Next Steps](#next-steps)
-- [Notes](#notes)
 
 ---
 
@@ -83,6 +82,14 @@ Test the endpoints:
 ```json
 {"message": "pong!"}
 ```
+---
+If you want, you can set it up so the server starts just by hitting **Run**.  
+
+First, go to **Run Configurations**:  
+![img.png](assets/Run%20Configurations.png)  
+
+Click the **plus (+)** button and select **Django Server**. Then change the **host** to `127.0.0.1` and the **port** to `8000`:  
+![img_1.png](assets/Set%20up%20run.png)
 
 ---
 
