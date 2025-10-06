@@ -5,9 +5,6 @@ from django.shortcuts import render
 def admin_view(request):
     return render(request, 'admin.html')
 
-def chat_view(request):
-    return render(request, 'chat.html')
-
 def custom_path_view(request):
     return render(request, 'custom-path.html')
 
