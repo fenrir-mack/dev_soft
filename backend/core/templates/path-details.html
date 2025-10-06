@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalhes da Trilha - EstudaAI</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/global.css' %}">  <style>
+    .main-content {
+      padding: 48px 0;
+    }
+
+    .path-hero {
+      background: linear-gradient(135deg, var(--bg-card), var(--bg-tertiary));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 48px;
+      margin-bottom: 48px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .path-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-primary), #8b5cf6);
+    }
+
+    .path-category {
+      display: inline-block;
+      padding: 6px 16px;
+      background-color: var(--accent-light);
+      color: var(--accent-primary);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .path-title {
+      font-size: 42px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+
+    .path-description {
+      font-size: 18px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .path-stats {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+
+    .path-stat {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 32px;
+    }
+
+    .modules-section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .module-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+
+    .module-card:hover {
+      border-color: var(--accent-primary);
+    }
+
+    .module-header {
+      padding: 20px 24px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .module-header-left {
+      flex: 1;
+    }
+
+    .module-number {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-primary);
+      margin-bottom: 4px;
+    }
+
+    .module-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .module-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .module-status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .module-progress {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 3px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .module-progress.completed {
+      border-color: var(--success);
+      background-color: var(--success);
+      color: white;
+    }
+
+    .module-content {
+      display: none;
+      padding: 0 24px 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .module-content.show {
+      display: block;
+    }
+
+    .lessons-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .lesson-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background-color: var(--bg-tertiary);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .lesson-item:hover {
+      background-color: var(--bg-secondary);
+    }
+
+    .lesson-checkbox {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .lesson-checkbox.checked {
+      background-color: var(--success);
+      border-color: var(--success);
+    }
+
+    .lesson-info {
+      flex: 1;
+    }
+
+    .lesson-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .lesson-duration {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 100px;
+      height: fit-content;
+    }
+
+    .progress-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .progress-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .progress-circle {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 16px;
+      position: relative;
+    }
+
+    .progress-circle svg {
+      transform: rotate(-90deg);
+    }
+
+    .progress-circle-bg {
+      fill: none;
+      stroke: var(--bg-tertiary);
+      stroke-width: 8;
+    }
+
+    .progress-circle-fill {
+      fill: none;
+      stroke: url(#gradient);
+      stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.5s ease;
+    }
+
+    .progress-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .progress-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .progress-stat {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+
+    .progress-stat-label {
+      color: var(--text-secondary);
+    }
+
+    .progress-stat-value {
+      font-weight: 600;
+    }
+
+    @media (max-width: 1024px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container navbar-content">
+      <a href="dashboard.html" class="navbar-brand">
+        <div class="logo">🎓</div>
+        <span>EstudaAI</span>
+      </a>
+
+      <ul class="navbar-menu">
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="predefined-paths.html" class="active">Trilhas</a></li>
+        <li><a href="custom-path.html">Criar Trilha</a></li>
+      </ul>
+
+      <div class="navbar-actions">
+        <div class="user-profile" onclick="toggleUserMenu()">
+          <div class="user-avatar">U</div>
+          <span id="userName">Usuário</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <div class="container-wide">
+      <div class="path-hero">
+        <span class="path-category">Data Science</span>
+        <h1 class="path-title">Python para Data Science</h1>
+        <p class="path-description">
+          Aprenda Python aplicado à análise de dados, visualização e machine learning com bibliotecas essenciais como Pandas, NumPy, Matplotlib e Scikit-learn.
+        </p>
+        <div class="path-stats">
+          <span class="path-stat">⏱️ 40 horas</span>
+          <span class="path-stat">📊 Intermediário</span>
+          <span class="path-stat">📚 12 módulos</span>
+          <span class="path-stat">👥 1,234 estudantes</span>
+        </div>
+      </div>
+
+      <div class="content-grid">
+        <div class="modules-section" id="modulesSection">
+          <!-- Modules will be rendered here -->
+        </div>
+
+        <aside class="sidebar">
+          <div class="progress-card">
+            <h3 class="progress-title">Seu Progresso</h3>
+            <div class="progress-circle">
+              <svg width="120" height="120">
+                <defs>
+                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+                  </linearGradient>
+                </defs>
+                <circle class="progress-circle-bg" cx="60" cy="60" r="52"></circle>
+                <circle class="progress-circle-fill" cx="60" cy="60" r="52"
+                        stroke-dasharray="326.73"
+                        stroke-dashoffset="196.04"
+                        id="progressCircle"></circle>
+              </svg>
+              <div class="progress-text" id="progressText">40%</div>
+            </div>
+            <div class="progress-stats">
+              <div class="progress-stat">
+                <span class="progress-stat-label">Concluído</span>
+                <span class="progress-stat-value" id="completedLessons">12/30 aulas</span>
+              </div>
+              <div class="progress-stat">
+                <span class="progress-stat-label">Tempo investido</span>
+                <span class="progress-stat-value">16h</span>
+              </div>
+              <div class="progress-stat">
+                <span class="progress-stat-label">Tempo restante</span>
+                <span class="progress-stat-value">24h</span>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" style="width: 100%; margin-bottom: 12px;">
+            ▶️ Continuar Aprendendo
+          </button>
+          <button class="btn btn-secondary" style="width: 100%;">
+            🔖 Salvar para Depois
+          </button>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const modules = [
+      {
+        id: 1,
+        number: 'MÓDULO 1',
+        title: 'Introdução ao Python',
+        duration: '4 horas',
+        lessons: 5,
+        completed: 5,
+        lessons_data: [
+          { id: 1, title: 'Instalação e Configuração', duration: '30 min', completed: true },
+          { id: 2, title: 'Sintaxe Básica', duration: '45 min', completed: true },
+          { id: 3, title: 'Variáveis e Tipos de Dados', duration: '1 hora', completed: true },
+          { id: 4, title: 'Estruturas de Controle', duration: '1 hora', completed: true },
+          { id: 5, title: 'Funções', duration: '45 min', completed: true }
+        ]
+      },
+      {
+        id: 2,
+        number: 'MÓDULO 2',
+        title: 'NumPy e Arrays',
+        duration: '3 horas',
+        lessons: 4,
+        completed: 2,
+        lessons_data: [
+          { id: 6, title: 'Introdução ao NumPy', duration: '30 min', completed: true },
+          { id: 7, title: 'Criação de Arrays', duration: '45 min', completed: true },
+          { id: 8, title: 'Operações com Arrays', duration: '1 hora', completed: false },
+          { id: 9, title: 'Indexação e Slicing', duration: '45 min', completed: false }
+        ]
+      },
+      {
+        id: 3,
+        number: 'MÓDULO 3',
+        title: 'Pandas para Análise de Dados',
+        duration: '5 horas',
+        lessons: 6,
+        completed: 0,
+        lessons_data: [
+          { id: 10, title: 'Introdução ao Pandas', duration: '30 min', completed: false },
+          { id: 11, title: 'DataFrames e Series', duration: '1 hora', completed: false },
+          { id: 12, title: 'Leitura de Dados', duration: '45 min', completed: false },
+          { id: 13, title: 'Limpeza de Dados', duration: '1 hora', completed: false },
+          { id: 14, title: 'Transformação de Dados', duration: '1 hora', completed: false },
+          { id: 15, title: 'Agregação e Groupby', duration: '45 min', completed: false }
+        ]
+      }
+    ];
+
+    function renderModules() {
+      const container = document.getElementById('modulesSection');
+      container.innerHTML = modules.map(module => `
+        <div class="module-card">
+          <div class="module-header" onclick="toggleModule(${module.id})">
+            <div class="module-header-left">
+              <div class="module-number">${module.number}</div>
+              <div class="module-title">${module.title}</div>
+              <div class="module-meta">⏱️ ${module.duration} • ${module.lessons} aulas</div>
+            </div>
+            <div class="module-status">
+              <div class="module-progress ${module.completed === module.lessons ? 'completed' : ''}">
+                ${module.completed === module.lessons ? '✓' : `${module.completed}/${module.lessons}`}
+              </div>
+            </div>
+          </div>
+          <div class="module-content" id="module-${module.id}">
+            <div class="lessons-list">
+              ${module.lessons_data.map(lesson => `
+                <div class="lesson-item" onclick="toggleLesson(${lesson.id})">
+                  <div class="lesson-checkbox ${lesson.completed ? 'checked' : ''}" id="lesson-${lesson.id}">
+                    ${lesson.completed ? '✓' : ''}
+                  </div>
+                  <div class="lesson-info">
+                    <div class="lesson-title">${lesson.title}</div>
+                    <div class="lesson-duration">${lesson.duration}</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleModule(moduleId) {
+      const content = document.getElementById(`module-${moduleId}`);
+      content.classList.toggle('show');
+    }
+
+    function toggleLesson(lessonId) {
+      event.stopPropagation();
+      const checkbox = document.getElementById(`lesson-${lessonId}`);
+      const isCompleted = checkbox.classList.contains('checked');
+
+      if (isCompleted) {
+        checkbox.classList.remove('checked');
+        checkbox.textContent = '';
+      } else {
+        checkbox.classList.add('checked');
+        checkbox.textContent = '✓';
+      }
+
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const allLessons = modules.reduce((sum, m) => sum + m.lessons, 0);
+      const completedLessons = document.querySelectorAll('.lesson-checkbox.checked').length;
+      const percentage = Math.round((completedLessons / allLessons) * 100);
+
+      document.getElementById('progressText').textContent = percentage + '%';
+      document.getElementById('completedLessons').textContent = `${completedLessons}/${allLessons} aulas`;
+
+      const circumference = 326.73;
+      const offset = circumference - (percentage / 100) * circumference;
+      document.getElementById('progressCircle').style.strokeDashoffset = offset;
+    }
+
+    function toggleUserMenu() {
+      if (confirm('Deseja sair?')) {
+        localStorage.removeItem('user');
+        window.location.href = 'index.html';
+      }
+    }
+
+    // Load user data
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user.name) {
+      document.getElementById('userName').textContent = user.name;
+      document.querySelector('.user-avatar').textContent = user.name.charAt(0).toUpperCase();
+    }
+
+    // Initial render
+    renderModules();
+  </script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EstudaAI - Login</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/global.css' %}">  <style>
+    .auth-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.1), transparent 50%),
+                  radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.1), transparent 50%);
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 440px;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 48px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .auth-logo {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--accent-primary), #8b5cf6);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin: 0 auto 16px;
+    }
+
+    .auth-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .auth-subtitle {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .auth-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 32px;
+      background-color: var(--bg-tertiary);
+      padding: 4px;
+      border-radius: var(--radius-sm);
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 10px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+    }
+
+    .auth-tab.active {
+      background-color: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    .auth-form {
+      display: none;
+    }
+
+    .auth-form.active {
+      display: block;
+    }
+
+    .forgot-password {
+      text-align: right;
+      margin-top: -12px;
+      margin-bottom: 24px;
+    }
+
+    .forgot-password a {
+      color: var(--accent-primary);
+      text-decoration: none;
+      font-size: 13px;
+    }
+
+    .forgot-password a:hover {
+      text-decoration: underline;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 24px 0;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background-color: var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card fade-in">
+      <div class="auth-header">
+        <div class="auth-logo">🎓</div>
+        <h1 class="auth-title">EstudaAI</h1>
+        <p class="auth-subtitle">Sua plataforma inteligente de aprendizagem</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchTab('login')">Entrar</button>
+        <button class="auth-tab" onclick="switchTab('signup')">Cadastrar</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label" for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" class="form-input" placeholder="seu@email.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="loginPassword">Senha</label>
+          <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required>
+        </div>
+
+        <div class="forgot-password">
+          <a href="#">Esqueceu a senha?</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%;">
+          Entrar
+        </button>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="signupForm" class="auth-form" onsubmit="handleSignup(event)">
+        <div class="form-group">
+          <label class="form-label" for="signupName">Nome completo</label>
+          <input type="text" id="signupName" class="form-input" placeholder="Seu nome" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="signupEmail">Email</label>
+          <input type="email" id="signupEmail" class="form-input" placeholder="seu@email.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="signupPassword">Senha</label>
+          <input type="password" id="signupPassword" class="form-input" placeholder="••••••••" required minlength="6">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="signupConfirmPassword">Confirmar senha</label>
+          <input type="password" id="signupConfirmPassword" class="form-input" placeholder="••••••••" required minlength="6">
+          <div id="passwordError" class="form-error" style="display: none;">As senhas não coincidem</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%;">
+          Criar conta
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tab) {
+      const tabs = document.querySelectorAll('.auth-tab');
+      const forms = document.querySelectorAll('.auth-form');
+
+      tabs.forEach(t => t.classList.remove('active'));
+      forms.forEach(f => f.classList.remove('active'));
+
+      if (tab === 'login') {
+        tabs[0].classList.add('active');
+        document.getElementById('loginForm').classList.add('active');
+      } else {
+        tabs[1].classList.add('active');
+        document.getElementById('signupForm').classList.add('active');
+      }
+    }
+
+    function handleLogin(event) {
+      event.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      // Simulate login
+      localStorage.setItem('user', JSON.stringify({ email, name: 'Usuário' }));
+      window.location.href = 'dashboard.html';
+    }
+
+    function handleSignup(event) {
+      event.preventDefault();
+      const name = document.getElementById('signupName').value;
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const confirmPassword = document.getElementById('signupConfirmPassword').value;
+      const errorDiv = document.getElementById('passwordError');
+
+      if (password !== confirmPassword) {
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      errorDiv.style.display = 'none';
+
+      // Simulate signup
+      localStorage.setItem('user', JSON.stringify({ email, name }));
+      window.location.href = 'dashboard.html';
+    }
+  </script>
+</body>
+</html>
