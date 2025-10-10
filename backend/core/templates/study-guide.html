@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guia de Estudos - EstudaAI</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/global.css' %}">
+  <style>
+    .main-content {
+      padding: 48px 0;
+    }
+
+    .path-hero {
+      background: linear-gradient(135deg, var(--bg-card), var(--bg-tertiary));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 48px;
+      margin-bottom: 48px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .path-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-primary), #8b5cf6);
+    }
+
+    .path-category {
+      display: inline-block;
+      padding: 6px 16px;
+      background-color: var(--accent-light);
+      color: var(--accent-primary);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .path-title {
+      font-size: 42px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+
+    .path-description {
+      font-size: 18px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .path-stats {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+
+    .path-stat {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 32px;
+    }
+
+    .guide-section {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .study-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      transition: all 0.2s;
+    }
+
+    .study-card:hover {
+      border-color: var(--accent-primary);
+    }
+
+    .study-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .study-number {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-primary);
+      margin-bottom: 8px;
+    }
+
+    .study-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .study-description {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .study-topics {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .topic-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background-color: var(--bg-tertiary);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .topic-item:hover {
+      background-color: var(--bg-secondary);
+    }
+
+    .topic-checkbox {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .topic-checkbox.checked {
+      background-color: var(--success);
+      border-color: var(--success);
+    }
+
+    .topic-text {
+      flex: 1;
+      font-size: 14px;
+    }
+
+    .study-resources {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .resource-tag {
+      padding: 6px 12px;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .project-card {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+      border: 2px solid var(--accent-primary);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-top: 24px;
+    }
+
+    .project-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background-color: var(--accent-primary);
+      color: white;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .project-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .project-description {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .project-section {
+      margin-bottom: 24px;
+    }
+
+    .project-section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .project-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .project-list li {
+      padding: 8px 0 8px 24px;
+      position: relative;
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .project-list li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--accent-primary);
+      font-weight: 600;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 100px;
+      height: fit-content;
+    }
+
+    .progress-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .progress-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .progress-circle {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 16px;
+      position: relative;
+    }
+
+    .progress-circle svg {
+      transform: rotate(-90deg);
+    }
+
+    .progress-circle-bg {
+      fill: none;
+      stroke: var(--bg-tertiary);
+      stroke-width: 8;
+    }
+
+    .progress-circle-fill {
+      fill: none;
+      stroke: url(#gradient);
+      stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.5s ease;
+    }
+
+    .progress-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .progress-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .progress-stat {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+
+    .progress-stat-label {
+      color: var(--text-secondary);
+    }
+
+    .progress-stat-value {
+      font-weight: 600;
+    }
+
+    @media (max-width: 1024px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container navbar-content">
+      <a href="dashboard.html" class="navbar-brand">
+        <div class="logo">🎓</div>
+        <span>EstudaAI</span>
+      </a>
+
+      <ul class="navbar-menu">
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="all-paths.html">Minhas Trilhas</a></li>
+        <li><a href="predefined-paths.html" class="active">Explorar</a></li>
+        <li><a href="custom-path.html">Criar Trilha</a></li>
+      </ul>
+
+      <div class="navbar-actions">
+        <div class="user-profile" onclick="toggleUserMenu()">
+          <div class="user-avatar">U</div>
+          <span id="userName">Usuário</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <div class="container-wide">
+      <div class="path-hero">
+        <span class="path-category">Guia de Estudos</span>
+        <h1 class="path-title">Desenvolvimento Web Full Stack</h1>
+        <p class="path-description">
+          Um guia completo para se tornar um desenvolvedor full stack, desde os fundamentos até a construção de aplicações completas.
+        </p>
+        <div class="path-stats">
+          <span class="path-stat">⏱️ 8 semanas</span>
+          <span class="path-stat">📊 Intermediário</span>
+          <span class="path-stat">📚 6 etapas</span>
+          <span class="path-stat">🎯 1 projeto final</span>
+        </div>
+      </div>
+
+      <div class="content-grid">
+        <div class="guide-section" id="guideSection">
+           Study steps will be rendered here
+        </div>
+
+        <aside class="sidebar">
+          <div class="progress-card">
+            <h3 class="progress-title">Seu Progresso</h3>
+            <div class="progress-circle">
+              <svg width="120" height="120">
+                <defs>
+                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+                  </linearGradient>
+                </defs>
+                <circle class="progress-circle-bg" cx="60" cy="60" r="52"></circle>
+                <circle class="progress-circle-fill" cx="60" cy="60" r="52"
+                        stroke-dasharray="326.73"
+                        stroke-dashoffset="196.04"
+                        id="progressCircle"></circle>
+              </svg>
+              <div class="progress-text" id="progressText">35%</div>
+            </div>
+            <div class="progress-stats">
+              <div class="progress-stat">
+                <span class="progress-stat-label">Concluído</span>
+                <span class="progress-stat-value" id="completedTopics">7/20 tópicos</span>
+              </div>
+              <div class="progress-stat">
+                <span class="progress-stat-label">Etapa atual</span>
+                <span class="progress-stat-value">Etapa 3</span>
+              </div>
+              <div class="progress-stat">
+                <span class="progress-stat-label">Tempo estimado</span>
+                <span class="progress-stat-value">5 semanas</span>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" style="width: 100%; margin-bottom: 12px;">
+            ▶️ Continuar Estudando
+          </button>
+          <button class="btn btn-secondary" style="width: 100%;">
+            📥 Baixar Guia PDF
+          </button>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const studySteps = [
+      {
+        id: 1,
+        number: 'ETAPA 1',
+        title: 'Fundamentos de HTML e CSS',
+        description: 'Aprenda a estrutura básica da web e como estilizar páginas.',
+        topics: [
+          { id: 1, text: 'Estrutura HTML semântica', completed: true },
+          { id: 2, text: 'CSS Box Model e Flexbox', completed: true },
+          { id: 3, text: 'Responsividade e Media Queries', completed: true }
+        ],
+        resources: ['📖 MDN Docs', '🎥 Vídeo aulas', '💻 Exercícios práticos']
+      },
+      {
+        id: 2,
+        number: 'ETAPA 2',
+        title: 'JavaScript Essencial',
+        description: 'Domine os conceitos fundamentais de JavaScript moderno.',
+        topics: [
+          { id: 4, text: 'Variáveis, tipos e operadores', completed: true },
+          { id: 5, text: 'Funções e arrow functions', completed: true },
+          { id: 6, text: 'Arrays e métodos de array', completed: true },
+          { id: 7, text: 'Objetos e destructuring', completed: false }
+        ],
+        resources: ['📖 JavaScript.info', '🎥 Curso online', '🧪 Desafios de código']
+      },
+      {
+        id: 3,
+        number: 'ETAPA 3',
+        title: 'DOM e Manipulação de Eventos',
+        description: 'Aprenda a tornar suas páginas interativas.',
+        topics: [
+          { id: 8, text: 'Seleção e manipulação do DOM', completed: true },
+          { id: 9, text: 'Event listeners e handlers', completed: false },
+          { id: 10, text: 'Formulários e validação', completed: false }
+        ],
+        resources: ['📖 Documentação', '💻 Projetos práticos', '🎮 Exercícios interativos']
+      },
+      {
+        id: 4,
+        number: 'ETAPA 4',
+        title: 'APIs e Requisições HTTP',
+        description: 'Conecte seu frontend com serviços externos.',
+        topics: [
+          { id: 11, text: 'Fetch API e Promises', completed: false },
+          { id: 12, text: 'Async/Await', completed: false },
+          { id: 13, text: 'Consumindo APIs REST', completed: false },
+          { id: 14, text: 'Tratamento de erros', completed: false }
+        ],
+        resources: ['📖 API Docs', '🌐 APIs públicas', '💻 Projetos com API']
+      },
+      {
+        id: 5,
+        number: 'ETAPA 5',
+        title: 'Backend com Node.js',
+        description: 'Construa servidores e APIs com JavaScript.',
+        topics: [
+          { id: 15, text: 'Introdução ao Node.js', completed: false },
+          { id: 16, text: 'Express.js e rotas', completed: false },
+          { id: 17, text: 'Middleware e autenticação', completed: false }
+        ],
+        resources: ['📖 Node.js Docs', '🎥 Tutoriais', '🔧 Ferramentas']
+      },
+      {
+        id: 6,
+        number: 'ETAPA 6',
+        title: 'Banco de Dados',
+        description: 'Armazene e gerencie dados de suas aplicações.',
+        topics: [
+          { id: 18, text: 'SQL básico', completed: false },
+          { id: 19, text: 'MongoDB e NoSQL', completed: false },
+          { id: 20, text: 'ORMs e integração', completed: false }
+        ],
+        resources: ['📖 Database Docs', '💾 Exercícios SQL', '🗄️ Projetos práticos']
+      }
+    ];
+
+    function renderStudySteps() {
+      const container = document.getElementById('guideSection');
+      const stepsHTML = studySteps.map(step => `
+        <div class="study-card">
+          <div class="study-header">
+            <div style="flex: 1;">
+              <div class="study-number">${step.number}</div>
+              <div class="study-title">${step.title}</div>
+            </div>
+          </div>
+          <div class="study-description">${step.description}</div>
+          <div class="study-topics">
+            ${step.topics.map(topic => `
+              <div class="topic-item" onclick="toggleTopic(${topic.id})">
+                <div class="topic-checkbox ${topic.completed ? 'checked' : ''}" id="topic-${topic.id}">
+                  ${topic.completed ? '✓' : ''}
+                </div>
+                <div class="topic-text">${topic.text}</div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="study-resources">
+            ${step.resources.map(resource => `<span class="resource-tag">${resource}</span>`).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      const projectHTML = `
+        <div class="project-card">
+          <span class="project-badge">🎯 PROJETO FINAL</span>
+          <h2 class="project-title">Aplicação Full Stack Completa</h2>
+          <p class="project-description">
+            Construa uma aplicação web completa do zero, aplicando todos os conceitos aprendidos durante o guia de estudos.
+          </p>
+
+          <div class="project-section">
+            <h3 class="project-section-title">🎯 Objetivos</h3>
+            <ul class="project-list">
+              <li>Criar uma interface responsiva e moderna</li>
+              <li>Implementar autenticação de usuários</li>
+              <li>Desenvolver uma API RESTful completa</li>
+              <li>Integrar com banco de dados</li>
+              <li>Deploy da aplicação em produção</li>
+            </ul>
+          </div>
+
+          <div class="project-section">
+            <h3 class="project-section-title">💡 Sugestões de Projeto</h3>
+            <ul class="project-list">
+              <li>Sistema de gerenciamento de tarefas (To-Do App avançado)</li>
+              <li>Plataforma de blog com comentários e curtidas</li>
+              <li>E-commerce simplificado com carrinho de compras</li>
+              <li>Rede social minimalista</li>
+              <li>Dashboard de análise de dados</li>
+            </ul>
+          </div>
+
+          <div class="project-section">
+            <h3 class="project-section-title">🛠️ Tecnologias Recomendadas</h3>
+            <ul class="project-list">
+              <li>Frontend: HTML, CSS, JavaScript (ou React)</li>
+              <li>Backend: Node.js com Express</li>
+              <li>Banco de Dados: MongoDB ou PostgreSQL</li>
+              <li>Autenticação: JWT ou OAuth</li>
+              <li>Deploy: Vercel, Heroku ou Railway</li>
+            </ul>
+          </div>
+
+          <div class="project-section">
+            <h3 class="project-section-title">📋 Requisitos Mínimos</h3>
+            <ul class="project-list">
+              <li>Interface responsiva para mobile e desktop</li>
+              <li>Pelo menos 4 rotas/páginas diferentes</li>
+              <li>CRUD completo (Create, Read, Update, Delete)</li>
+              <li>Validação de dados no frontend e backend</li>
+              <li>Tratamento de erros adequado</li>
+              <li>Código organizado e documentado</li>
+            </ul>
+          </div>
+
+          <button class="btn btn-primary" style="margin-top: 24px;">
+            🚀 Começar Projeto
+          </button>
+        </div>
+      `;
+
+      container.innerHTML = stepsHTML + projectHTML;
+    }
+
+    function toggleTopic(topicId) {
+      event.stopPropagation();
+      const checkbox = document.getElementById(`topic-${topicId}`);
+      const isCompleted = checkbox.classList.contains('checked');
+
+      if (isCompleted) {
+        checkbox.classList.remove('checked');
+        checkbox.textContent = '';
+      } else {
+        checkbox.classList.add('checked');
+        checkbox.textContent = '✓';
+      }
+
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const allTopics = studySteps.reduce((sum, step) => sum + step.topics.length, 0);
+      const completedTopics = document.querySelectorAll('.topic-checkbox.checked').length;
+      const percentage = Math.round((completedTopics / allTopics) * 100);
+
+      document.getElementById('progressText').textContent = percentage + '%';
+      document.getElementById('completedTopics').textContent = `${completedTopics}/${allTopics} tópicos`;
+
+      const circumference = 326.73;
+      const offset = circumference - (percentage / 100) * circumference;
+      document.getElementById('progressCircle').style.strokeDashoffset = offset;
+    }
+
+    function toggleUserMenu() {
+      if (confirm('Deseja sair?')) {
+        localStorage.removeItem('user');
+        window.location.href = 'index.html';
+      }
+    }
+
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user.name) {
+      document.getElementById('userName').textContent = user.name;
+      document.querySelector('.user-avatar').textContent = user.name.charAt(0).toUpperCase();
+    }
+
+    renderStudySteps();
+  </script>
+</body>
+</html>
