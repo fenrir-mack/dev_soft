@@ -19,3 +19,9 @@ def path_details_view(request):
 
 def predefined_paths_view(request):
     return render(request, 'predefined-paths.html')
+
+def all_paths_view(request):
+    return render(request, 'all-paths.html')
+
+def study_guide_view(request):
+    return render(request, 'study-guide.html')
