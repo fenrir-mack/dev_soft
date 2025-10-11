@@ -72,16 +72,9 @@ python manage.py runserver
 
 Teste as saidas:
 
-- Login: `http://127.0.0.1:8000/`  
-- Dashboard inicial: `http://127.0.0.1:8000/dashboard/`
-- Nova detalhes de trilha: `http://127.0.0.1:8000/study-guide/` 
-- Antiga detalhes de trilha: `http://127.0.0.1:8000/path-details/`  
-- Trilha personalizada com LLM: `http://127.0.0.1:8000/custom-path/`
-- Trilhas salvas: `http://127.0.0.1:8000/all-paths/`
-- Pesquisar novas trilhas: `http://127.0.0.1:8000/predefined-paths/`
-- Admin: `http://127.0.0.1:8000/admin-page/`
+- mapa com todas URLs http://127.0.0.1:8000/sitemap/
 
----
+--- 
 Como configurar para que não precise rodar o Django por comando:  
 
 Primeiro em configuações **Edit Configurations**:  

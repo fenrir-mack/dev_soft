@@ -2,5 +2,5 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('sitemap/', views.sitemap_view, name='index'),
+    path('', views.custom_path_view, name='trilha_personalizada'),
 ]

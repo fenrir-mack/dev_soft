@@ -39,7 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core',  # app principal
+    'core',                     # função gerais
+    'users',                    # função de login
+    'trilhas',                  # função de trilha
+    'trilha_personalizada',     # função de trilha com LLM
+    'admin_custom',             # função de Admin
+
 ]
 
 
