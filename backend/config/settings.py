@@ -82,6 +82,11 @@ TEMPLATES = [
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'core', 'static')]
 
+LOGIN_URL = '/'
+LOGIN_REDIRECT_URL = '/trilhas/dashboard/'
+LOGOUT_REDIRECT_URL = '/'
+
+AUTH_USER_MODEL = 'users.CustomUser'
 
 
 WSGI_APPLICATION = 'config.wsgi.application'
