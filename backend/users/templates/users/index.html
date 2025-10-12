@@ -51,7 +51,7 @@
 
         <!-- TODO: fazer botão esqueci senha -->
         {% if messages %}
-          <ul class="messages">
+          <ul class="messages" id="messages">
             {% for message in messages %}
               <li class="{{ message.tags }}">{{ message }}</li>
             {% endfor %}
@@ -96,6 +96,10 @@
 
       // 5️⃣ Change button text
       submitButton.textContent = (tab === 'signup') ? 'Cadastrar' : 'Entrar';
+
+      // 6️⃣ Hide messages if they exist
+      const messages = document.getElementById('messages');
+      if (messages) messages.style.display = 'none';
     }
   </script>
 </body>
