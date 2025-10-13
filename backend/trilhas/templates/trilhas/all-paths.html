@@ -1,252 +1,59 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Minhas Trilhas - EstudaAI</title>
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/global.css' %}">
   <style>
-    .main-content {
-      padding: 48px 0;
-    }
-
-    .page-header {
-      margin-bottom: 48px;
-    }
-
-    .page-title {
-      font-size: 36px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .page-subtitle {
-      font-size: 16px;
-      color: var(--text-secondary);
-    }
-
-    .section {
-      margin-bottom: 64px;
-    }
-
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .section-title {
-      font-size: 24px;
-      font-weight: 600;
-    }
-
-    .section-badge {
-      padding: 4px 12px;
-      background-color: var(--accent-light);
-      color: var(--accent-primary);
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .paths-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-      gap: 24px;
-    }
-
-    .path-card {
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .path-card.in-progress::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--accent-primary), #8b5cf6);
-    }
-
-    .path-card.paused::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #f59e0b, #f97316);
-    }
-
-    .path-card.completed::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #10b981, #059669);
-    }
-
-    .path-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 8px;
-    }
-
-    .path-status-badge {
-      padding: 4px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .path-status-badge.in-progress {
-      background-color: var(--accent-light);
-      color: var(--accent-primary);
-    }
-
-    .path-status-badge.paused {
-      background-color: rgba(245, 158, 11, 0.1);
-      color: #f59e0b;
-    }
-
-    .path-status-badge.completed {
-      background-color: rgba(16, 185, 129, 0.1);
-      color: #10b981;
-    }
-
-    .path-menu-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-secondary);
-      font-size: 20px;
-      cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 4px;
-      transition: all 0.2s;
-      position: relative;
-    }
-
-    .path-menu-btn:hover {
-      background-color: var(--bg-tertiary);
-      color: var(--text-primary);
-    }
-
-    .path-menu {
-      display: none;
-      position: absolute;
-      top: 100%;
-      right: 0;
-      background-color: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-lg);
-      min-width: 160px;
-      z-index: 100;
-      margin-top: 4px;
-    }
-
-    .path-menu.show {
-      display: block;
-    }
-
-    .path-menu-item {
-      padding: 12px 16px;
-      cursor: pointer;
-      font-size: 14px;
-      color: var(--text-primary);
-      transition: background-color 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .path-menu-item:hover {
-      background-color: var(--bg-tertiary);
-    }
-
-    .path-menu-item:first-child {
-      border-radius: var(--radius) var(--radius) 0 0;
-    }
-
-    .path-menu-item:last-child {
-      border-radius: 0 0 var(--radius) var(--radius);
-    }
-
-    .path-menu-item.danger {
-      color: #ef4444;
-    }
-
-    .path-meta {
-      display: flex;
-      gap: 16px;
-      margin-top: 16px;
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    .path-progress {
-      margin-top: 16px;
-    }
-
-    .progress-label {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      margin-bottom: 8px;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 64px 24px;
-      color: var(--text-secondary);
-    }
-
-    .empty-state-icon {
-      font-size: 64px;
-      margin-bottom: 16px;
-      opacity: 0.5;
-    }
-
-    .empty-state-title {
-      font-size: 20px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: var(--text-primary);
-    }
-
-    .empty-state-description {
-      font-size: 14px;
-      margin-bottom: 24px;
-    }
+    /* === estilo original mantido === */
+    .main-content { padding: 48px 0; }
+    .page-header { margin-bottom: 48px; }
+    .page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; }
+    .page-subtitle { font-size: 16px; color: var(--text-secondary); }
+    .section { margin-bottom: 64px; }
+    .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+    .section-title { font-size: 24px; font-weight: 600; }
+    .section-badge { padding: 4px 12px; background-color: var(--accent-light); color: var(--accent-primary); border-radius: 999px; font-size: 13px; font-weight: 600; }
+    .paths-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; }
+    .path-card { cursor: pointer; position: relative; overflow: hidden; background: var(--bg-card); padding: 20px; border-radius: 12px; box-shadow: var(--shadow-sm); }
+    .path-card.in-progress::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent-primary), #8b5cf6); }
+    .path-card.paused::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #f59e0b, #f97316); }
+    .path-card.completed::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #10b981, #059669); }
+    .path-card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
+    .path-status-badge { padding:4px 12px; border-radius:999px; font-size:12px; font-weight:600; }
+    .path-status-badge.in-progress { background-color: var(--accent-light); color: var(--accent-primary); }
+    .path-status-badge.paused { background-color: rgba(245,158,11,0.1); color:#f59e0b; }
+    .path-status-badge.completed { background-color: rgba(16,185,129,0.1); color:#10b981; }
+    .path-menu-btn { background:transparent; border:none; color:var(--text-secondary); font-size:20px; cursor:pointer; padding:4px 8px; border-radius:4px; position:relative; }
+    .path-menu { display:none; position:absolute; top:100%; right:0; background:var(--bg-card); border:1px solid var(--border); border-radius:8px; box-shadow:var(--shadow-lg); min-width:160px; z-index:100; margin-top:6px; }
+    .path-menu.show { display:block; }
+    .path-menu-item { padding:12px 16px; cursor:pointer; font-size:14px; color:var(--text-primary); display:flex; gap:8px; align-items:center; }
+    .path-menu-item.danger { color:#ef4444; }
+    .path-meta { display:flex; gap:16px; margin-top:16px; font-size:13px; color:var(--text-muted); }
+    .path-progress { margin-top:16px; }
+    .progress-label { display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px; }
+    .empty-state { text-align:center; padding:64px 24px; color:var(--text-secondary); }
   </style>
 </head>
 <body>
   <nav class="navbar">
     <div class="container navbar-content">
-      <a href="dashboard.html" class="navbar-brand">
+      <a href="{% url 'trilhas:dashboard' %}" class="navbar-brand">
         <div class="logo">🎓</div>
         <span>EstudaAI</span>
       </a>
-
       <ul class="navbar-menu">
-        <li><a href="dashboard.html">Dashboard</a></li>
-        <li><a href="all-paths.html" class="active">Minhas Trilhas</a></li>
-        <li><a href="predefined-paths.html">Explorar</a></li>
-        <li><a href="custom-path.html">Criar Trilha</a></li>
+        <li><a href="{% url 'trilhas:dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'trilhas:minhas_trilhas' %}" class="active">Minhas Trilhas</a></li>
+        <li><a href="{% url 'trilhas:todas_trilhas' %}">Explorar</a></li>
+        <li><a href="{% url 'trilhas:ver_etapas' %}">Criar Trilha</a></li>
       </ul>
-
       <div class="navbar-actions">
         <div class="user-profile" onclick="toggleUserMenu()">
-          <div class="user-avatar">U</div>
-          <span id="userName">Usuário</span>
+          <div class="user-avatar">{{ request.user.username|first|upper }}</div>
+          <span id="userName">{{ request.user.username }}</span>
         </div>
       </div>
     </div>
@@ -259,291 +66,172 @@
         <p class="page-subtitle">Gerencie todas as suas trilhas de aprendizagem</p>
       </div>
 
-       In Progress Section
+      <!-- Grids -->
       <div class="section">
         <div class="section-header">
           <h2 class="section-title">Em Progresso</h2>
-          <span class="section-badge" id="inProgressCount">3</span>
+          <span class="section-badge" id="inProgressCount">0</span>
         </div>
-        <div class="paths-grid" id="inProgressGrid">
-           In progress paths will be rendered here
-        </div>
+        <div class="paths-grid" id="inProgressGrid"></div>
       </div>
-
-       Paused Section
       <div class="section">
         <div class="section-header">
           <h2 class="section-title">Pausadas</h2>
-          <span class="section-badge" id="pausedCount">2</span>
+          <span class="section-badge" id="pausedCount">0</span>
         </div>
-        <div class="paths-grid" id="pausedGrid">
-           Paused paths will be rendered here
-        </div>
+        <div class="paths-grid" id="pausedGrid"></div>
       </div>
-
-       Completed Section
       <div class="section">
         <div class="section-header">
           <h2 class="section-title">Concluídas</h2>
-          <span class="section-badge" id="completedCount">5</span>
+          <span class="section-badge" id="completedCount">0</span>
         </div>
-        <div class="paths-grid" id="completedGrid">
-           Completed paths will be rendered here
-        </div>
+        <div class="paths-grid" id="completedGrid"></div>
       </div>
     </div>
   </main>
 
   <script>
-    const pathsData = {
-      inProgress: [
-        {
-          id: 1,
-          title: 'Python para Data Science',
-          description: 'Aprenda Python aplicado à análise de dados e machine learning',
-          duration: '40 horas',
-          level: 'Intermediário',
-          progress: 65
-        },
-        {
-          id: 2,
-          title: 'Desenvolvimento Web Full Stack',
-          description: 'Do frontend ao backend com tecnologias modernas',
-          duration: '60 horas',
-          level: 'Avançado',
-          progress: 32
-        },
-        {
-          id: 3,
-          title: 'Machine Learning Fundamentals',
-          description: 'Conceitos essenciais de aprendizado de máquina',
-          duration: '35 horas',
-          level: 'Intermediário',
-          progress: 88
-        }
-      ],
-      paused: [
-        {
-          id: 4,
-          title: 'React Native para Mobile',
-          description: 'Desenvolva aplicativos mobile nativos',
-          duration: '45 horas',
-          level: 'Intermediário',
-          progress: 45
-        },
-        {
-          id: 5,
-          title: 'SQL e Bancos de Dados',
-          description: 'Domine SQL e modelagem de dados',
-          duration: '30 horas',
-          level: 'Iniciante',
-          progress: 20
-        }
-      ],
-      completed: [
-        {
-          id: 6,
-          title: 'JavaScript Moderno',
-          description: 'ES6+, async/await, promises e melhores práticas',
-          duration: '25 horas',
-          level: 'Iniciante',
-          progress: 100
-        },
-        {
-          id: 7,
-          title: 'Git e GitHub',
-          description: 'Controle de versão e colaboração',
-          duration: '15 horas',
-          level: 'Iniciante',
-          progress: 100
-        },
-        {
-          id: 8,
-          title: 'HTML e CSS Avançado',
-          description: 'Layouts modernos e responsivos',
-          duration: '20 horas',
-          level: 'Iniciante',
-          progress: 100
-        },
-        {
-          id: 9,
-          title: 'Algoritmos e Estruturas de Dados',
-          description: 'Fundamentos essenciais da programação',
-          duration: '35 horas',
-          level: 'Intermediário',
-          progress: 100
-        },
-        {
-          id: 10,
-          title: 'Docker e Containers',
-          description: 'Containerização de aplicações',
-          duration: '18 horas',
-          level: 'Intermediário',
-          progress: 100
-        }
-      ]
-    };
+    // Helpers
+    function getCookie(name) {
+      const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return v ? v.pop() : '';
+    }
 
-    function renderPathCard(path, status) {
-      return `
-        <div class="card path-card ${status}">
-          <div class="path-card-header">
-            <span class="path-status-badge ${status}">
-              ${status === 'in-progress' ? '🔄 Em Progresso' : status === 'paused' ? '⏸️ Pausada' : '✅ Concluída'}
-            </span>
-            <div style="position: relative;">
-              <button class="path-menu-btn" onclick="togglePathMenu(event, ${path.id})">⋮</button>
-              <div class="path-menu" id="path-menu-${path.id}">
-                ${status === 'in-progress' ? `
-                  <div class="path-menu-item" onclick="pausePath(${path.id})">⏸️ Pausar trilha</div>
-                  <div class="path-menu-item" onclick="viewPath(${path.id})">👁️ Ver detalhes</div>
-                  <div class="path-menu-item danger" onclick="deletePath(${path.id})">🗑️ Excluir trilha</div>
-                ` : status === 'paused' ? `
-                  <div class="path-menu-item" onclick="resumePath(${path.id})">▶️ Retomar trilha</div>
-                  <div class="path-menu-item" onclick="viewPath(${path.id})">👁️ Ver detalhes</div>
-                  <div class="path-menu-item danger" onclick="deletePath(${path.id})">🗑️ Excluir trilha</div>
-                ` : `
-                  <div class="path-menu-item" onclick="viewPath(${path.id})">👁️ Ver detalhes</div>
-                  <div class="path-menu-item" onclick="restartPath(${path.id})">🔄 Refazer trilha</div>
-                  <div class="path-menu-item danger" onclick="deletePath(${path.id})">🗑️ Remover da lista</div>
-                `}
-              </div>
-            </div>
-          </div>
-          <div onclick="viewPath(${path.id})" style="cursor: pointer;">
-            <div class="card-title">${path.title}</div>
-            <div class="card-description">${path.description}</div>
-            <div class="path-meta">
-              <span>⏱️ ${path.duration}</span>
-              <span>📊 ${path.level}</span>
-            </div>
-            ${status !== 'completed' ? `
-              <div class="path-progress">
-                <div class="progress-label">
-                  <span>Progresso</span>
-                  <span>${path.progress}%</span>
-                </div>
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width: ${path.progress}%"></div>
-                </div>
-              </div>
-            ` : ''}
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function createPathCard(path, status) {
+      const div = document.createElement('div');
+      div.className = `path-card ${status}`;
+      div.innerHTML = `
+        <div class="path-card-header">
+          <span class="path-status-badge ${status}">
+            ${status==='in-progress'?'🔄 Em Progresso':status==='paused'?'⏸️ Pausada':'✅ Concluída'}
+          </span>
+          <div style="position:relative;">
+            <button class="path-menu-btn" onclick="toggleMenu(event, ${path.id})">⋮</button>
+            <div class="path-menu" id="menu-${path.id}"></div>
           </div>
         </div>
+        <div onclick="verDetalhes(${path.id})" style="cursor:pointer">
+          <div class="card-title" style="font-weight:600; margin-bottom:6px;">${escapeHtml(path.title)}</div>
+          <div class="card-description" style="color:var(--text-secondary);">${escapeHtml(path.description)}</div>
+          <div class="path-meta">
+            <span>⏱️ ${escapeHtml(path.duration)}</span>
+            <span>📊 ${escapeHtml(path.level)}</span>
+          </div>
+          ${status!=='completed'?`<div class="path-progress">
+            <div class="progress-label">
+              <span>Progresso</span><span>${path.progress}%</span>
+            </div>
+            <div class="progress-bar" style="background:var(--bg-tertiary); height:8px; border-radius:6px;">
+              <div style="width:${path.progress}%; background:var(--accent-primary); height:8px; border-radius:6px;"></div>
+            </div>
+          </div>`:''}
+        </div>
       `;
+      const menu = div.querySelector('.path-menu');
+      // Menu items por status
+      if (status==='in-progress') {
+        menu.innerHTML = `
+          <div class="path-menu-item" onclick="pauseTrilha(${path.id})">⏸️ Pausar trilha</div>
+          <div class="path-menu-item" onclick="verDetalhes(${path.id})">👁️ Ver detalhes</div>
+          <div class="path-menu-item danger" onclick="deleteTrilha(${path.id})">🗑️ Excluir trilha</div>
+        `;
+      } else if (status==='paused') {
+        menu.innerHTML = `
+          <div class="path-menu-item" onclick="resumeTrilha(${path.id})">▶️ Retomar trilha</div>
+          <div class="path-menu-item" onclick="verDetalhes(${path.id})">👁️ Ver detalhes</div>
+          <div class="path-menu-item danger" onclick="deleteTrilha(${path.id})">🗑️ Excluir trilha</div>
+        `;
+      } else {
+        menu.innerHTML = `
+          <div class="path-menu-item" onclick="verDetalhes(${path.id})">👁️ Ver detalhes</div>
+          <div class="path-menu-item" onclick="restartTrilha(${path.id})">🔄 Refazer trilha</div>
+          <div class="path-menu-item danger" onclick="deleteTrilha(${path.id})">🗑️ Remover da lista</div>
+        `;
+      }
+      return div;
     }
 
-    function renderPaths() {
-      // In Progress
-      const inProgressGrid = document.getElementById('inProgressGrid');
-      if (pathsData.inProgress.length > 0) {
-        inProgressGrid.innerHTML = pathsData.inProgress.map(path => renderPathCard(path, 'in-progress')).join('');
-      } else {
-        inProgressGrid.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-state-icon">📚</div>
-            <div class="empty-state-title">Nenhuma trilha em progresso</div>
-            <div class="empty-state-description">Comece uma nova trilha para aparecer aqui</div>
-            <a href="predefined-paths.html" class="btn btn-primary">Explorar Trilhas</a>
-          </div>
-        `;
-      }
-      document.getElementById('inProgressCount').textContent = pathsData.inProgress.length;
-
-      // Paused
-      const pausedGrid = document.getElementById('pausedGrid');
-      if (pathsData.paused.length > 0) {
-        pausedGrid.innerHTML = pathsData.paused.map(path => renderPathCard(path, 'paused')).join('');
-      } else {
-        pausedGrid.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-state-icon">⏸️</div>
-            <div class="empty-state-title">Nenhuma trilha pausada</div>
-            <div class="empty-state-description">Trilhas pausadas aparecerão aqui</div>
-          </div>
-        `;
-      }
-      document.getElementById('pausedCount').textContent = pathsData.paused.length;
-
-      // Completed
-      const completedGrid = document.getElementById('completedGrid');
-      if (pathsData.completed.length > 0) {
-        completedGrid.innerHTML = pathsData.completed.map(path => renderPathCard(path, 'completed')).join('');
-      } else {
-        completedGrid.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-state-icon">🎉</div>
-            <div class="empty-state-title">Nenhuma trilha concluída ainda</div>
-            <div class="empty-state-description">Continue estudando para completar suas primeiras trilhas!</div>
-          </div>
-        `;
-      }
-      document.getElementById('completedCount').textContent = pathsData.completed.length;
-    }
-
-    function togglePathMenu(event, pathId) {
+    // Toggle menu
+    function toggleMenu(event, id) {
       event.stopPropagation();
-      const menu = document.getElementById(`path-menu-${pathId}`);
+      document.querySelectorAll('.path-menu').forEach(m=>m.id!==`menu-${id}`?m.classList.remove('show'):null);
+      document.getElementById(`menu-${id}`)?.classList.toggle('show');
+    }
+    document.addEventListener('click', ()=>document.querySelectorAll('.path-menu').forEach(m=>m.classList.remove('show')));
 
-      document.querySelectorAll('.path-menu').forEach(m => {
-        if (m.id !== `path-menu-${pathId}`) {
-          m.classList.remove('show');
-        }
+    // Carrega e renderiza
+    document.addEventListener('DOMContentLoaded', async ()=>await carregarEExibir());
+
+    async function carregarEExibir() {
+      try {
+        const url = "{% url 'trilhas:minhas_trilhas' %}?format=json";
+        const res = await fetch(url,{credentials:'same-origin'});
+        if(!res.ok)throw new Error('Falha ao buscar trilhas');
+        const data = await res.json();
+        populateGrid('inProgressGrid', data.inProgress, 'in-progress');
+        populateGrid('pausedGrid', data.paused, 'paused');
+        populateGrid('completedGrid', data.completed, 'completed');
+      } catch(err){
+        console.error(err);
+        document.getElementById('inProgressGrid').innerHTML='<div class="empty-state"><div class="empty-state-title">Erro ao carregar trilhas</div></div>';
+        document.getElementById('pausedGrid').innerHTML='';
+        document.getElementById('completedGrid').innerHTML='';
+      }
+    }
+
+    function populateGrid(gridId, items, status){
+      const grid = document.getElementById(gridId);
+      const countEl = document.getElementById(gridId.replace('Grid','Count'));
+      grid.innerHTML='';
+      countEl.textContent=items.length||0;
+      if(!items||items.length===0){
+        grid.innerHTML=`<div class="empty-state">
+          <div class="empty-state-icon">📚</div>
+          <div class="empty-state-title">Nenhuma trilha ${status==='in-progress'?'em progresso':status==='paused'?'pausada':'concluída'}</div>
+          <div class="empty-state-description">Comece uma nova trilha para aparecer aqui.</div>
+        </div>`;
+        return;
+      }
+      items.forEach(p=>{
+        const path={
+          id:p.id,
+          title:p.title||p.titulo||'Sem título',
+          description:p.description||p.descricao||'',
+          duration:p.duration||'—',
+          level:p.level||'—',
+          progress:typeof p.progress==='number'?p.progress:(p.progress||0)
+        };
+        grid.appendChild(createPathCard(path,status));
       });
-
-      menu.classList.toggle('show');
     }
 
-    function viewPath(pathId) {
-      window.location.href = `path-details.html?id=${pathId}`;
+    // Funções de ação
+    async function sendAction(action,trilhaId){
+      const url="{% url 'trilhas:minhas_trilhas' %}";
+      const body=`action=${encodeURIComponent(action)}&trilha_id=${encodeURIComponent(trilhaId)}`;
+      const res = await fetch(url,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRFToken':getCookie('csrftoken')},body});
+      if(res.ok){try{const json=await res.json();}catch(e){}await carregarEExibir();}
+      else {const text=await res.text();console.error('Erro ação:',res.status,text);alert('Erro ao executar ação');}
     }
 
-    function pausePath(pathId) {
-      alert(`Trilha ${pathId} pausada com sucesso!`);
-      document.getElementById(`path-menu-${pathId}`).classList.remove('show');
+    function pauseTrilha(id){sendAction('pause',id);}
+    function resumeTrilha(id){sendAction('resume',id);}
+    function restartTrilha(id){sendAction('restart',id);}
+    function deleteTrilha(id){
+      if(confirm('Tem certeza que deseja excluir esta trilha?')) sendAction('delete',id);
     }
-
-    function resumePath(pathId) {
-      alert(`Trilha ${pathId} retomada com sucesso!`);
-      document.getElementById(`path-menu-${pathId}`).classList.remove('show');
-    }
-
-    function restartPath(pathId) {
-      if (confirm('Deseja refazer esta trilha do início?')) {
-        alert(`Trilha ${pathId} reiniciada!`);
-        document.getElementById(`path-menu-${pathId}`).classList.remove('show');
-      }
-    }
-
-    function deletePath(pathId) {
-      if (confirm('Tem certeza que deseja excluir esta trilha?')) {
-        alert(`Trilha ${pathId} excluída com sucesso!`);
-        document.getElementById(`path-menu-${pathId}`).classList.remove('show');
-      }
-    }
-
-    function toggleUserMenu() {
-      if (confirm('Deseja sair?')) {
-        localStorage.removeItem('user');
-        window.location.href = 'index.html';
-      }
-    }
-
-    document.addEventListener('click', function(event) {
-      if (!event.target.closest('.path-menu-btn')) {
-        document.querySelectorAll('.path-menu').forEach(m => {
-          m.classList.remove('show');
-        });
-      }
-    });
-
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user.name) {
-      document.getElementById('userName').textContent = user.name;
-      document.querySelector('.user-avatar').textContent = user.name.charAt(0).toUpperCase();
-    }
-
-    renderPaths();
+    function verDetalhes(id){window.location.href='{% url "trilhas:ver_etapas" %}?id='+encodeURIComponent(id);}
   </script>
 </body>
 </html>

@@ -40,13 +40,24 @@ class Projeto(models.Model):
     def __str__(self):
         return f"{self.trilha.titulo} - {self.titulo}"
 
-class ProgressoEtapa(models.Model):
+class ProgressoTrilha(models.Model):
+    STATUS_CHOICES = [
+        ('em_progresso', 'Em Progresso'),
+        ('pausada', 'Pausada'),
+        ('concluida', 'Concluída'),
+    ]
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    etapa = models.ForeignKey('Etapa', on_delete=models.CASCADE)
-    concluida = models.BooleanField(default=False)
+    trilha = models.ForeignKey(Trilha, on_delete=models.CASCADE, related_name='progresso_usuarios')
+
+    # Dados específicos do progresso do usuário
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='em_progresso')
+    progresso_percentual = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    data_inicio = models.DateTimeField(auto_now_add=True)
+    ultima_atualizacao = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ('user', 'etapa')
+        unique_together = ('user', 'trilha')
 
     def __str__(self):
-        return f"{self.user.full_name} - {self.etapa.texto} - {'Concluída' if self.concluida else 'Pendente'}"
+        return f"{self.user.username} - {self.trilha.titulo} ({self.get_status_display()})"
