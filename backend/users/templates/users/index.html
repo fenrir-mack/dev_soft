@@ -6,8 +6,9 @@
   <title>EstudaAI - Login</title>
 
   {% load static %}
-  <link rel="stylesheet" href="{% static 'css\global.css' %}">
+  <link rel="stylesheet" href="{% static 'css/global.css' %}">
   <link rel="stylesheet" href="{% static 'css/index.css' %}">
+  <meta name="description" content="EstudaAI - plataforma inteligente de aprendizagem. Entre ou cadastre-se para acessar suas trilhas de estudo.">
 </head>
 <body>
   <div class="auth-container">
@@ -23,8 +24,6 @@
         <button type="button" class="auth-tab tab-signup" onclick="switchTab('signup')">Cadastrar</button>
       </div>
 
-
-      <!-- Login Form -->
       <form id="authForm" class="auth-form active" method="POST" action="">
         {% csrf_token %}
         <input type="hidden" name="action" id="action" value="login">
@@ -32,6 +31,11 @@
         <div class="form-group" id="nameGroup" style="display:none;">
           <label class="form-label" for="signupName">Nome completo</label>
           <input type="text" name="name" id="signupName" class="form-input" placeholder="Seu nome">
+        </div>
+
+        <div class="form-group" id="nicknameGroup" style="display:none;">
+          <label class="form-label" for="signupNickname">Nickname</label>
+          <input type="text" name="nickname" id="signupNickname" class="form-input" placeholder="Seu nickname">
         </div>
 
         <div class="form-group">
@@ -49,58 +53,95 @@
           <input type="password" name="confirm_password" id="signupConfirmPassword" class="form-input" placeholder="••••••••">
         </div>
 
-        <!-- TODO: fazer botão esqueci senha -->
+        <!-- Django messages -->
         {% if messages %}
-          <ul class="messages" id="messages">
+          <div id="messages" class="messages-wrapper fade-in">
             {% for message in messages %}
-              <li class="{{ message.tags }}">{{ message }}</li>
+              <div class="message-box {{ message.tags }}">
+                <div class="message-icon">
+                  {% if 'success' in message.tags %}
+                    ✅
+                  {% elif 'error' in message.tags or 'danger' in message.tags %}
+                    ⚠️
+                  {% elif 'warning' in message.tags %}
+                    ⚡
+                  {% else %}
+                    ℹ️
+                  {% endif %}
+                </div>
+                <div class="message-content">
+                  <p class="message-text">{{ message }}</p>
+                </div>
+                <button class="message-close" onclick="this.parentElement.remove()">✕</button>
+              </div>
             {% endfor %}
-          </ul>
+          </div>
         {% endif %}
 
         <button type="submit" class="btn btn-primary" style="width: 100%;">
           Entrar
         </button>
       </form>
-
     </div>
   </div>
 
   <script>
-      function switchTab(tab) {
-      // 1️⃣ Get elements
-      const actionInput = document.getElementById('action');
-      const nameGroup = document.getElementById('nameGroup');
-      const confirmGroup = document.getElementById('confirmPasswordGroup');
-      const tabs = document.querySelectorAll('.auth-tab');
-      const submitButton = document.querySelector('.btn-primary');
+function switchTab(tab) {
+  const actionInput = document.getElementById('action');
+  const nameGroup = document.getElementById('nameGroup');
+  const nicknameGroup = document.getElementById('nicknameGroup');
+  const confirmGroup = document.getElementById('confirmPasswordGroup');
+  const tabs = document.querySelectorAll('.auth-tab');
+  const submitButton = document.querySelector('.btn-primary');
 
-      // 2️⃣ Update hidden input
-      actionInput.value = tab; // 'login' or 'signup'
+  const nameInput = document.getElementById('signupName');
+  const nicknameInput = document.getElementById('signupNickname');
+  const confirmInput = document.getElementById('signupConfirmPassword');
 
-      // 3️⃣ Show or hide signup-only fields
-      if (tab === 'signup') {
-      nameGroup.style.display = 'block';
-      confirmGroup.style.display = 'block';
-    } else {
-      nameGroup.style.display = 'none';
-      confirmGroup.style.display = 'none';
-    }
+  actionInput.value = tab;
 
-      // 4️⃣ Update tab highlight
-      tabs.forEach(t => t.classList.remove('active'));
-      if (tab === 'login')
-      document.querySelector('.tab-login').classList.add('active');
-      else
-      document.querySelector('.tab-signup').classList.add('active');
+  if (tab === 'signup') {
+    nameGroup.style.display = 'block';
+    nicknameGroup.style.display = 'block';
+    confirmGroup.style.display = 'block';
+    nameInput.required = true;
+    nicknameInput.required = true;
+    confirmInput.required = true;
+  } else {
+    nameGroup.style.display = 'none';
+    nicknameGroup.style.display = 'none';
+    confirmGroup.style.display = 'none';
+    nameInput.required = false;
+    nicknameInput.required = false;
+    confirmInput.required = false;
+  }
 
-      // 5️⃣ Change button text
-      submitButton.textContent = (tab === 'signup') ? 'Cadastrar' : 'Entrar';
+  tabs.forEach(t => t.classList.remove('active'));
+  if (tab === 'login') document.querySelector('.tab-login').classList.add('active');
+  else document.querySelector('.tab-signup').classList.add('active');
 
-      // 6️⃣ Hide messages if they exist
-      const messages = document.getElementById('messages');
-      if (messages) messages.style.display = 'none';
-    }
+  submitButton.textContent = (tab === 'signup') ? 'Cadastrar' : 'Entrar';
+
+  if (tab !== actionInput.value) {
+    const messages = document.getElementById('messages');
+    if (messages) messages.style.display = 'none';
+  }
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', () => {
+  const activeTab = "{{ active_tab|default:'login' }}";
+  switchTab(activeTab);
+
+  // Prefill fields if present
+  const prefillEmail = "{{ prefill_email|default:'' }}";
+  const prefillName = "{{ prefill_name|default:'' }}";
+  const prefillNickname = "{{ prefill_nickname|default:'' }}";
+
+  if (prefillEmail) document.getElementById('loginEmail').value = prefillEmail;
+  if (prefillName) document.getElementById('signupName').value = prefillName;
+  if (prefillNickname) document.getElementById('signupNickname').value = prefillNickname;
+});
   </script>
 </body>
 </html>
