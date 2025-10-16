@@ -6,8 +6,9 @@
   <title>EstudaAI - Login</title>
 
   {% load static %}
-  <link rel="stylesheet" href="{% static 'css\global.css' %}">
+  <link rel="stylesheet" href="{% static 'css/global.css' %}">
   <link rel="stylesheet" href="{% static 'css/index.css' %}">
+  <meta name="description" content="EstudaAI - plataforma inteligente de aprendizagem. Entre ou cadastre-se para acessar suas trilhas de estudo.">
 </head>
 <body>
   <div class="auth-container">
@@ -23,8 +24,6 @@
         <button type="button" class="auth-tab tab-signup" onclick="switchTab('signup')">Cadastrar</button>
       </div>
 
-
-      <!-- Login Form -->
       <form id="authForm" class="auth-form active" method="POST" action="">
         {% csrf_token %}
         <input type="hidden" name="action" id="action" value="login">
@@ -35,7 +34,7 @@
         </div>
 
         <div class="form-group" id="nicknameGroup" style="display:none;">
-          <label class="form-label" for="signupName">Nickname</label>
+          <label class="form-label" for="signupNickname">Nickname</label>
           <input type="text" name="nickname" id="signupNickname" class="form-input" placeholder="Seu nickname">
         </div>
 
@@ -54,9 +53,9 @@
           <input type="password" name="confirm_password" id="signupConfirmPassword" class="form-input" placeholder="••••••••">
         </div>
 
-        <!-- TODO: fazer botão esqueci senha -->
+        <!-- Django messages -->
         {% if messages %}
-          <div class="messages-wrapper fade-in">
+          <div id="messages" class="messages-wrapper fade-in">
             {% for message in messages %}
               <div class="message-box {{ message.tags }}">
                 <div class="message-icon">
@@ -79,14 +78,10 @@
           </div>
         {% endif %}
 
-
-
-
         <button type="submit" class="btn btn-primary" style="width: 100%;">
           Entrar
         </button>
       </form>
-
     </div>
   </div>
 
@@ -99,16 +94,26 @@ function switchTab(tab) {
   const tabs = document.querySelectorAll('.auth-tab');
   const submitButton = document.querySelector('.btn-primary');
 
+  const nameInput = document.getElementById('signupName');
+  const nicknameInput = document.getElementById('signupNickname');
+  const confirmInput = document.getElementById('signupConfirmPassword');
+
   actionInput.value = tab;
 
   if (tab === 'signup') {
     nameGroup.style.display = 'block';
     nicknameGroup.style.display = 'block';
     confirmGroup.style.display = 'block';
+    nameInput.required = true;
+    nicknameInput.required = true;
+    confirmInput.required = true;
   } else {
     nameGroup.style.display = 'none';
     nicknameGroup.style.display = 'none';
     confirmGroup.style.display = 'none';
+    nameInput.required = false;
+    nicknameInput.required = false;
+    confirmInput.required = false;
   }
 
   tabs.forEach(t => t.classList.remove('active'));
@@ -117,8 +122,10 @@ function switchTab(tab) {
 
   submitButton.textContent = (tab === 'signup') ? 'Cadastrar' : 'Entrar';
 
-  const messages = document.getElementById('messages');
-  if (messages) messages.style.display = 'none';
+  if (tab !== actionInput.value) {
+    const messages = document.getElementById('messages');
+    if (messages) messages.style.display = 'none';
+  }
 }
 
 // Run on page load
@@ -135,7 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (prefillName) document.getElementById('signupName').value = prefillName;
   if (prefillNickname) document.getElementById('signupNickname').value = prefillNickname;
 });
-</script>
-
+  </script>
 </body>
 </html>

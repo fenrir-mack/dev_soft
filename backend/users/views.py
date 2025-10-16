@@ -31,8 +31,13 @@ def index_view(request):
 
             if password != confirm_password:
                 messages.error(request, 'As senhas não coincidem.')
+                print("erro do senha")
             elif User.objects.filter(username=email).exists():
                 messages.error(request, 'Email já registrado.')
+                print("erro do email")
+            elif User.objects.filter(nickname=nickname).exists():
+                messages.error(request, 'Nickname já registrado.')
+                print("erro do nickname")
             else:
                 user = User.objects.create_user(username=email, email=email, password=password,full_name=name, nickname=nickname)
                 login(request, user)
