@@ -9,7 +9,8 @@
   <style>
     /* === estilo original mantido === */
     .main-content { padding: 48px 0; }
-    .page-header { margin-bottom: 48px; }
+    .page-header {margin-bottom: 48px;text-align: center; display: flex; flex-direction: column; align-items: center; }
+
     .page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; }
     .page-subtitle { font-size: 16px; color: var(--text-secondary); }
     .section { margin-bottom: 64px; }
@@ -48,7 +49,7 @@
         <li><a href="{% url 'trilhas:dashboard' %}">Dashboard</a></li>
         <li><a href="{% url 'trilhas:minhas_trilhas' %}" class="active">Minhas Trilhas</a></li>
         <li><a href="{% url 'trilhas:todas_trilhas' %}">Explorar</a></li>
-        <li><a href="{% url 'trilhas:ver_etapas' %}">Criar Trilha</a></li>
+        <li><a href="{% url 'trilha_personalizada' %}">Criar Trilha</a></li>
       </ul>
       <div class="navbar-actions">
         <div class="user-profile" onclick="toggleUserMenu()">
@@ -199,7 +200,7 @@
         grid.innerHTML=`<div class="empty-state">
           <div class="empty-state-icon">📚</div>
           <div class="empty-state-title">Nenhuma trilha ${status==='in-progress'?'em progresso':status==='paused'?'pausada':'concluída'}</div>
-          <div class="empty-state-description">Comece uma nova trilha para aparecer aqui.</div>
+          <div class="empty-state-description">${status==='in-progress'?'Comece':status==='paused'?'Pause':'Conclua'} uma trilha para aparecer aqui </div>
         </div>`;
         return;
       }
