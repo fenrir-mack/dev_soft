@@ -183,22 +183,20 @@
 <body>
   <nav class="navbar">
     <div class="container navbar-content">
-      <a href="dashboard.html" class="navbar-brand">
+      <a href="{% url 'trilhas:dashboard' %}" class="navbar-brand">
         <div class="logo">🎓</div>
         <span>EstudaAI</span>
       </a>
-
       <ul class="navbar-menu">
-        <li><a href="dashboard.html">Dashboard</a></li>
-        <li><a href="all-paths.html">Minhas Trilhas</a></li>
-        <li><a href="predefined-paths.html">Explorar</a></li>
-        <li><a href="custom-path.html" class="active">Criar Trilha</a></li>
+        <li><a href="{% url 'trilhas:dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'trilhas:minhas_trilhas' %}">Minhas Trilhas</a></li>
+        <li><a href="{% url 'trilhas:todas_trilhas' %}">Explorar</a></li>
+        <li><a href="{% url 'trilha_personalizada' %}" class="active">Criar Trilha</a></li>
       </ul>
-
       <div class="navbar-actions">
         <div class="user-profile" onclick="toggleUserMenu()">
-          <div class="user-avatar">U</div>
-          <span id="userName">Usuário</span>
+          <div class="user-avatar">{{ request.user.nickname|first|upper }}</div>
+          <span id="userName">{{ request.user.nickname }}</span>
         </div>
       </div>
     </div>

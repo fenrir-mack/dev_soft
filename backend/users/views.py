@@ -27,10 +27,9 @@ def index_view(request):
         email = _normalize_email(raw_email)
 
         if type_access == "login":
-            # autentica SEM mexer em password
             user = authenticate(request, username=email, password=password)
             if user is not None:
-                login(request, user)  # Django já rotaciona a sessão
+                login(request, user)
                 return redirect('trilhas:dashboard')
             else:
                 messages.error(request, 'Email ou senha incorretos.')

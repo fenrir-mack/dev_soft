@@ -6,37 +6,8 @@
   <title>Minhas Trilhas - EstudaAI</title>
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/global.css' %}">
-  <style>
-    /* === estilo original mantido === */
-    .main-content { padding: 48px 0; }
-    .page-header {margin-bottom: 48px;text-align: center; display: flex; flex-direction: column; align-items: center; }
-
-    .page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; }
-    .page-subtitle { font-size: 16px; color: var(--text-secondary); }
-    .section { margin-bottom: 64px; }
-    .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
-    .section-title { font-size: 24px; font-weight: 600; }
-    .section-badge { padding: 4px 12px; background-color: var(--accent-light); color: var(--accent-primary); border-radius: 999px; font-size: 13px; font-weight: 600; }
-    .paths-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; }
-    .path-card { cursor: pointer; position: relative; overflow: hidden; background: var(--bg-card); padding: 20px; border-radius: 12px; box-shadow: var(--shadow-sm); }
-    .path-card.in-progress::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent-primary), #8b5cf6); }
-    .path-card.paused::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #f59e0b, #f97316); }
-    .path-card.completed::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #10b981, #059669); }
-    .path-card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
-    .path-status-badge { padding:4px 12px; border-radius:999px; font-size:12px; font-weight:600; }
-    .path-status-badge.in-progress { background-color: var(--accent-light); color: var(--accent-primary); }
-    .path-status-badge.paused { background-color: rgba(245,158,11,0.1); color:#f59e0b; }
-    .path-status-badge.completed { background-color: rgba(16,185,129,0.1); color:#10b981; }
-    .path-menu-btn { background:transparent; border:none; color:var(--text-secondary); font-size:20px; cursor:pointer; padding:4px 8px; border-radius:4px; position:relative; }
-    .path-menu { display:none; position:absolute; top:100%; right:0; background:var(--bg-card); border:1px solid var(--border); border-radius:8px; box-shadow:var(--shadow-lg); min-width:160px; z-index:100; margin-top:6px; }
-    .path-menu.show { display:block; }
-    .path-menu-item { padding:12px 16px; cursor:pointer; font-size:14px; color:var(--text-primary); display:flex; gap:8px; align-items:center; }
-    .path-menu-item.danger { color:#ef4444; }
-    .path-meta { display:flex; gap:16px; margin-top:16px; font-size:13px; color:var(--text-muted); }
-    .path-progress { margin-top:16px; }
-    .progress-label { display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px; }
-    .empty-state { text-align:center; padding:64px 24px; color:var(--text-secondary); }
-  </style>
+  <link rel="stylesheet" href="{% static 'css/minhasTrilhas.css' %}">
+  <style></style>
 </head>
 <body>
   <nav class="navbar">
@@ -53,8 +24,8 @@
       </ul>
       <div class="navbar-actions">
         <div class="user-profile" onclick="toggleUserMenu()">
-          <div class="user-avatar">{{ request.user.username|first|upper }}</div>
-          <span id="userName">{{ request.user.username }}</span>
+          <div class="user-avatar">{{ request.user.nickname|first|upper }}</div>
+          <span id="userName">{{ request.user.nickname }}</span>
         </div>
       </div>
     </div>

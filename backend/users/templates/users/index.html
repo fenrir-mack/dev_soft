@@ -6,9 +6,8 @@
   <title>EstudaAI - Login</title>
 
   {% load static %}
-  <link rel="stylesheet" href="{% static 'css/global.css' %}">
+  <link rel="stylesheet" href="{% static 'css\global.css' %}">
   <link rel="stylesheet" href="{% static 'css/index.css' %}">
-  <meta name="description" content="EstudaAI - plataforma inteligente de aprendizagem. Entre ou cadastre-se para acessar suas trilhas de estudo.">
 </head>
 <body>
   <div class="auth-container">
@@ -24,6 +23,8 @@
         <button type="button" class="auth-tab tab-signup" onclick="switchTab('signup')">Cadastrar</button>
       </div>
 
+
+      <!-- Login Form -->
       <form id="authForm" class="auth-form active" method="POST" action="">
         {% csrf_token %}
         <input type="hidden" name="action" id="action" value="login">
@@ -122,10 +123,8 @@ function switchTab(tab) {
 
   submitButton.textContent = (tab === 'signup') ? 'Cadastrar' : 'Entrar';
 
-  if (tab !== actionInput.value) {
-    const messages = document.getElementById('messages');
-    if (messages) messages.style.display = 'none';
-  }
+  const messages = document.getElementById('messages');
+  if (messages) messages.style.display = 'none';
 }
 
 // Run on page load
@@ -142,6 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (prefillName) document.getElementById('signupName').value = prefillName;
   if (prefillNickname) document.getElementById('signupNickname').value = prefillNickname;
 });
-  </script>
+</script>
+
 </body>
 </html>
