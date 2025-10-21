@@ -1,150 +1,53 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Trilhas Pré-definidas - EstudaAI</title>
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/global.css' %}">
   <style>
-    .main-content {
-      padding: 48px 0;
-    }
-
-    .page-header {
-      margin-bottom: 32px;
-    }
-
-    .page-title {
-      font-size: 36px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .page-subtitle {
-      font-size: 16px;
-      color: var(--text-secondary);
-    }
-
-    .filters {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 32px;
-      flex-wrap: wrap;
-    }
-
-    .search-box {
-      flex: 1;
-      min-width: 300px;
-    }
-
-    .filter-group {
-      display: flex;
-      gap: 8px;
-    }
-
-    .filter-btn {
-      padding: 10px 20px;
-      background-color: var(--bg-tertiary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      color: var(--text-secondary);
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .filter-btn:hover,
-    .filter-btn.active {
-      background-color: var(--accent-primary);
-      color: white;
-      border-color: var(--accent-primary);
-    }
-
-    .paths-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-      gap: 24px;
-    }
-
-    .path-card {
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .path-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--accent-primary), #8b5cf6);
-    }
-
-    .path-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: start;
-      margin-bottom: 12px;
-    }
-
-    .path-category {
-      display: inline-block;
-      padding: 4px 12px;
-      background-color: var(--accent-light);
-      color: var(--accent-primary);
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .path-meta {
-      display: flex;
-      gap: 16px;
-      margin-top: 16px;
-      font-size: 13px;
-      color: var(--text-muted);
-      flex-wrap: wrap;
-    }
-
-    .path-footer {
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .path-students {
-      font-size: 13px;
-      color: var(--text-secondary);
-    }
+    .main-content { padding: 48px 0; }
+    .page-header { margin-bottom: 32px; text-align: center; }
+    .page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; }
+    .page-subtitle { font-size: 16px; color: var(--text-secondary); }
+    .filters { display: flex; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; justify-content: center; }
+    .search-box { flex: 1; min-width: 300px; }
+    .filter-group { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .filter-btn { padding: 10px 20px; background-color: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-secondary); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .filter-btn:hover, .filter-btn.active { background-color: var(--accent-primary); color: white; border-color: var(--accent-primary); }
+    .paths-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; }
+    .path-card { cursor: pointer; position: relative; overflow: hidden; background: var(--bg-card); padding: 20px; border-radius: 12px; box-shadow: var(--shadow-sm); transition: transform 0.2s; }
+    .path-card:hover { transform: translateY(-4px); }
+    .path-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent-primary), #8b5cf6); }
+    .path-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; }
+    .path-category { display: inline-block; padding: 4px 12px; background-color: var(--accent-light); color: var(--accent-primary); border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .card-title { font-weight: 600; font-size: 18px; margin-bottom: 6px; }
+    .card-description { color: var(--text-secondary); font-size: 14px; margin-bottom: 12px; }
+    .path-meta { display: flex; gap: 16px; font-size: 13px; color: var(--text-muted); flex-wrap: wrap; }
+    .path-footer { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .path-students { font-size: 13px; color: var(--text-secondary); }
+    .btn-disabled { background-color: var(--bg-tertiary); color: var(--text-secondary); border-color: var(--border); cursor: default; }
   </style>
 </head>
 <body>
   <nav class="navbar">
     <div class="container navbar-content">
-      <a href="dashboard.html" class="navbar-brand">
+      <a href="{% url 'trilhas:dashboard' %}" class="navbar-brand">
         <div class="logo">🎓</div>
         <span>EstudaAI</span>
       </a>
-
       <ul class="navbar-menu">
-        <li><a href="dashboard.html">Dashboard</a></li>
-        <li><a href="all-paths.html">Minhas Trilhas</a></li>
-        <li><a href="predefined-paths.html" class="active">Explorar</a></li>
-        <li><a href="custom-path.html">Criar Trilha</a></li>
+        <li><a href="{% url 'trilhas:dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'trilhas:minhas_trilhas' %}">Minhas Trilhas</a></li>
+        <li><a href="{% url 'trilhas:todas_trilhas' %}" class="active">Explorar</a></li>
+        <li><a href="{% url 'trilha_personalizada' %}">Criar Trilha</a></li>
       </ul>
-
       <div class="navbar-actions">
-        <div class="user-profile" onclick="toggleUserMenu()">
-          <div class="user-avatar">U</div>
-          <span id="userName">Usuário</span>
-        </div>
+          <div class="user-profile">
+              <div class="user-avatar">{{ request.user.nickname|first|upper }}</div>
+              <span id="userName">{{ request.user.nickname }}</span>
+          </div>
       </div>
     </div>
   </nav>
@@ -153,7 +56,7 @@
     <div class="container-wide">
       <div class="page-header">
         <h1 class="page-title">Trilhas de Aprendizagem</h1>
-        <p class="page-subtitle">Explore trilhas curadas por especialistas</p>
+        <p class="page-subtitle">Explore Trilhas Publicas Feitas Por Usuários</p>
       </div>
 
       <div class="filters">
@@ -162,115 +65,49 @@
         </div>
         <div class="filter-group">
           <button class="filter-btn active" onclick="filterByCategory('all')">Todas</button>
-          <button class="filter-btn" onclick="filterByCategory('programacao')">Programação</button>
-          <button class="filter-btn" onclick="filterByCategory('data')">Data Science</button>
-          <button class="filter-btn" onclick="filterByCategory('web')">Web Dev</button>
-          <button class="filter-btn" onclick="filterByCategory('mobile')">Mobile</button>
+          {% for cat in categorias %}
+          <button class="filter-btn" onclick="filterByCategory('{{ cat.nome|lower }}')">{{ cat.nome }}</button>
+          {% endfor %}
         </div>
       </div>
 
       <div class="paths-grid" id="pathsGrid">
-        <!-- Paths will be rendered here -->
+        {% for path in paths %}
+        <div class="path-card" data-category="{{ path.category|lower }}">
+          <div class="path-header">
+            <span class="path-category">{{ path.category }}</span>
+          </div>
+          <div class="card-title">{{ path.title }}</div>
+          <div class="card-description">{{ path.description }}</div>
+          <div class="path-meta">
+            <span>⏱️ {{ path.duration }}</span>
+            <span>📊 {{ path.level }}</span>
+            <span>📚 {{ path.modules }} módulos</span>
+          </div>
+          <div class="path-footer">
+            <span class="path-students">👥 {{ path.students }}</span>
+            {% if path.enrolled %}
+              <button class="btn btn-sm btn-disabled">Em curso</button>
+            {% else %}
+              <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); startPath({{ path.id }})">Começar</button>
+            {% endif %}
+          </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+          <div class="empty-state-icon">📚</div>
+          <div class="empty-state-title">Nenhuma trilha disponível</div>
+        </div>
+        {% endfor %}
       </div>
     </div>
   </main>
 
   <script>
-    const paths = [
-      {
-        id: 1,
-        title: 'Python para Data Science',
-        description: 'Aprenda Python aplicado à análise de dados, visualização e machine learning com bibliotecas essenciais.',
-        category: 'data',
-        categoryLabel: 'Data Science',
-        duration: '40 horas',
-        level: 'Intermediário',
-        modules: 12,
-        students: 1234
-      },
-      {
-        id: 2,
-        title: 'Desenvolvimento Web Full Stack',
-        description: 'Do frontend ao backend: HTML, CSS, JavaScript, React, Node.js e bancos de dados.',
-        category: 'web',
-        categoryLabel: 'Web Dev',
-        duration: '60 horas',
-        level: 'Avançado',
-        modules: 18,
-        students: 2156
-      },
-      {
-        id: 3,
-        title: 'Machine Learning Fundamentals',
-        description: 'Conceitos essenciais de aprendizado de máquina, algoritmos e aplicações práticas.',
-        category: 'data',
-        categoryLabel: 'Data Science',
-        duration: '35 horas',
-        level: 'Intermediário',
-        modules: 10,
-        students: 987
-      },
-      {
-        id: 4,
-        title: 'JavaScript Moderno',
-        description: 'ES6+, async/await, promises, módulos e as melhores práticas do JavaScript atual.',
-        category: 'programacao',
-        categoryLabel: 'Programação',
-        duration: '25 horas',
-        level: 'Iniciante',
-        modules: 8,
-        students: 3421
-      },
-      {
-        id: 5,
-        title: 'React Native para Mobile',
-        description: 'Desenvolva aplicativos mobile nativos para iOS e Android usando React Native.',
-        category: 'mobile',
-        categoryLabel: 'Mobile',
-        duration: '45 horas',
-        level: 'Intermediário',
-        modules: 14,
-        students: 1567
-      },
-      {
-        id: 6,
-        title: 'SQL e Bancos de Dados',
-        description: 'Domine SQL, modelagem de dados e otimização de queries em bancos relacionais.',
-        category: 'programacao',
-        categoryLabel: 'Programação',
-        duration: '30 horas',
-        level: 'Iniciante',
-        modules: 9,
-        students: 2890
-      }
-    ];
-
     let currentCategory = 'all';
 
-    function renderPaths(pathsToRender) {
-      const grid = document.getElementById('pathsGrid');
-      grid.innerHTML = pathsToRender.map(path => `
-        <div class="card path-card fade-in" onclick="window.location.href='path-details.html?id=${path.id}'">
-          <div class="path-header">
-            <span class="path-category">${path.categoryLabel}</span>
-          </div>
-          <div class="card-header">
-            <div class="card-title">${path.title}</div>
-            <div class="card-description">${path.description}</div>
-          </div>
-          <div class="path-meta">
-            <span>⏱️ ${path.duration}</span>
-            <span>📊 ${path.level}</span>
-            <span>📚 ${path.modules} módulos</span>
-          </div>
-          <div class="path-footer">
-            <span class="path-students">👥 ${path.students.toLocaleString()} estudantes</span>
-            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); startPath(${path.id})">
-              Começar
-            </button>
-          </div>
-        </div>
-      `).join('');
+    function startPath(pathId) {
+      window.location.href = `{% url 'trilhas:ver_etapas' %}?id=` + pathId;
     }
 
     function filterByCategory(category) {
@@ -278,48 +115,24 @@
       const buttons = document.querySelectorAll('.filter-btn');
       buttons.forEach(btn => btn.classList.remove('active'));
       event.target.classList.add('active');
-
       filterPaths();
     }
 
     function filterPaths() {
       const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-      let filtered = paths;
+      const cards = document.querySelectorAll('.path-card');
 
-      if (currentCategory !== 'all') {
-        filtered = filtered.filter(path => path.category === currentCategory);
-      }
+      cards.forEach(card => {
+        const title = card.querySelector('.card-title').textContent.toLowerCase();
+        const category = card.getAttribute('data-category');
 
-      if (searchTerm) {
-        filtered = filtered.filter(path =>
-          path.title.toLowerCase().includes(searchTerm) ||
-          path.description.toLowerCase().includes(searchTerm)
-        );
-      }
+        const matchesCategory = currentCategory === 'all' || category === currentCategory;
+        const regex = new RegExp(`\\b${searchTerm}`, 'i'); // Palavra começa com termo
+        const matchesSearch = !searchTerm || regex.test(title);
 
-      renderPaths(filtered);
+        card.style.display = (matchesCategory && matchesSearch) ? 'block' : 'none';
+      });
     }
-
-    function startPath(pathId) {
-      window.location.href = `path-details.html?id=${pathId}`;
-    }
-
-    function toggleUserMenu() {
-      if (confirm('Deseja sair?')) {
-        localStorage.removeItem('user');
-        window.location.href = 'index.html';
-      }
-    }
-
-    // Load user data
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user.name) {
-      document.getElementById('userName').textContent = user.name;
-      document.querySelector('.user-avatar').textContent = user.name.charAt(0).toUpperCase();
-    }
-
-    // Initial render
-    renderPaths(paths);
   </script>
 </body>
 </html>
