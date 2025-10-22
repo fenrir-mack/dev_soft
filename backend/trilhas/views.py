@@ -4,6 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from trilhas.models import Trilha, ProgressoTrilha, Etapa, Topico, ProgressoTopico
 
+
+
+
 def dashboard_view(request):
     user = request.user
 
@@ -83,23 +86,43 @@ def toggle_topico(request):
         except Topico.DoesNotExist:
             return JsonResponse({"success": False, "error": "Tópico não encontrado"})
 
+        # Marca o progresso do tópico
         progresso, created = ProgressoTopico.objects.get_or_create(user=user, topico=topico)
         progresso.concluido = completed
         progresso.save()
 
-        return JsonResponse({"success": True})
+        # Atualiza o progresso da trilha correspondente
+        trilha = topico.etapa.trilha
+        total = ProgressoTopico.objects.filter(topico__etapa__trilha=trilha, user=user).count()
+        concluidos = ProgressoTopico.objects.filter(topico__etapa__trilha=trilha, user=user, concluido=True).count()
+        percentual = (concluidos / total) * 100 if total > 0 else 0
+
+        progresso_trilha, _ = ProgressoTrilha.objects.get_or_create(user=user, trilha=trilha)
+        progresso_trilha.progresso_percentual = percentual
+        progresso_trilha.save()
+
+        # Print visível no terminal também (além do log)
+        print(f"[OK] {user.username}: Tópico {topico_id} atualizado — progresso da trilha agora {percentual:.2f}%")
+
+        return JsonResponse({"success": True, "progress": percentual})
 
     return JsonResponse({"success": False, "error": "Método inválido"})
+
 
 @csrf_exempt
 @login_required
 def all_paths_view(request):
     user = request.user
 
-    # 🔹 Lista de progresso do usuário (com trilhas associadas)
-    progresso_list = ProgressoTrilha.objects.filter(user=user).select_related('trilha').order_by('data_inicio')
+    # 🔹 Busca trilhas associadas ao progresso do usuário
+    progresso_list = (
+        ProgressoTrilha.objects
+        .filter(user=user)
+        .select_related('trilha')
+        .order_by('data_inicio')
+    )
 
-    # 🔹 Se for requisição GET com ?format=json, retorna os dados como JSON (para JS)
+    # 🔹 Se for requisição GET com ?format=json → envia os dados pro JS
     if request.method == 'GET' and request.GET.get('format') == 'json':
         def serialize_trilha(p):
             trilha = p.trilha
@@ -108,7 +131,7 @@ def all_paths_view(request):
                 'title': trilha.titulo,
                 'description': trilha.descricao,
                 'level': trilha.get_dificuldade_display(),
-                'progress': float(p.progresso_percentual),
+                'progress': round(float(p.progresso_percentual), 2),
             }
 
         return JsonResponse({
@@ -117,7 +140,7 @@ def all_paths_view(request):
             "completed": [serialize_trilha(p) for p in progresso_list if p.status == 'concluida'],
         })
 
-    # 🔹 Se for requisição POST, trata as ações
+    # 🔹 POST → pausa, retoma, reinicia ou deleta trilha
     if request.method == 'POST':
         action = request.POST.get('action')
         trilha_id = request.POST.get('trilha_id')
@@ -136,27 +159,29 @@ def all_paths_view(request):
         if action == 'pause':
             progresso.status = 'pausada'
             progresso.save()
-            return JsonResponse({'success': True, 'message': f'Trilha "{trilha.titulo}" pausada com sucesso!'})
+            return JsonResponse({'success': True, 'message': f'Trilha \"{trilha.titulo}\" pausada com sucesso!'})
 
         elif action == 'resume':
             progresso.status = 'em_progresso'
             progresso.save()
-            return JsonResponse({'success': True, 'message': f'Trilha "{trilha.titulo}" retomada!'})
+            return JsonResponse({'success': True, 'message': f'Trilha \"{trilha.titulo}\" retomada!'})
 
         elif action == 'restart':
             progresso.progresso_percentual = 0.0
             progresso.status = 'em_progresso'
             progresso.save()
-            return JsonResponse({'success': True, 'message': f'Trilha "{trilha.titulo}" reiniciada!'})
+            ProgressoTopico.objects.filter(user=user, topico__etapa__trilha=trilha).update(concluido=False)
+            return JsonResponse({'success': True, 'message': f'Trilha \"{trilha.titulo}\" reiniciada!'})
 
         elif action == 'delete':
             progresso.delete()
-            return JsonResponse({'success': True, 'message': f'Progresso da trilha "{trilha.titulo}" excluído com sucesso!'})
+            ProgressoTopico.objects.filter(user=user, topico__etapa__trilha=trilha).delete()
+            return JsonResponse({'success': True, 'message': f'Progresso da trilha \"{trilha.titulo}\" excluído com sucesso!'})
 
         else:
             return HttpResponseBadRequest("Ação inválida.")
 
-    # 🔹 Renderização normal da página HTML
+    # 🔹 Renderização normal
     return render(request, 'trilhas/all-paths.html', {
         "pathsData": {
             "inProgress": [p.trilha for p in progresso_list if p.status == 'em_progresso'],

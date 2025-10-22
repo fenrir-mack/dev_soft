@@ -13,10 +13,10 @@ def index_view(request):
     active_tab = 'login'  # default
 
     if request.method == 'POST':
-        type_access = request.POST.get('action') #login ou signin
+        type_access = request.POST.get('action')  # login ou signup
         raw_email = request.POST.get('email')
         password = request.POST.get('password')
-        email = raw_email.strip().lower()
+        email = raw_email.strip().lower() if raw_email else ''
 
         if type_access == "login":
             user = authenticate(request, username=email, password=password)
@@ -33,7 +33,7 @@ def index_view(request):
             confirm_password = request.POST.get('confirm_password')
             active_tab = 'signup'
 
-            name = _titlecase_name(raw_name)
+            name = _titlecase_name(raw_name or '')
 
             if password != confirm_password:
                 messages.error(request, 'As senhas não coincidem.')
@@ -52,7 +52,7 @@ def index_view(request):
                 login(request, user)
                 return redirect('trilhas:dashboard')
 
-        # Render com os campos pré-preenchidos (mantendo o que o usuário digitou)
+        # Renderiza com os campos pré-preenchidos (mantendo o que o usuário digitou)
         context = {
             'active_tab': active_tab,
             'prefill_email': email,
@@ -61,4 +61,10 @@ def index_view(request):
         }
         return render(request, 'users/index.html', context)
 
-    return render(request, 'users/index.html', {'active_tab': active_tab})
+    # ✅ Agora inclui as variáveis prefill padrão no GET
+    return render(request, 'users/index.html', {
+        'active_tab': active_tab,
+        'prefill_email': '',
+        'prefill_name': '',
+        'prefill_nickname': '',
+    })
