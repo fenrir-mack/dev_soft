@@ -6,7 +6,7 @@
   <title>Guia de Estudos - EstudaAI</title>
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/global.css' %}">
-  <link rel="stylesheet" href="{% static 'css/descricaoTrlha.css' %}">
+  <link rel="stylesheet" href="{% static 'css/descricaoTrilha.css' %}">
 </head>
 <body>
   <nav class="navbar">
@@ -18,7 +18,7 @@
       <ul class="navbar-menu">
         <li><a href="{% url 'trilhas:dashboard' %}">Dashboard</a></li>
         <li><a href="{% url 'trilhas:minhas_trilhas' %}">Minhas Trilhas</a></li>
-        <li><a href="{% url 'trilhas:todas_trilhas' %}">Explorar</a></li>
+        <li><a href="{% url 'trilhas:todas_trilhas' %}" class="active">Explorar</a></li>
         <li><a href="{% url 'trilha_personalizada' %}">Criar Trilha</a></li>
       </ul>
       <div class="navbar-actions">
@@ -33,280 +33,144 @@
   <main class="main-content">
     <div class="container-wide">
       <div class="path-hero">
-        <span class="path-category">Guia de Estudos</span>
-        <h1 class="path-title">Desenvolvimento Web Full Stack</h1>
-        <p class="path-description">
-          Um guia completo para se tornar um desenvolvedor full stack, desde os fundamentos até a construção de aplicações completas.
-        </p>
-        <div class="path-stats">
-          <span class="path-stat">⏱️ 8 semanas</span>
-          <span class="path-stat">📊 Intermediário</span>
-          <span class="path-stat">📚 6 etapas</span>
-          <span class="path-stat">🎯 1 projeto final</span>
-        </div>
+          <span class="path-category">{{ trilha.categoria.nome }}</span>
+          <h1 class="path-title">{{ trilha.titulo }}</h1>
+          <p class="path-description">{{ trilha.descricao }}</p>
+          <div class="path-stats">
+              <span class="path-stat">📊 {{ trilha.get_dificuldade_display }}</span>
+              <span class="path-stat">📚 {{ trilha.etapas.count }} etapas</span>
+              <span class="path-stat">🎯 {{ trilha.projetos.count }} projeto(s) final(is)</span>
+          </div>
       </div>
 
       <div class="content-grid">
-        <div class="guide-section" id="guideSection">
-           Study steps will be rendered here
-        </div>
+          <div class="guide-section" id="guideSection">
+              {% for etapa in etapas_data %}
+              <div class="study-card">
+                  <div class="study-header">
+                      <div style="flex:1;">
+                          <div class="study-number">{{ etapa.number }}</div>
+                          <div class="study-title">{{ etapa.title }}</div>
+                      </div>
+                  </div>
+                  <div class="study-description">{{ etapa.description }}</div>
+                  <div class="study-topics">
+                      {% for topico in etapa.topics %}
+                      <div class="topic-item" data-id="{{ topico.id }}">
+                          <div class="topic-checkbox {% if topico.completed %}checked{% endif %}" id="topic-{{ topico.id }}">
+                              {% if topico.completed %}✓{% endif %}
+                          </div>
+                          <div class="topic-text">{{ topico.text }}</div>
+                      </div>
+                      {% endfor %}
+                  </div>
+              </div>
+              {% endfor %}
 
-        <aside class="sidebar">
-          <div class="progress-card">
-            <h3 class="progress-title">Seu Progresso</h3>
-            <div class="progress-circle">
-              <svg width="120" height="120">
-                <defs>
-                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
-                  </linearGradient>
-                </defs>
-                <circle class="progress-circle-bg" cx="60" cy="60" r="52"></circle>
-                <circle class="progress-circle-fill" cx="60" cy="60" r="52"
-                        stroke-dasharray="326.73"
-                        stroke-dashoffset="196.04"
-                        id="progressCircle"></circle>
-              </svg>
-              <div class="progress-text" id="progressText">35%</div>
-            </div>
-            <div class="progress-stats">
-              <div class="progress-stat">
-                <span class="progress-stat-label">Concluído</span>
-                <span class="progress-stat-value" id="completedTopics">7/20 tópicos</span>
+              {% if projeto %}
+              <div class="project-card">
+                  <span class="project-badge">🎯 PROJETO FINAL</span>
+                  <h2 class="project-title">{{ projeto.titulo }}</h2>
+                  <p class="project-description">{{ projeto.descricao }}</p>
               </div>
-              <div class="progress-stat">
-                <span class="progress-stat-label">Etapa atual</span>
-                <span class="progress-stat-value">Etapa 3</span>
-              </div>
-              <div class="progress-stat">
-                <span class="progress-stat-label">Tempo estimado</span>
-                <span class="progress-stat-value">5 semanas</span>
-              </div>
-            </div>
+              {% endif %}
           </div>
 
-          <button class="btn btn-primary" style="width: 100%; margin-bottom: 12px;">
-            ▶️ Continuar Estudando
-          </button>
-          <button class="btn btn-secondary" style="width: 100%;">
-            📥 Baixar Guia PDF
-          </button>
-        </aside>
+          <aside class="sidebar">
+              <div class="progress-card">
+                  <h3 class="progress-title">Seu Progresso</h3>
+                  <div class="progress-circle">
+                      <svg width="120" height="120">
+                          <defs>
+                              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                  <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+                                  <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+                              </linearGradient>
+                          </defs>
+                          <circle class="progress-circle-bg" cx="60" cy="60" r="52"></circle>
+                          <circle class="progress-circle-fill" cx="60" cy="60" r="52"
+                                  stroke-dasharray="326.73"
+                                  stroke-dashoffset="{{ stroke_offset }}"
+                                  id="progressCircle"></circle>
+                      </svg>
+                      <div class="progress-text" id="progressText">{{ progresso_percentual }}%</div>
+                  </div>
+                  <div class="progress-stats">
+                      <div class="progress-stat">
+                          <span class="progress-stat-label">Concluído</span>
+                          <span class="progress-stat-value" id="completedTopics">{{ topicos_concluidos }}/{{ total_topicos }} tópicos</span>
+                      </div>
+                  </div>
+              </div>
+              <button class="btn btn-primary" style="width: 100%;">▶️ Continuar Estudando</button>
+          </aside>
       </div>
     </div>
   </main>
 
-  <script>
-    const studySteps = [
-      {
-        id: 1,
-        number: 'ETAPA 1',
-        title: 'Fundamentos de HTML e CSS',
-        description: 'Aprenda a estrutura básica da web e como estilizar páginas.',
-        topics: [
-          { id: 1, text: 'Estrutura HTML semântica', completed: true },
-          { id: 2, text: 'CSS Box Model e Flexbox', completed: true },
-          { id: 3, text: 'Responsividade e Media Queries', completed: true }
-        ],
-        resources: ['📖 MDN Docs', '🎥 Vídeo aulas', '💻 Exercícios práticos']
+<script>
+  const totalTopicos = {{ total_topicos }};
+  const progressCircle = document.getElementById('progressCircle');
+  const progressText = document.getElementById('progressText');
+  const completedTopicsEl = document.getElementById('completedTopics');
+
+  // Adiciona eventos aos tópicos existentes
+  document.querySelectorAll('.topic-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const topicId = item.getAttribute('data-id');
+      toggleTopic(topicId);
+    });
+  });
+
+  function toggleTopic(topicId) {
+    const checkbox = document.getElementById(`topic-${topicId}`);
+    const isChecked = checkbox.classList.contains('checked');
+    const newStatus = !isChecked;
+
+    // Atualiza visualmente
+    if (newStatus) {
+      checkbox.classList.add('checked');
+      checkbox.textContent = '✓';
+    } else {
+      checkbox.classList.remove('checked');
+      checkbox.textContent = '';
+    }
+
+    // Atualiza progresso
+    updateProgress();
+
+    // Envia para o backend
+    fetch("{% url 'trilhas:toggle_topico' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "X-CSRFToken": "{{ csrf_token }}"
       },
-      {
-        id: 2,
-        number: 'ETAPA 2',
-        title: 'JavaScript Essencial',
-        description: 'Domine os conceitos fundamentais de JavaScript moderno.',
-        topics: [
-          { id: 4, text: 'Variáveis, tipos e operadores', completed: true },
-          { id: 5, text: 'Funções e arrow functions', completed: true },
-          { id: 6, text: 'Arrays e métodos de array', completed: true },
-          { id: 7, text: 'Objetos e destructuring', completed: false }
-        ],
-        resources: ['📖 JavaScript.info', '🎥 Curso online', '🧪 Desafios de código']
-      },
-      {
-        id: 3,
-        number: 'ETAPA 3',
-        title: 'DOM e Manipulação de Eventos',
-        description: 'Aprenda a tornar suas páginas interativas.',
-        topics: [
-          { id: 8, text: 'Seleção e manipulação do DOM', completed: true },
-          { id: 9, text: 'Event listeners e handlers', completed: false },
-          { id: 10, text: 'Formulários e validação', completed: false }
-        ],
-        resources: ['📖 Documentação', '💻 Projetos práticos', '🎮 Exercícios interativos']
-      },
-      {
-        id: 4,
-        number: 'ETAPA 4',
-        title: 'APIs e Requisições HTTP',
-        description: 'Conecte seu frontend com serviços externos.',
-        topics: [
-          { id: 11, text: 'Fetch API e Promises', completed: false },
-          { id: 12, text: 'Async/Await', completed: false },
-          { id: 13, text: 'Consumindo APIs REST', completed: false },
-          { id: 14, text: 'Tratamento de erros', completed: false }
-        ],
-        resources: ['📖 API Docs', '🌐 APIs públicas', '💻 Projetos com API']
-      },
-      {
-        id: 5,
-        number: 'ETAPA 5',
-        title: 'Backend com Node.js',
-        description: 'Construa servidores e APIs com JavaScript.',
-        topics: [
-          { id: 15, text: 'Introdução ao Node.js', completed: false },
-          { id: 16, text: 'Express.js e rotas', completed: false },
-          { id: 17, text: 'Middleware e autenticação', completed: false }
-        ],
-        resources: ['📖 Node.js Docs', '🎥 Tutoriais', '🔧 Ferramentas']
-      },
-      {
-        id: 6,
-        number: 'ETAPA 6',
-        title: 'Banco de Dados',
-        description: 'Armazene e gerencie dados de suas aplicações.',
-        topics: [
-          { id: 18, text: 'SQL básico', completed: false },
-          { id: 19, text: 'MongoDB e NoSQL', completed: false },
-          { id: 20, text: 'ORMs e integração', completed: false }
-        ],
-        resources: ['📖 Database Docs', '💾 Exercícios SQL', '🗄️ Projetos práticos']
+      body: `topico_id=${topicId}&completed=${newStatus}`
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (!data.success) {
+        console.error("Erro ao atualizar tópico:", data.error);
       }
-    ];
+    })
+    .catch(err => console.error("Erro na requisição:", err));
+  }
 
-    function renderStudySteps() {
-      const container = document.getElementById('guideSection');
-      const stepsHTML = studySteps.map(step => `
-        <div class="study-card">
-          <div class="study-header">
-            <div style="flex: 1;">
-              <div class="study-number">${step.number}</div>
-              <div class="study-title">${step.title}</div>
-            </div>
-          </div>
-          <div class="study-description">${step.description}</div>
-          <div class="study-topics">
-            ${step.topics.map(topic => `
-              <div class="topic-item" onclick="toggleTopic(${topic.id})">
-                <div class="topic-checkbox ${topic.completed ? 'checked' : ''}" id="topic-${topic.id}">
-                  ${topic.completed ? '✓' : ''}
-                </div>
-                <div class="topic-text">${topic.text}</div>
-              </div>
-            `).join('')}
-          </div>
-          <div class="study-resources">
-            ${step.resources.map(resource => `<span class="resource-tag">${resource}</span>`).join('')}
-          </div>
-        </div>
-      `).join('');
+  function updateProgress() {
+    const completedTopics = document.querySelectorAll('.topic-checkbox.checked').length;
+    const percentage = Math.round((completedTopics / totalTopicos) * 100);
 
-      const projectHTML = `
-        <div class="project-card">
-          <span class="project-badge">🎯 PROJETO FINAL</span>
-          <h2 class="project-title">Aplicação Full Stack Completa</h2>
-          <p class="project-description">
-            Construa uma aplicação web completa do zero, aplicando todos os conceitos aprendidos durante o guia de estudos.
-          </p>
+    progressText.textContent = percentage + '%';
+    completedTopicsEl.textContent = `${completedTopics}/${totalTopicos} tópicos`;
 
-          <div class="project-section">
-            <h3 class="project-section-title">🎯 Objetivos</h3>
-            <ul class="project-list">
-              <li>Criar uma interface responsiva e moderna</li>
-              <li>Implementar autenticação de usuários</li>
-              <li>Desenvolver uma API RESTful completa</li>
-              <li>Integrar com banco de dados</li>
-              <li>Deploy da aplicação em produção</li>
-            </ul>
-          </div>
+    const circumference = 326.73;
+    const offset = circumference - (percentage / 100) * circumference;
+    progressCircle.style.strokeDashoffset = offset;
+  }
 
-          <div class="project-section">
-            <h3 class="project-section-title">💡 Sugestões de Projeto</h3>
-            <ul class="project-list">
-              <li>Sistema de gerenciamento de tarefas (To-Do App avançado)</li>
-              <li>Plataforma de blog com comentários e curtidas</li>
-              <li>E-commerce simplificado com carrinho de compras</li>
-              <li>Rede social minimalista</li>
-              <li>Dashboard de análise de dados</li>
-            </ul>
-          </div>
-
-          <div class="project-section">
-            <h3 class="project-section-title">🛠️ Tecnologias Recomendadas</h3>
-            <ul class="project-list">
-              <li>Frontend: HTML, CSS, JavaScript (ou React)</li>
-              <li>Backend: Node.js com Express</li>
-              <li>Banco de Dados: MongoDB ou PostgreSQL</li>
-              <li>Autenticação: JWT ou OAuth</li>
-              <li>Deploy: Vercel, Heroku ou Railway</li>
-            </ul>
-          </div>
-
-          <div class="project-section">
-            <h3 class="project-section-title">📋 Requisitos Mínimos</h3>
-            <ul class="project-list">
-              <li>Interface responsiva para mobile e desktop</li>
-              <li>Pelo menos 4 rotas/páginas diferentes</li>
-              <li>CRUD completo (Create, Read, Update, Delete)</li>
-              <li>Validação de dados no frontend e backend</li>
-              <li>Tratamento de erros adequado</li>
-              <li>Código organizado e documentado</li>
-            </ul>
-          </div>
-
-          <button class="btn btn-primary" style="margin-top: 24px;">
-            🚀 Começar Projeto
-          </button>
-        </div>
-      `;
-
-      container.innerHTML = stepsHTML + projectHTML;
-    }
-
-    function toggleTopic(topicId) {
-      event.stopPropagation();
-      const checkbox = document.getElementById(`topic-${topicId}`);
-      const isCompleted = checkbox.classList.contains('checked');
-
-      if (isCompleted) {
-        checkbox.classList.remove('checked');
-        checkbox.textContent = '';
-      } else {
-        checkbox.classList.add('checked');
-        checkbox.textContent = '✓';
-      }
-
-      updateProgress();
-    }
-
-    function updateProgress() {
-      const allTopics = studySteps.reduce((sum, step) => sum + step.topics.length, 0);
-      const completedTopics = document.querySelectorAll('.topic-checkbox.checked').length;
-      const percentage = Math.round((completedTopics / allTopics) * 100);
-
-      document.getElementById('progressText').textContent = percentage + '%';
-      document.getElementById('completedTopics').textContent = `${completedTopics}/${allTopics} tópicos`;
-
-      const circumference = 326.73;
-      const offset = circumference - (percentage / 100) * circumference;
-      document.getElementById('progressCircle').style.strokeDashoffset = offset;
-    }
-
-    function toggleUserMenu() {
-      if (confirm('Deseja sair?')) {
-        localStorage.removeItem('user');
-        window.location.href = 'index.html';
-      }
-    }
-
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user.name) {
-      document.getElementById('userName').textContent = user.name;
-      document.querySelector('.user-avatar').textContent = user.name.charAt(0).toUpperCase();
-    }
-
-    renderStudySteps();
-  </script>
+  // Inicializa o progresso
+  updateProgress();
+</script>
 </body>
 </html>

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
-from trilhas.models import Trilha, ProgressoTrilha
+from trilhas.models import Trilha, ProgressoTrilha, Etapa, Topico, ProgressoTopico
 
 def dashboard_view(request):
     user = request.user
@@ -11,7 +11,7 @@ def dashboard_view(request):
     trilhas_concluidas = ProgressoTrilha.objects.filter(user=user, status='concluida').count()
     trilhas_salvas = ProgressoTrilha.objects.filter(user=user, status='pausada').count()
 
-    ultimas_trilhas = ProgressoTrilha.objects.filter(user=user).select_related('trilha').order_by('-ultima_atualizacao')[:3]
+    ultimas_trilhas = ProgressoTrilha.objects.filter(user=user).select_related('trilha').order_by('-data_ultima_modificacao')[:3]
 
     context = {
         'trilhas_em_progresso': trilhas_em_progresso,
@@ -24,8 +24,72 @@ def dashboard_view(request):
 def predefined_paths_view(request):
     return render(request, 'trilhas/predefined-paths.html')
 
+
 def study_guide_view(request):
-    return render(request, 'trilhas/study-guide.html')
+    trilha_id = request.GET.get('id')
+    trilha = get_object_or_404(Trilha, id=trilha_id)
+
+    # Etapas e tópicos
+    etapas = trilha.etapas.prefetch_related('topicos').all()
+    etapas_data = []
+    for etapa in etapas:
+        topicos_data = []
+        for topico in etapa.topicos.all():
+            concluido = ProgressoTopico.objects.filter(user=request.user, topico=topico, concluido=True).exists()
+            topicos_data.append({
+                "id": topico.id,
+                "text": topico.texto,
+                "completed": concluido
+            })
+        etapas_data.append({
+            "id": etapa.id,
+            "number": f"ETAPA {etapa.ordem}",
+            "title": etapa.titulo,
+            "description": etapa.descricao,
+            "topics": topicos_data
+        })
+
+    # Projeto final
+    projeto = trilha.projetos.first()
+
+    # Progresso do usuário
+    progresso, _ = ProgressoTrilha.objects.get_or_create(user=request.user, trilha=trilha)
+    circunferencia = 326.73
+    stroke_offset = 326.73 - (float(progresso.progresso_percentual) / 100) * 326.73
+
+    context = {
+        "trilha": trilha,
+        "etapas_data": etapas_data,
+        "projeto": projeto,
+        "progresso_percentual": int(progresso.progresso_percentual),
+        "topicos_concluidos": ProgressoTopico.objects.filter(user=request.user, topico__etapa__trilha=trilha,
+                                                             concluido=True).count(),
+        "total_topicos": sum(len(et['topics']) for et in etapas_data),
+        "stroke_offset": stroke_offset,
+    }
+
+    return render(request, 'trilhas/study-guide.html', context)
+
+@csrf_exempt
+@login_required
+def toggle_topico(request):
+    if request.method == "POST":
+        user = request.user
+        topico_id = request.POST.get("topico_id")
+        completed = request.POST.get("completed") == "true"
+
+        try:
+            topico = Topico.objects.get(id=topico_id)
+        except Topico.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Tópico não encontrado"})
+
+        progresso, created = ProgressoTopico.objects.get_or_create(user=user, topico=topico)
+        progresso.concluido = completed
+        progresso.save()
+
+        return JsonResponse({"success": True})
+
+    return JsonResponse({"success": False, "error": "Método inválido"})
 
 @csrf_exempt
 @login_required
