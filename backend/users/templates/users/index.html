@@ -8,7 +8,6 @@
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/global.css' %}">
   <link rel="stylesheet" href="{% static 'css/index.css' %}">
-  <meta name="description" content="EstudaAI - plataforma inteligente de aprendizagem. Entre ou cadastre-se para acessar suas trilhas de estudo.">
 </head>
 <body>
   <div class="auth-container">
@@ -24,6 +23,8 @@
         <button type="button" class="auth-tab tab-signup" onclick="switchTab('signup')">Cadastrar</button>
       </div>
 
+
+      <!-- Login Form -->
       <form id="authForm" class="auth-form active" method="POST" action="">
         {% csrf_token %}
         <input type="hidden" name="action" id="action" value="login">
@@ -85,63 +86,70 @@
     </div>
   </div>
 
-  <script>
-function switchTab(tab) {
-  const actionInput = document.getElementById('action');
-  const nameGroup = document.getElementById('nameGroup');
-  const nicknameGroup = document.getElementById('nicknameGroup');
-  const confirmGroup = document.getElementById('confirmPasswordGroup');
-  const tabs = document.querySelectorAll('.auth-tab');
-  const submitButton = document.querySelector('.btn-primary');
+<script>
+  function switchTab(tab, hideMessages = true) {
+    const actionInput = document.getElementById('action');
+    const nameGroup = document.getElementById('nameGroup');
+    const nicknameGroup = document.getElementById('nicknameGroup');
+    const confirmGroup = document.getElementById('confirmPasswordGroup');
+    const tabs = document.querySelectorAll('.auth-tab');
+    const submitButton = document.querySelector('.btn-primary');
 
-  const nameInput = document.getElementById('signupName');
-  const nicknameInput = document.getElementById('signupNickname');
-  const confirmInput = document.getElementById('signupConfirmPassword');
+    const nameInput = document.getElementById('signupName');
+    const nicknameInput = document.getElementById('signupNickname');
+    const confirmInput = document.getElementById('signupConfirmPassword');
 
-  actionInput.value = tab;
+    actionInput.value = tab;
 
-  if (tab === 'signup') {
-    nameGroup.style.display = 'block';
-    nicknameGroup.style.display = 'block';
-    confirmGroup.style.display = 'block';
-    nameInput.required = true;
-    nicknameInput.required = true;
-    confirmInput.required = true;
-  } else {
-    nameGroup.style.display = 'none';
-    nicknameGroup.style.display = 'none';
-    confirmGroup.style.display = 'none';
-    nameInput.required = false;
-    nicknameInput.required = false;
-    confirmInput.required = false;
+    if (tab === 'signup') {
+      nameGroup.style.display = 'block';
+      nicknameGroup.style.display = 'block';
+      confirmGroup.style.display = 'block';
+      nameInput.required = true;
+      nicknameInput.required = true;
+      confirmInput.required = true;
+    } else {
+      nameGroup.style.display = 'none';
+      nicknameGroup.style.display = 'none';
+      confirmGroup.style.display = 'none';
+      nameInput.required = false;
+      nicknameInput.required = false;
+      confirmInput.required = false;
+    }
+
+    tabs.forEach(t => t.classList.remove('active'));
+    if (tab === 'login') document.querySelector('.tab-login').classList.add('active');
+    else document.querySelector('.tab-signup').classList.add('active');
+
+    submitButton.textContent = (tab === 'signup') ? 'Cadastrar' : 'Entrar';
+
+    // só esconde mensagens se hideMessages for true
+    if (hideMessages) {
+      const messages = document.getElementById('messages');
+      if (messages) messages.style.display = 'none';
+    }
   }
 
-  tabs.forEach(t => t.classList.remove('active'));
-  if (tab === 'login') document.querySelector('.tab-login').classList.add('active');
-  else document.querySelector('.tab-signup').classList.add('active');
+  // Run on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    const activeTab = "{{ active_tab|default:'login' }}";
+    // NÃO esconder mensagens ao carregar a página (mostra erros vindos do backend)
+    switchTab(activeTab, false);
 
-  submitButton.textContent = (tab === 'signup') ? 'Cadastrar' : 'Entrar';
+    // Prefill fields if present
+    const prefillEmail = "{{ prefill_email|default:'' }}";
+    const prefillName = "{{ prefill_name|default:'' }}";
+    const prefillNickname = "{{ prefill_nickname|default:'' }}";
 
-  if (tab !== actionInput.value) {
-    const messages = document.getElementById('messages');
-    if (messages) messages.style.display = 'none';
-  }
-}
+    if (prefillEmail) document.getElementById('loginEmail').value = prefillEmail;
+    if (prefillName) document.getElementById('signupName').value = prefillName;
+    if (prefillNickname) document.getElementById('signupNickname').value = prefillNickname;
 
-// Run on page load
-document.addEventListener('DOMContentLoaded', () => {
-  const activeTab = "{{ active_tab|default:'login' }}";
-  switchTab(activeTab);
+    // ligar os botões das tabs para esconder mensagens quando o usuário trocar de aba manualmente
+    document.querySelector('.tab-login').addEventListener('click', () => switchTab('login', true));
+    document.querySelector('.tab-signup').addEventListener('click', () => switchTab('signup', true));
+  });
+</script>
 
-  // Prefill fields if present
-  const prefillEmail = "{{ prefill_email|default:'' }}";
-  const prefillName = "{{ prefill_name|default:'' }}";
-  const prefillNickname = "{{ prefill_nickname|default:'' }}";
-
-  if (prefillEmail) document.getElementById('loginEmail').value = prefillEmail;
-  if (prefillName) document.getElementById('signupName').value = prefillName;
-  if (prefillNickname) document.getElementById('signupNickname').value = prefillNickname;
-});
-  </script>
 </body>
 </html>

@@ -5,7 +5,21 @@ from django.views.decorators.csrf import csrf_exempt
 from trilhas.models import Trilha, ProgressoTrilha
 
 def dashboard_view(request):
-    return render(request, 'trilhas/dashboard.html')
+    user = request.user
+
+    trilhas_em_progresso = ProgressoTrilha.objects.filter(user=user, status='em_progresso').count()
+    trilhas_concluidas = ProgressoTrilha.objects.filter(user=user, status='concluida').count()
+    trilhas_salvas = ProgressoTrilha.objects.filter(user=user, status='pausada').count()
+
+    ultimas_trilhas = ProgressoTrilha.objects.filter(user=user).select_related('trilha').order_by('-ultima_atualizacao')[:3]
+
+    context = {
+        'trilhas_em_progresso': trilhas_em_progresso,
+        'trilhas_concluidas': trilhas_concluidas,
+        'trilhas_salvas': trilhas_salvas,
+        'ultimas_trilhas': ultimas_trilhas,
+    }
+    return render(request, 'trilhas/dashboard.html', context)
 
 def predefined_paths_view(request):
     return render(request, 'trilhas/predefined-paths.html')
@@ -13,20 +27,9 @@ def predefined_paths_view(request):
 def study_guide_view(request):
     return render(request, 'trilhas/study-guide.html')
 
-def path_details_view(request):
-    return render(request, 'trilhas/path-details.html')
-
-
 @csrf_exempt
 @login_required
 def all_paths_view(request):
-    """
-    Página Minhas Trilhas:
-    - GET → mostra as trilhas do usuário atual, divididas por status
-      - Se for GET + ?format=json → retorna JSON com trilhas
-    - POST → permite ações (pausar, retomar, reiniciar, excluir progresso)
-    """
-
     user = request.user
 
     # 🔹 Lista de progresso do usuário (com trilhas associadas)
@@ -40,7 +43,6 @@ def all_paths_view(request):
                 'id': trilha.id,
                 'title': trilha.titulo,
                 'description': trilha.descricao,
-                'duration': '—',  # Se quiser, substitua por trilha.duracao se existir
                 'level': trilha.get_dificuldade_display(),
                 'progress': float(p.progresso_percentual),
             }
