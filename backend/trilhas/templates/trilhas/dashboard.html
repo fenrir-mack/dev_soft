@@ -41,19 +41,20 @@
       </div>
 
       <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">Trilhas em Progresso</div>
-          <div class="stat-value">3</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Trilhas Salvas</div>
-          <div class="stat-value">5</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Trilhas Concluídas</div>
-          <div class="stat-value">12</div>
-        </div>
+          <div class="stat-card">
+              <div class="stat-label">Trilhas em Progresso</div>
+              <div class="stat-value">{{ trilhas_em_progresso }}</div>
+          </div>
+          <div class="stat-card">
+              <div class="stat-label">Trilhas Salvas</div>
+              <div class="stat-value">{{ trilhas_salvas }}</div>
+          </div>
+          <div class="stat-card">
+              <div class="stat-label">Trilhas Concluídas</div>
+              <div class="stat-value">{{ trilhas_concluidas }}</div>
+          </div>
       </div>
+
 
       <div class="section-header">
         <h2 class="section-title">Ações Rápidas</h2>
@@ -61,17 +62,17 @@
 
       <!-- Added "Minhas Trilhas" quick action -->
       <div class="quick-actions">
-        <a href="all-paths.html" class="action-card">
+        <a href="{% url 'trilhas:minhas_trilhas' %}"" class="action-card">
           <div class="action-icon">📋</div>
           <div class="action-title">Minhas Trilhas</div>
           <div class="action-description">Gerencie suas trilhas</div>
         </a>
-        <a href="predefined-paths.html" class="action-card">
+        <a href="{% url 'trilhas:todas_trilhas' %}" class="action-card">
           <div class="action-icon">📚</div>
           <div class="action-title">Trilhas Pré-definidas</div>
           <div class="action-description">Explore trilhas curadas</div>
         </a>
-        <a href="custom-path.html" class="action-card">
+        <a href="{% url 'trilha_personalizada' %}" class="action-card">
           <div class="action-icon">✨</div>
           <div class="action-title">Criar Trilha IA</div>
           <div class="action-description">Personalize com IA</div>
@@ -85,101 +86,45 @@
       </div>
 
       <div class="grid grid-cols-3">
-        <!-- Added 3-dot menu to each path card -->
-        <div class="card path-card">
-          <div class="path-card-header">
-            <div style="flex: 1;" onclick="window.location.href='path-details.html?id=1'">
-              <div class="card-title">Python para Data Science</div>
-              <div class="card-description">Aprenda Python aplicado à análise de dados e machine learning</div>
-            </div>
-            <div style="position: relative;">
-              <button class="path-menu-btn" onclick="togglePathMenu(event, 1)">⋮</button>
-              <div class="path-menu" id="path-menu-1">
-                <div class="path-menu-item" onclick="pausePath(1)">⏸️ Pausar trilha</div>
-                <div class="path-menu-item danger" onclick="deletePath(1)">🗑️ Excluir trilha</div>
+        {% if ultimas_trilhas %}
+          {% for progresso in ultimas_trilhas %}
+            <div class="card path-card">
+              <div class="path-card-header">
+                <div style="flex:1;" onclick="window.location.href='{% url 'trilhas:ver_etapas' %}?id={{ progresso.trilha.id }}'">
+                  <div class="card-title">{{ progresso.trilha.titulo }}</div>
+                  <div class="card-description">{{ progresso.trilha.descricao }}</div>
+                </div>
+                <div style="position:relative;">
+                  <button class="path-menu-btn" onclick="togglePathMenu(event, {{ progresso.trilha.id }})">⋮</button>
+                  <div class="path-menu" id="path-menu-{{ progresso.trilha.id }}">
+                    <div class="path-menu-item" onclick="window.location.href='{% url 'trilhas:ver_etapas' %}?id={{ progresso.trilha.id }}'">
+                      👁️ Ver trilha
+                    </div>
+                    <div class="path-menu-item danger" onclick="deletePath({{ progresso.trilha.id }})">🗑️ Excluir trilha</div>
+                  </div>
+                </div>
+              </div>
+              <div onclick="window.location.href='{% url 'trilhas:ver_etapas' %}?id={{ progresso.trilha.id }}'">
+                <div class="path-meta">
+                  <span>📊 {{ progresso.trilha.get_dificuldade_display }}</span>
+                </div>
+                <div class="path-progress">
+                  <div class="progress-label">
+                    <span>Progresso</span>
+                    <span>{{ progresso.progresso_percentual|floatformat:0 }}%</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ progresso.progresso_percentual }}%"></div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          <div onclick="window.location.href='path-details.html?id=1'">
-            <div class="path-meta">
-              <span>⏱️ 40 horas</span>
-              <span>📊 Intermediário</span>
-            </div>
-            <div class="path-progress">
-              <div class="progress-label">
-                <span>Progresso</span>
-                <span>65%</span>
-              </div>
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: 65%"></div>
-              </div>
-            </div>
-          </div>
-        </div>
+          {% endfor %}
+        {% else %}
+          <div>Nenhuma trilha em progresso</div>
+        {% endif %}
+    </div>
 
-        <div class="card path-card">
-          <div class="path-card-header">
-            <div style="flex: 1;" onclick="window.location.href='path-details.html?id=2'">
-              <div class="card-title">Desenvolvimento Web Full Stack</div>
-              <div class="card-description">Do frontend ao backend com tecnologias modernas</div>
-            </div>
-            <div style="position: relative;">
-              <button class="path-menu-btn" onclick="togglePathMenu(event, 2)">⋮</button>
-              <div class="path-menu" id="path-menu-2">
-                <div class="path-menu-item" onclick="pausePath(2)">⏸️ Pausar trilha</div>
-                <div class="path-menu-item danger" onclick="deletePath(2)">🗑️ Excluir trilha</div>
-              </div>
-            </div>
-          </div>
-          <div onclick="window.location.href='path-details.html?id=2'">
-            <div class="path-meta">
-              <span>⏱️ 60 horas</span>
-              <span>📊 Avançado</span>
-            </div>
-            <div class="path-progress">
-              <div class="progress-label">
-                <span>Progresso</span>
-                <span>32%</span>
-              </div>
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: 32%"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card path-card">
-          <div class="path-card-header">
-            <div style="flex: 1;" onclick="window.location.href='path-details.html?id=3'">
-              <div class="card-title">Machine Learning Fundamentals</div>
-              <div class="card-description">Conceitos essenciais de aprendizado de máquina</div>
-            </div>
-            <div style="position: relative;">
-              <button class="path-menu-btn" onclick="togglePathMenu(event, 3)">⋮</button>
-              <div class="path-menu" id="path-menu-3">
-                <div class="path-menu-item" onclick="pausePath(3)">⏸️ Pausar trilha</div>
-                <div class="path-menu-item danger" onclick="deletePath(3)">🗑️ Excluir trilha</div>
-              </div>
-            </div>
-          </div>
-          <div onclick="window.location.href='path-details.html?id=3'">
-            <div class="path-meta">
-              <span>⏱️ 35 horas</span>
-              <span>📊 Intermediário</span>
-            </div>
-            <div class="path-progress">
-              <div class="progress-label">
-                <span>Progresso</span>
-                <span>88%</span>
-              </div>
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: 88%"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- </CHANGE> -->
-      </div>
     </div>
   </main>
 

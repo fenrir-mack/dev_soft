@@ -102,16 +102,17 @@
 }
 
 .path-menu-btn {
+  font-size: 24px;      /* maior tamanho */
+  padding: 8px 12px;    /* mais espaçamento */
+  border-radius: 6px;
   background: transparent;
   border: none;
   color: var(--text-secondary);
-  font-size: 20px;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: all 0.2s;
   position: relative;
+  transition: all 0.2s;
 }
+
 
 .path-menu-btn:hover {
   background-color: var(--bg-tertiary);
