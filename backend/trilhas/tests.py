@@ -1,11 +1,6 @@
 from django.test import TestCase
-
-# Create your tests here.
-from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from django.utils import timezone
-from django.http import JsonResponse
 from trilhas.models import (
     Categoria, Trilha, Etapa, Topico,
     ProgressoTrilha, ProgressoTopico
@@ -25,7 +20,7 @@ class TrilhaViewsTests(TestCase):
         )
         self.client.login(username="user@ex.com", password="senha123")
 
-        # Criação de estrutura de trilha
+        # Criação da estrutura de trilha
         self.cat = Categoria.objects.create(nome="Programação")
         self.trilha = Trilha.objects.create(
             titulo="Python Básico",
@@ -59,7 +54,7 @@ class TrilhaViewsTests(TestCase):
 
     # ==== DASHBOARD ====
     def test_dashboard_view_context_counts(self):
-        url = reverse("dashboard")
+        url = reverse("trilhas:dashboard")
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertIn("trilhas_em_progresso", resp.context)
@@ -69,7 +64,7 @@ class TrilhaViewsTests(TestCase):
 
     # ==== STUDY GUIDE ====
     def test_study_guide_view_generates_correct_context(self):
-        url = reverse("study_guide") + f"?id={self.trilha.id}"
+        url = reverse("trilhas:ver_etapas") + f"?id={self.trilha.id}"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         ctx = resp.context
@@ -79,7 +74,7 @@ class TrilhaViewsTests(TestCase):
 
     # ==== TOGGLE TÓPICO ====
     def test_toggle_topico_marks_topic_completed_and_updates_progress(self):
-        url = reverse("toggle_topico")
+        url = reverse("trilhas:toggle_topico")
         resp = self.client.post(url, {"topico_id": self.topico1.id, "completed": "true"})
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
@@ -92,15 +87,15 @@ class TrilhaViewsTests(TestCase):
         self.assertGreater(float(prog_trilha.progresso_percentual), 0)
 
     def test_toggle_topico_inexistente_retorna_erro(self):
-        url = reverse("toggle_topico")
+        url = reverse("trilhas:toggle_topico")
         resp = self.client.post(url, {"topico_id": 999, "completed": "true"})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["success"], False)
         self.assertIn("Tópico não encontrado", resp.json()["error"])
 
-    # ==== ALL PATHS (GET JSON) ====
+    # ==== MINHAS TRILHAS (GET JSON) ====
     def test_all_paths_view_returns_json_categorized(self):
-        url = reverse("all_paths") + "?format=json"
+        url = reverse("trilhas:minhas_trilhas") + "?format=json"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
@@ -108,9 +103,9 @@ class TrilhaViewsTests(TestCase):
         self.assertEqual(len(data["inProgress"]), 1)
         self.assertEqual(data["inProgress"][0]["title"], "Python Básico")
 
-    # ==== ALL PATHS (POST ACTIONS) ====
+    # ==== MINHAS TRILHAS (POST ACTIONS) ====
     def test_all_paths_pause_resume_restart_delete(self):
-        url = reverse("all_paths")
+        url = reverse("trilhas:minhas_trilhas")
 
         # Pausar trilha
         r1 = self.client.post(url, {"action": "pause", "trilha_id": self.trilha.id})
@@ -142,13 +137,13 @@ class TrilhaViewsTests(TestCase):
         self.assertFalse(ProgressoTrilha.objects.filter(user=self.user, trilha=self.trilha).exists())
 
     def test_all_paths_invalid_action_returns_bad_request(self):
-        url = reverse("all_paths")
+        url = reverse("trilhas:minhas_trilhas")
         resp = self.client.post(url, {"action": "invalida", "trilha_id": self.trilha.id})
         self.assertEqual(resp.status_code, 400)
         self.assertIn("Ação inválida", resp.content.decode())
 
     def test_all_paths_missing_trilha_id_returns_bad_request(self):
-        url = reverse("all_paths")
+        url = reverse("trilhas:minhas_trilhas")
         resp = self.client.post(url, {"action": "pause"})
         self.assertEqual(resp.status_code, 400)
         self.assertIn("ID da trilha não informado", resp.content.decode())
