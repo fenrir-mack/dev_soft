@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EstudaAI - Login</title>
 
   {% load static %}
@@ -28,6 +28,7 @@
         {% csrf_token %}
         <input type="hidden" name="action" id="action" value="login">
 
+        <!-- CAMPOS SOMENTE DO CADASTRO -->
         <div class="form-group" id="nameGroup" style="display:none;">
           <label class="form-label" for="signupName">Nome completo</label>
           <input type="text" name="name" id="signupName" class="form-input" placeholder="Seu nome">
@@ -38,19 +39,27 @@
           <input type="text" name="nickname" id="signupNickname" class="form-input" placeholder="Seu nickname">
         </div>
 
+        <!-- CAMPOS COMUNS (LOGIN / CADASTRO / RESET) -->
         <div class="form-group">
-          <label class="form-label" for="loginEmail">Email</label>
+          <label class="form-label" for="loginEmail" id="labelEmail">Email</label>
           <input type="email" name="email" id="loginEmail" class="form-input" placeholder="seu@email.com" required>
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="loginPassword">Senha</label>
+          <label class="form-label" for="loginPassword" id="labelPassword">Senha</label>
           <input type="password" name="password" id="loginPassword" class="form-input" placeholder="••••••••" required>
         </div>
 
+        <!-- CONFIRMAR SENHA (USADO EM CADASTRO e RESET) -->
         <div class="form-group" id="confirmPasswordGroup" style="display:none;">
-          <label class="form-label" for="signupConfirmPassword">Confirmar senha</label>
+          <label class="form-label" for="signupConfirmPassword" id="labelConfirm">Confirmar senha</label>
           <input type="password" name="confirm_password" id="signupConfirmPassword" class="form-input" placeholder="••••••••">
+        </div>
+
+        <!-- AÇÕES (RESET APENAS NA ABA ENTRAR) -->
+        <div class="form-actions" style="display:flex; justify-content:space-between; align-items:center; margin:6px 0 12px">
+          <a href="#" id="btn-forgot" class="link" style="color:#9ca3af; text-decoration:underline;">Esqueceu sua senha?</a>
+          <a href="#" id="btn-cancel-reset" class="link" style="color:#9ca3af; text-decoration:underline; display:none;">Cancelar</a>
         </div>
 
         <!-- Django messages -->
@@ -59,15 +68,10 @@
             {% for message in messages %}
               <div class="message-box {{ message.tags }}">
                 <div class="message-icon">
-                  {% if 'success' in message.tags %}
-                    ✅
-                  {% elif 'error' in message.tags or 'danger' in message.tags %}
-                    ⚠️
-                  {% elif 'warning' in message.tags %}
-                    ⚡
-                  {% else %}
-                    ℹ️
-                  {% endif %}
+                  {% if 'success' in message.tags %}✅
+                  {% elif 'error' in message.tags or 'danger' in message.tags %}⚠️
+                  {% elif 'warning' in message.tags %}⚡
+                  {% else %}ℹ️{% endif %}
                 </div>
                 <div class="message-content">
                   <p class="message-text">{{ message }}</p>
@@ -78,25 +82,35 @@
           </div>
         {% endif %}
 
-        <button type="submit" class="btn btn-primary" style="width: 100%;">
-          Entrar
-        </button>
+        <button type="submit" class="btn btn-primary" id="mainSubmit" style="width: 100%;">Entrar</button>
       </form>
     </div>
   </div>
 
   <script>
-function switchTab(tab) {
-  const actionInput = document.getElementById('action');
-  const nameGroup = document.getElementById('nameGroup');
-  const nicknameGroup = document.getElementById('nicknameGroup');
-  const confirmGroup = document.getElementById('confirmPasswordGroup');
-  const tabs = document.querySelectorAll('.auth-tab');
-  const submitButton = document.querySelector('.btn-primary');
+/* ===== util cookie ===== */
+function getCookie(name) {
+  const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+  return m ? m.pop() : '';
+}
 
-  const nameInput = document.getElementById('signupName');
-  const nicknameInput = document.getElementById('signupNickname');
-  const confirmInput = document.getElementById('signupConfirmPassword');
+/* ===== troca de abas ===== */
+function switchTab(tab) {
+  const actionInput     = document.getElementById('action');
+  const nameGroup       = document.getElementById('nameGroup');
+  const nicknameGroup   = document.getElementById('nicknameGroup');
+  const confirmGroup    = document.getElementById('confirmPasswordGroup');
+  const tabs            = document.querySelectorAll('.auth-tab');
+  const submitButton    = document.getElementById('mainSubmit');
+  const nameInput       = document.getElementById('signupName');
+  const nicknameInput   = document.getElementById('signupNickname');
+  const confirmInput    = document.getElementById('signupConfirmPassword');
+  const labelPassword   = document.getElementById('labelPassword');
+  const btnForgot       = document.getElementById('btn-forgot');
+  const btnCancelReset  = document.getElementById('btn-cancel-reset');
+
+  // se estava em reset, volta pro estado normal
+  if (typeof closeReset === 'function') closeReset();
 
   actionInput.value = tab;
 
@@ -107,6 +121,12 @@ function switchTab(tab) {
     nameInput.required = true;
     nicknameInput.required = true;
     confirmInput.required = true;
+
+    labelPassword.textContent = 'Senha';
+    submitButton.textContent  = 'Cadastrar';
+
+    if (btnForgot)      btnForgot.style.display = 'none';
+    if (btnCancelReset) btnCancelReset.style.display = 'none';
   } else {
     nameGroup.style.display = 'none';
     nicknameGroup.style.display = 'none';
@@ -114,34 +134,105 @@ function switchTab(tab) {
     nameInput.required = false;
     nicknameInput.required = false;
     confirmInput.required = false;
+
+    labelPassword.textContent = 'Senha';
+    submitButton.textContent  = 'Entrar';
+
+    if (btnForgot)      btnForgot.style.display = 'inline';
+    if (btnCancelReset) btnCancelReset.style.display = 'none';
   }
 
   tabs.forEach(t => t.classList.remove('active'));
   if (tab === 'login') document.querySelector('.tab-login').classList.add('active');
   else document.querySelector('.tab-signup').classList.add('active');
-
-  submitButton.textContent = (tab === 'signup') ? 'Cadastrar' : 'Entrar';
-
-  if (tab !== actionInput.value) {
-    const messages = document.getElementById('messages');
-    if (messages) messages.style.display = 'none';
-  }
 }
 
-// Run on page load
 document.addEventListener('DOMContentLoaded', () => {
   const activeTab = "{{ active_tab|default:'login' }}";
   switchTab(activeTab);
 
-  // Prefill fields if present
-  const prefillEmail = "{{ prefill_email|default:'' }}";
-  const prefillName = "{{ prefill_name|default:'' }}";
+  // Prefills
+  const prefillEmail    = "{{ prefill_email|default:'' }}";
+  const prefillName     = "{{ prefill_name|default:'' }}";
   const prefillNickname = "{{ prefill_nickname|default:'' }}";
-
-  if (prefillEmail) document.getElementById('loginEmail').value = prefillEmail;
-  if (prefillName) document.getElementById('signupName').value = prefillName;
+  if (prefillEmail)    document.getElementById('loginEmail').value     = prefillEmail;
+  if (prefillName)     document.getElementById('signupName').value     = prefillName;
   if (prefillNickname) document.getElementById('signupNickname').value = prefillNickname;
+
+  // ===== RESET reaproveitando campos =====
+  const btnForgot       = document.getElementById('btn-forgot');
+  const btnCancelReset  = document.getElementById('btn-cancel-reset');
+  const actionInput     = document.getElementById('action');
+  const submitButton    = document.getElementById('mainSubmit');
+
+  const labelPassword   = document.getElementById('labelPassword');
+  const passwordInput   = document.getElementById('loginPassword');
+  const confirmGroup    = document.getElementById('confirmPasswordGroup');
+  const confirmInput    = document.getElementById('signupConfirmPassword');
+  const nameGroup       = document.getElementById('nameGroup');
+  const nicknameGroup   = document.getElementById('nicknameGroup');
+
+  function openReset() {
+    actionInput.value          = 'reset_password';
+    labelPassword.textContent  = 'Nova senha';
+    passwordInput.placeholder  = '••••••••';
+
+    confirmGroup.style.display = 'block';
+    confirmInput.required      = true;
+
+    nameGroup.style.display    = 'none';
+    nicknameGroup.style.display = 'none';
+
+    submitButton.textContent   = 'Salvar nova senha';
+    if (btnForgot)      btnForgot.style.display = 'none';
+    if (btnCancelReset) btnCancelReset.style.display = 'inline';
+  }
+
+  function closeReset() {
+    actionInput.value          = 'login';
+    labelPassword.textContent  = 'Senha';
+    confirmGroup.style.display = 'none';
+    confirmInput.required      = false;
+    confirmInput.value         = '';
+    submitButton.textContent   = 'Entrar';
+    if (btnForgot)      btnForgot.style.display = 'inline';
+    if (btnCancelReset) btnCancelReset.style.display = 'none';
+  }
+
+  // expõe para switchTab
+  window.closeReset = closeReset;
+
+  if (btnForgot) {
+    btnForgot.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (document.querySelector('.tab-login').classList.contains('active')) {
+        openReset();
+      }
+    });
+  }
+  if (btnCancelReset) {
+    btnCancelReset.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeReset();
+    });
+  }
+
+  if (activeTab === 'reset') openReset();
+
+  // ===== SINCRONIZA CSRF NO SUBMIT =====
+  const form = document.getElementById('authForm');
+  form.addEventListener('submit', () => {
+    const csrftoken = getCookie('csrftoken');
+    let hidden = form.querySelector('input[name="csrfmiddlewaretoken"]');
+    if (!hidden) {
+      hidden = document.createElement('input');
+      hidden.type = 'hidden';
+      hidden.name = 'csrfmiddlewaretoken';
+      form.appendChild(hidden);
+    }
+    hidden.value = csrftoken;
+  });
 });
-  </script>
+</script>
 </body>
 </html>
