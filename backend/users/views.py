@@ -6,9 +6,6 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 
 User = get_user_model()
 
-def _normalize_email(value: str) -> str:
-    return (value or "").strip().lower()
-
 def _titlecase_name(value: str) -> str:
     parts = (value or "").split()
     return " ".join(p.capitalize() for p in parts)
@@ -28,7 +25,7 @@ def index_view(request):
         if type_access == "login":
             user = authenticate(request, username=email, password=password)
             if user is not None:
-                login(request, user)  # Django rotaciona a sessão
+                login(request, user)
                 return redirect('trilhas:dashboard')
             else:
                 messages.error(request, 'Email ou senha incorretos.')
@@ -36,6 +33,7 @@ def index_view(request):
 
         elif type_access == 'signup':
             raw_name = request.POST.get('name') or ""
+            raw_name = request.POST.get('name')
             nickname = request.POST.get('nickname')
             confirm_password = request.POST.get('confirm_password')
             active_tab = 'signup'
