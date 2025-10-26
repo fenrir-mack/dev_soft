@@ -62,7 +62,7 @@
 
       <!-- Added "Minhas Trilhas" quick action -->
       <div class="quick-actions">
-        <a href="{% url 'trilhas:minhas_trilhas' %}"" class="action-card">
+        <a href="{% url 'trilhas:minhas_trilhas' %}" class="action-card">
           <div class="action-icon">📋</div>
           <div class="action-title">Minhas Trilhas</div>
           <div class="action-description">Gerencie suas trilhas</div>
@@ -82,7 +82,7 @@
 
       <div class="section-header">
         <h2 class="section-title">Minhas Trilhas em Progresso</h2>
-        <a href="predefined-paths.html" class="btn btn-ghost btn-sm">Ver todas</a>
+        <a href="{% url 'trilhas:minhas_trilhas' %}" class="btn btn-ghost btn-sm">Ver todas</a>
       </div>
 
       <div class="grid grid-cols-3">
@@ -91,7 +91,7 @@
             <div class="card path-card">
               <div class="path-card-header">
                 <div style="flex:1;" onclick="window.location.href='{% url 'trilhas:ver_etapas' %}?id={{ progresso.trilha.id }}'">
-                  <div class="card-title">{{ progresso.trilha.titulo }}</div>
+                <div class="card-title">{{ progresso.trilha.titulo }}</div>
                   <div class="card-description">{{ progresso.trilha.descricao }}</div>
                 </div>
                 <div style="position:relative;">
