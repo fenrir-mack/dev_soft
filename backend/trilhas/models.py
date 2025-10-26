@@ -22,11 +22,7 @@ class Trilha(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, blank=True)
     visibilidade = models.BooleanField(default=True)
     dificuldade = models.CharField(max_length=20, choices=DIFICULDADE_CHOICES, default='iniciante')
-    usuarios_salvos = models.ManyToManyField(
-        settings.AUTH_USER_MODEL,
-        blank=True,
-        related_name="trilhas_salvas"
-    )
+    usuarios_salvos = models.ManyToManyField(settings.AUTH_USER_MODEL,blank=True,related_name="trilhas_salvas")
 
     def __str__(self):
         return self.titulo
@@ -46,7 +42,6 @@ class Trilha(models.Model):
 class Etapa(models.Model):
     trilha = models.ForeignKey(Trilha, on_delete=models.CASCADE, related_name='etapas')
     titulo = models.CharField(max_length=200)
-    descricao = models.TextField()
     ordem = models.PositiveIntegerField(help_text="Ordem da etapa dentro da trilha")
 
     class Meta:
