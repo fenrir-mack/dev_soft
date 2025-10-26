@@ -48,7 +48,6 @@ def study_guide_view(request):
             "id": etapa.id,
             "number": f"ETAPA {etapa.ordem}",
             "title": etapa.titulo,
-            "description": etapa.descricao,
             "topics": topicos_data
         })
 

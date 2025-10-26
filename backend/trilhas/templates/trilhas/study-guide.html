@@ -19,7 +19,7 @@
         <li><a href="{% url 'trilhas:dashboard' %}">Dashboard</a></li>
         <li><a href="{% url 'trilhas:minhas_trilhas' %}">Minhas Trilhas</a></li>
         <li><a href="{% url 'trilhas:todas_trilhas' %}" class="active">Explorar</a></li>
-        <li><a href="{% url 'trilha_personalizada' %}">Criar Trilha</a></li>
+        <li><a href="{% url 'trilha_personalizada:trilha_personalizada' %}">Criar Trilha</a></li>
       </ul>
       <div class="navbar-actions">
         <div class="user-profile" onclick="toggleUserMenu()">
@@ -53,7 +53,6 @@
                           <div class="study-title">{{ etapa.title }}</div>
                       </div>
                   </div>
-                  <div class="study-description">{{ etapa.description }}</div>
                   <div class="study-topics">
                       {% for topico in etapa.topics %}
                       <div class="topic-item" data-id="{{ topico.id }}">
@@ -68,6 +67,7 @@
               {% endfor %}
 
               {% if projeto %}
+              <!-- falta poder ter mais de 1 projeto -->
               <div class="project-card">
                   <span class="project-badge">🎯 PROJETO FINAL</span>
                   <h2 class="project-title">{{ projeto.titulo }}</h2>
