@@ -6,179 +6,7 @@
   <title>Criar Trilha Personalizada - EstudaAI</title>
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/global.css' %}">
-  <style>
-    .main-content {
-      padding: 48px 0;
-    }
-
-    .page-header {
-      text-align: center;
-      margin-bottom: 48px;
-    }
-
-    .page-title {
-      font-size: 36px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .page-subtitle {
-      font-size: 16px;
-      color: var(--text-secondary);
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .custom-path-container {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .input-section {
-      background-color: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 32px;
-      margin-bottom: 32px;
-    }
-
-    .examples {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 16px;
-    }
-
-    .example-chip {
-      padding: 8px 16px;
-      background-color: var(--bg-tertiary);
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      font-size: 13px;
-      color: var(--text-secondary);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .example-chip:hover {
-      background-color: var(--accent-light);
-      color: var(--accent-primary);
-      border-color: var(--accent-primary);
-    }
-
-    .generate-btn {
-      width: 100%;
-      padding: 16px;
-      font-size: 16px;
-    }
-
-    .result-section {
-      display: none;
-      background-color: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 32px;
-    }
-
-    .result-section.show {
-      display: block;
-      animation: fadeIn 0.3s ease;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 48px;
-    }
-
-    .loading-spinner {
-      width: 48px;
-      height: 48px;
-      border: 4px solid var(--bg-tertiary);
-      border-top-color: var(--accent-primary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 16px;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .generated-path {
-      display: none;
-    }
-
-    .generated-path.show {
-      display: block;
-    }
-
-    .path-overview {
-      margin-bottom: 32px;
-      padding-bottom: 32px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .path-title-generated {
-      font-size: 28px;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-
-    .path-description-generated {
-      font-size: 16px;
-      color: var(--text-secondary);
-      line-height: 1.6;
-    }
-
-    .modules-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .module-item {
-      background-color: var(--bg-tertiary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 20px;
-    }
-
-    .module-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: start;
-      margin-bottom: 8px;
-    }
-
-    .module-number {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--accent-primary);
-    }
-
-    .module-duration {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    .module-title {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-    .module-description {
-      font-size: 14px;
-      color: var(--text-secondary);
-      line-height: 1.5;
-    }
-
-    .action-buttons {
-      display: flex;
-      gap: 12px;
-      margin-top: 32px;
-    }
-  </style>
+  <link rel="stylesheet" href="{% static 'css/trilha_personalizada.css' %}">
 </head>
 <body>
   <nav class="navbar">
@@ -191,7 +19,7 @@
         <li><a href="{% url 'trilhas:dashboard' %}">Dashboard</a></li>
         <li><a href="{% url 'trilhas:minhas_trilhas' %}">Minhas Trilhas</a></li>
         <li><a href="{% url 'trilhas:todas_trilhas' %}">Explorar</a></li>
-        <li><a href="{% url 'trilha_personalizada' %}" class="active">Criar Trilha</a></li>
+        <li><a href="{% url 'trilha_personalizada:trilha_personalizada' %}">Criar Trilha</a></li>
       </ul>
       <div class="navbar-actions">
         <div class="user-profile" onclick="toggleUserMenu()">
@@ -210,64 +38,55 @@
       </div>
 
       <div class="custom-path-container">
+        <!-- Seção de Input -->
         <div class="input-section">
           <div class="form-group">
-            <label class="form-label" for="learningGoal">
-              Descreva o que você quer aprender
-            </label>
+            <label class="form-label" for="learningGoal">Descreva o que você quer aprender</label>
             <textarea
               id="learningGoal"
               class="form-textarea"
-              placeholder="Ex: Quero aprender desenvolvimento web com foco em React e Node.js para criar aplicações full stack..."
+              placeholder="Ex: Quero aprender desenvolvimento web com foco em React e Node.js..."
               rows="6"
             ></textarea>
+          </div>
+          <div class="form-group difficulty-group">
+            <label class="form-label" for="difficulty">Nível de dificuldade</label>
+            <select id="difficulty" class="difficulty-select">
+              <option value="iniciante">Iniciante</option>
+              <option value="intermediario" selected>Intermediário</option>
+              <option value="avancado">Avançado</option>
+            </select>
           </div>
 
           <div class="form-group">
             <label class="form-label">Exemplos de objetivos:</label>
             <div class="examples">
-              <span class="example-chip" onclick="setExample('Quero aprender Python para análise de dados e machine learning')">
-                Python para Data Science
-              </span>
-              <span class="example-chip" onclick="setExample('Preciso dominar JavaScript moderno e React para desenvolvimento frontend')">
-                JavaScript e React
-              </span>
-              <span class="example-chip" onclick="setExample('Quero criar aplicativos mobile com React Native')">
-                Desenvolvimento Mobile
-              </span>
-              <span class="example-chip" onclick="setExample('Desejo aprender sobre inteligência artificial e deep learning')">
-                IA e Deep Learning
-              </span>
+              <span class="example-chip" onclick="setExample('Quero aprender Python para análise de dados e machine learning')">Python para Data Science</span>
+              <span class="example-chip" onclick="setExample('Preciso dominar JavaScript moderno e React para desenvolvimento frontend')">JavaScript e React</span>
+              <span class="example-chip" onclick="setExample('Quero criar aplicativos mobile com React Native')">Desenvolvimento Mobile</span>
+              <span class="example-chip" onclick="setExample('Desejo aprender sobre inteligência artificial e deep learning')">IA e Deep Learning</span>
             </div>
           </div>
 
-          <button class="btn btn-primary generate-btn" onclick="generatePath()">
-            ✨ Gerar Trilha Personalizada
-          </button>
+          <button class="btn btn-primary generate-btn" onclick="generatePath()">✨ Gerar Trilha Personalizada</button>
         </div>
 
-        <div class="result-section" id="resultSection">
+        <div class="result-section" id="resultSection" style="display:none;">
           <div class="loading" id="loadingState">
             <div class="loading-spinner"></div>
             <p style="color: var(--text-secondary);">Gerando sua trilha personalizada...</p>
           </div>
 
-          <div class="generated-path" id="generatedPath">
+          <div class="generated-path" id="generatedPath" style="display:none;">
             <div class="path-overview">
               <h2 class="path-title-generated" id="pathTitle"></h2>
               <p class="path-description-generated" id="pathDescription"></p>
             </div>
-
             <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 20px;">Módulos da Trilha</h3>
             <div class="modules-list" id="modulesList"></div>
-
             <div class="action-buttons">
-              <button class="btn btn-primary" onclick="savePath()">
-                💾 Salvar Trilha
-              </button>
-              <button class="btn btn-secondary" onclick="resetForm()">
-                🔄 Gerar Nova Trilha
-              </button>
+              <button class="btn btn-primary" onclick="savePath()">💾 Salvar Trilha</button>
+              <button class="btn btn-secondary" onclick="resetForm()">🔄 Gerar Nova Trilha</button>
             </div>
           </div>
         </div>
@@ -275,114 +94,118 @@
     </div>
   </main>
 
-  <script>
-    function setExample(text) {
-      document.getElementById('learningGoal').value = text;
-    }
+<script>
+let generatedTrilhaData = null; // ← guarda a trilha gerada
 
-    function generatePath() {
-      const goal = document.getElementById('learningGoal').value.trim();
+function setExample(text) {
+  document.getElementById('learningGoal').value = text;
+}
 
-      if (!goal) {
-        alert('Por favor, descreva seu objetivo de aprendizado');
-        return;
-      }
+function generatePath() {
+  const goal = document.getElementById('learningGoal').value.trim();
+  const difficulty = document.getElementById('difficulty').value;
 
-      const resultSection = document.getElementById('resultSection');
-      const loadingState = document.getElementById('loadingState');
-      const generatedPath = document.getElementById('generatedPath');
+  if (!goal) { alert('Por favor, descreva seu objetivo de aprendizado'); return; }
 
-      resultSection.classList.add('show');
-      loadingState.style.display = 'block';
-      generatedPath.classList.remove('show');
+  const resultSection = document.getElementById('resultSection');
+  const loadingState = document.getElementById('loadingState');
+  const generatedPath = document.getElementById('generatedPath');
 
-      // Simulate AI generation
-      setTimeout(() => {
-        loadingState.style.display = 'none';
-        displayGeneratedPath(goal);
-        generatedPath.classList.add('show');
-      }, 2500);
-    }
+  resultSection.style.display = 'block';
+  loadingState.style.display = 'block';
+  generatedPath.style.display = 'none';
 
-    function displayGeneratedPath(goal) {
-      // Simulate AI-generated content
-      const pathData = {
-        title: 'Trilha Personalizada: ' + goal.substring(0, 50) + '...',
-        description: 'Esta trilha foi criada especialmente para você com base nos seus objetivos. Ela inclui os conceitos fundamentais, práticas intermediárias e projetos avançados para dominar o tema.',
-        modules: [
-          {
-            number: 1,
-            title: 'Fundamentos e Introdução',
-            description: 'Conceitos básicos, configuração do ambiente e primeiros passos.',
-            duration: '8 horas'
-          },
-          {
-            number: 2,
-            title: 'Conceitos Intermediários',
-            description: 'Aprofundamento nos principais conceitos e técnicas.',
-            duration: '12 horas'
-          },
-          {
-            number: 3,
-            title: 'Práticas Avançadas',
-            description: 'Técnicas avançadas e melhores práticas da indústria.',
-            duration: '10 horas'
-          },
-          {
-            number: 4,
-            title: 'Projeto Prático',
-            description: 'Desenvolvimento de um projeto completo aplicando todo o conhecimento.',
-            duration: '15 horas'
-          },
-          {
-            number: 5,
-            title: 'Otimização e Deploy',
-            description: 'Otimização de performance e publicação do projeto.',
-            duration: '8 horas'
-          }
-        ]
-      };
+  fetch("{% url 'trilha_personalizada:trilha_personalizada' %}", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: `tema_trilha=${encodeURIComponent(goal)}&dificuldade=${encodeURIComponent(difficulty)}`
+  })
+  .then(res => res.json())
+  .then(data => {
+    loadingState.style.display = 'none';
+    if (data.error) { alert('Erro: ' + data.error); return; }
 
-      document.getElementById('pathTitle').textContent = pathData.title;
-      document.getElementById('pathDescription').textContent = pathData.description;
+    generatedTrilhaData = data; // salva a trilha completa
+    displayGeneratedPath(data);
+    generatedPath.style.display = 'block';
+  })
+  .catch(err => { loadingState.style.display = 'none'; alert('Erro ao gerar trilha.'); console.error(err); });
+}
+function escapeHTML(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
 
-      const modulesList = document.getElementById('modulesList');
-      modulesList.innerHTML = pathData.modules.map(module => `
+function displayGeneratedPath(data) {
+  document.getElementById('pathTitle').textContent = data.trilha.titulo;
+  document.getElementById('pathDescription').textContent = data.trilha.descricao;
+
+  const modulesList = document.getElementById('modulesList');
+  modulesList.innerHTML = '';
+
+  const conteudo = data.conteudo_ordenado || [...data.etapas, ...data.projetos].sort((a,b)=>a.ordem-b.ordem);
+
+  conteudo.forEach(item => {
+    if (item.topicos) {
+      modulesList.innerHTML += `
         <div class="module-item">
-          <div class="module-header">
-            <span class="module-number">MÓDULO ${module.number}</span>
-            <span class="module-duration">⏱️ ${module.duration}</span>
+          <div class="module-header"><span class="module-number">ETAPA ${item.ordem}</span></div>
+          <div class="module-title">${item.titulo}</div>
+          <div class="topics-list">
+            ${item.topicos.map(t => `<div class="topic-item"><div class="topic-checkbox"></div><span>${escapeHTML(t.texto)}</span></div>`).join('')}
           </div>
-          <div class="module-title">${module.title}</div>
-          <div class="module-description">${module.description}</div>
-        </div>
-      `).join('');
+        </div>`;
+    } else {
+      modulesList.innerHTML += `
+        <div class="project-item">
+          <span class="project-badge">🎯 ${/final|conclus/i.test(item.titulo) ? 'PROJETO FINAL' : 'PROJETO'}</span>
+          <div class="project-title">${item.titulo}</div>
+          <div class="project-description">${item.descricao}</div>
+        </div>`;
     }
+  });
+}
 
-    function savePath() {
-      alert('Trilha salva com sucesso! Você pode acessá-la no seu dashboard.');
-      window.location.href = 'dashboard.html';
-    }
+// 🚀 Função de salvar trilha no backend e redirecionar
+function savePath() {
+  if (!generatedTrilhaData) { alert('Nenhuma trilha gerada para salvar.'); return; }
 
-    function resetForm() {
-      document.getElementById('learningGoal').value = '';
-      document.getElementById('resultSection').classList.remove('show');
-      document.getElementById('generatedPath').classList.remove('show');
+  fetch("{% url 'trilha_personalizada:salvar_trilha' %}", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify(generatedTrilhaData)
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.redirect_url) {
+      window.location.href = data.redirect_url; // ⬅️ redireciona para detalhes da trilha
+    } else if (data.error || data.erro) {
+      alert('Erro: ' + (data.error || data.erro));
     }
+  })
+  .catch(err => { console.error(err); alert('Erro inesperado ao salvar trilha.'); });
+}
 
-    function toggleUserMenu() {
-      if (confirm('Deseja sair?')) {
-        localStorage.removeItem('user');
-        window.location.href = 'index.html';
-      }
-    }
+function resetForm() {
+  document.getElementById('learningGoal').value = '';
+  document.getElementById('resultSection').style.display = 'none';
+  document.getElementById('generatedPath').style.display = 'none';
+  generatedTrilhaData = null;
+}
 
-    // Load user data
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user.name) {
-      document.getElementById('userName').textContent = user.name;
-      document.querySelector('.user-avatar').textContent = user.name.charAt(0).toUpperCase();
-    }
-  </script>
+function toggleUserMenu() {
+  if (confirm('Deseja sair?')) {
+    localStorage.removeItem('user');
+    window.location.href = 'index.html';
+  }
+}
+</script>
 </body>
 </html>
