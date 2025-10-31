@@ -7,7 +7,6 @@
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/global.css' %}">
   <link rel="stylesheet" href="{% static 'css/minhasTrilhas.css' %}">
-  <style></style>
 </head>
 <body>
   <nav class="navbar">
@@ -46,6 +45,7 @@
         </div>
         <div class="paths-grid" id="inProgressGrid"></div>
       </div>
+
       <div class="section">
         <div class="section-header">
           <h2 class="section-title">Pausadas</h2>
@@ -53,6 +53,7 @@
         </div>
         <div class="paths-grid" id="pausedGrid"></div>
       </div>
+
       <div class="section">
         <div class="section-header">
           <h2 class="section-title">Concluídas</h2>
@@ -82,127 +83,155 @@
 
     function createPathCard(path, status) {
       const div = document.createElement('div');
-      div.className = `path-card ${status}`;
-      div.innerHTML = `
-        <div class="path-card-header">
-          <span class="path-status-badge ${status}">
-            ${status==='in-progress'?'🔄 Em Progresso':status==='paused'?'⏸️ Pausada':'✅ Concluída'}
-          </span>
-          <div style="position:relative;">
-            <button class="path-menu-btn" onclick="toggleMenu(event, ${path.id})">⋮</button>
-            <div class="path-menu" id="menu-${path.id}"></div>
-          </div>
-        </div>
-        <div onclick="verDetalhes(${path.id})" style="cursor:pointer">
-          <div class="card-title" style="font-weight:600; margin-bottom:6px;">${escapeHtml(path.title)}</div>
-          <div class="card-description" style="color:var(--text-secondary);">${escapeHtml(path.description)}</div>
-          <div class="path-meta">
-            <span>📊 ${escapeHtml(path.level)}</span>
-          </div>
-          ${status!=='completed'?`<div class="path-progress">
-            <div class="progress-label">
-              <span>Progresso</span><span>${path.progress}%</span>
-            </div>
-            <div class="progress-bar" style="background:var(--bg-tertiary); height:8px; border-radius:6px;">
-              <div style="width:${path.progress}%; background:var(--accent-primary); height:8px; border-radius:6px;"></div>
-            </div>
-          </div>`:''}
-        </div>
-      `;
+      div.className = 'path-card ' + status;
+      div.innerHTML =
+        '<div class="path-card-header">' +
+          '<span class="path-status-badge ' + status + '">' +
+            (status === 'in-progress' ? '🔄 Em Progresso' : status === 'paused' ? '⏸️ Pausada' : '✅ Concluída') +
+          '</span>' +
+          '<div style="position:relative;">' +
+            '<button class="path-menu-btn" onclick="toggleMenu(event, ' + path.id + ')">⋮</button>' +
+            '<div class="path-menu" id="menu-' + path.id + '"></div>' +
+          '</div>' +
+        '</div>' +
+        '<div onclick="verDetalhes(' + path.id + ')" style="cursor:pointer">' +
+          '<div class="card-title" style="font-weight:600; margin-bottom:6px;">' + escapeHtml(path.title) + '</div>' +
+          '<div class="card-description" style="color:var(--text-secondary);">' + escapeHtml(path.description) + '</div>' +
+          '<div class="path-meta"><span>📊 ' + escapeHtml(path.level) + '</span></div>' +
+          (status !== 'completed'
+            ? '<div class="path-progress">' +
+                '<div class="progress-label"><span>Progresso</span><span>' + path.progress + '%</span></div>' +
+                '<div class="progress-bar" style="background:var(--bg-tertiary); height:8px; border-radius:6px;">' +
+                  '<div style="width:' + path.progress + '%; background:var(--accent-primary); height:8px; border-radius:6px;"></div>' +
+                '</div>' +
+              '</div>'
+            : '') +
+        '</div>';
+
       const menu = div.querySelector('.path-menu');
-      // Menu items por status
-      if (status==='in-progress') {
-        menu.innerHTML = `
-          <div class="path-menu-item" onclick="pauseTrilha(${path.id})">⏸️ Pausar trilha</div>
-          <div class="path-menu-item" onclick="verDetalhes(${path.id})">👁️ Ver detalhes</div>
-          <div class="path-menu-item danger" onclick="deleteTrilha(${path.id})">🗑️ Excluir trilha</div>
-        `;
-      } else if (status==='paused') {
-        menu.innerHTML = `
-          <div class="path-menu-item" onclick="resumeTrilha(${path.id})">▶️ Retomar trilha</div>
-          <div class="path-menu-item" onclick="verDetalhes(${path.id})">👁️ Ver detalhes</div>
-          <div class="path-menu-item danger" onclick="deleteTrilha(${path.id})">🗑️ Excluir trilha</div>
-        `;
+
+      if (status === 'in-progress') {
+        menu.innerHTML =
+          '<div class="path-menu-item" onclick="pauseTrilha(' + path.id + ')">⏸️ Pausar trilha</div>' +
+          '<div class="path-menu-item" onclick="verDetalhes(' + path.id + ')">👁️ Ver detalhes</div>' +
+          '<div class="path-menu-item danger" onclick="deleteTrilha(' + path.id + ')">🗑️ Excluir trilha</div>';
+      } else if (status === 'paused') {
+        menu.innerHTML =
+          '<div class="path-menu-item" onclick="resumeTrilha(' + path.id + ')">▶️ Retomar trilha</div>' +
+          '<div class="path-menu-item" onclick="verDetalhes(' + path.id + ')">👁️ Ver detalhes</div>' +
+          '<div class="path-menu-item danger" onclick="deleteTrilha(' + path.id + ')">🗑️ Excluir trilha</div>';
       } else {
-        menu.innerHTML = `
-          <div class="path-menu-item" onclick="verDetalhes(${path.id})">👁️ Ver detalhes</div>
-          <div class="path-menu-item" onclick="restartTrilha(${path.id})">🔄 Refazer trilha</div>
-          <div class="path-menu-item danger" onclick="deleteTrilha(${path.id})">🗑️ Remover da lista</div>
-        `;
+        menu.innerHTML =
+          '<div class="path-menu-item" onclick="verDetalhes(' + path.id + ')">👁️ Ver detalhes</div>' +
+          '<div class="path-menu-item" onclick="restartTrilha(' + path.id + ')">🔄 Refazer trilha</div>' +
+          '<div class="path-menu-item danger" onclick="deleteTrilha(' + path.id + ')">🗑️ Remover da lista</div>';
       }
       return div;
     }
 
-    // Toggle menu
     function toggleMenu(event, id) {
       event.stopPropagation();
-      document.querySelectorAll('.path-menu').forEach(m=>m.id!==`menu-${id}`?m.classList.remove('show'):null);
-      document.getElementById(`menu-${id}`)?.classList.toggle('show');
+      document.querySelectorAll('.path-menu').forEach(function(m) {
+        if (m.id !== 'menu-' + id) m.classList.remove('show');
+      });
+      document.getElementById('menu-' + id)?.classList.toggle('show');
     }
-    document.addEventListener('click', ()=>document.querySelectorAll('.path-menu').forEach(m=>m.classList.remove('show')));
 
-    // Carrega e renderiza
-    document.addEventListener('DOMContentLoaded', async ()=>await carregarEExibir());
+    document.addEventListener('click', function() {
+      document.querySelectorAll('.path-menu').forEach(function(m) {
+        m.classList.remove('show');
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', async function() {
+      await carregarEExibir();
+    });
 
     async function carregarEExibir() {
       try {
         const url = "{% url 'trilhas:minhas_trilhas' %}?format=json";
-        const res = await fetch(url,{credentials:'same-origin'});
-        if(!res.ok)throw new Error('Falha ao buscar trilhas');
+        const res = await fetch(url, {credentials:'same-origin'});
+        if (!res.ok) throw new Error('Falha ao buscar trilhas');
         const data = await res.json();
         populateGrid('inProgressGrid', data.inProgress, 'in-progress');
         populateGrid('pausedGrid', data.paused, 'paused');
         populateGrid('completedGrid', data.completed, 'completed');
-      } catch(err){
+      } catch (err) {
         console.error(err);
-        document.getElementById('inProgressGrid').innerHTML='<div class="empty-state"><div class="empty-state-title">Erro ao carregar trilhas</div></div>';
-        document.getElementById('pausedGrid').innerHTML='';
-        document.getElementById('completedGrid').innerHTML='';
+        document.getElementById('inProgressGrid').innerHTML = '<div class="empty-state"><div class="empty-state-title">Erro ao carregar trilhas</div></div>';
+        document.getElementById('pausedGrid').innerHTML = '';
+        document.getElementById('completedGrid').innerHTML = '';
       }
     }
 
-    function populateGrid(gridId, items, status){
+    function populateGrid(gridId, items, status) {
       const grid = document.getElementById(gridId);
       const countEl = document.getElementById(gridId.replace('Grid','Count'));
-      grid.innerHTML='';
-      countEl.textContent=items.length||0;
-      if(!items||items.length===0){
-        grid.innerHTML=`<div class="empty-state">
-          <div class="empty-state-icon">📚</div>
-          <div class="empty-state-title">Nenhuma trilha ${status==='in-progress'?'em progresso':status==='paused'?'pausada':'concluída'}</div>
-          <div class="empty-state-description">${status==='in-progress'?'Comece':status==='paused'?'Pause':'Conclua'} uma trilha para aparecer aqui </div>
-        </div>`;
+      grid.innerHTML = '';
+      countEl.textContent = items.length || 0;
+
+      if (!items || items.length === 0) {
+        grid.innerHTML =
+          '<div class="empty-state">' +
+            '<div class="empty-state-icon">📚</div>' +
+            '<div class="empty-state-title">Nenhuma trilha ' +
+            (status==='in-progress'?'em progresso':status==='paused'?'pausada':'concluída') +
+            '</div>' +
+            '<div class="empty-state-description">' +
+            (status==='in-progress'?'Comece':'Pause') +
+            ' uma trilha para aparecer aqui </div>' +
+          '</div>';
         return;
       }
-      items.forEach(p=>{
-        const path={
-          id:p.id,
-          title:p.title||p.titulo||'Sem título',
-          description:p.description||p.descricao||'',
-          duration:p.duration||'—',
-          level:p.level||'—',
-          progress:typeof p.progress==='number'?p.progress:(p.progress||0)
+
+      items.forEach(function(p) {
+        const path = {
+          id: p.id,
+          title: p.title || p.titulo || 'Sem título',
+          description: p.description || p.descricao || '',
+          duration: p.duration || '—',
+          level: p.level || '—',
+          progress: typeof p.progress === 'number' ? p.progress : (p.progress || 0)
         };
-        grid.appendChild(createPathCard(path,status));
+        grid.appendChild(createPathCard(path, status));
       });
     }
 
-    // Funções de ação
-    async function sendAction(action,trilhaId){
-      const url="{% url 'trilhas:minhas_trilhas' %}";
-      const body=`action=${encodeURIComponent(action)}&trilha_id=${encodeURIComponent(trilhaId)}`;
-      const res = await fetch(url,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRFToken':getCookie('csrftoken')},body});
-      if(res.ok){try{const json=await res.json();}catch(e){}await carregarEExibir();}
-      else {const text=await res.text();console.error('Erro ação:',res.status,text);alert('Erro ao executar ação');}
+    async function sendAction(action, trilhaId) {
+      const url = "{% url 'trilhas:minhas_trilhas' %}";
+      const body = "action=" + encodeURIComponent(action) + "&trilha_id=" + encodeURIComponent(trilhaId);
+      const res = await fetch(url, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: body
+      });
+
+      if (res.ok) {
+        try { await res.json(); } catch(e) {}
+        await carregarEExibir();
+      } else {
+        const text = await res.text();
+        console.error("Erro ação:", res.status, text);
+        alert("Erro ao executar ação");
+      }
     }
 
-    function pauseTrilha(id){sendAction('pause',id);}
-    function resumeTrilha(id){sendAction('resume',id);}
-    function restartTrilha(id){sendAction('restart',id);}
+    function pauseTrilha(id){ sendAction('pause', id); }
+    function resumeTrilha(id){ sendAction('resume', id); }
+    function restartTrilha(id){ sendAction('restart', id); }
     function deleteTrilha(id){
-      if(confirm('Tem certeza que deseja excluir esta trilha?')) sendAction('delete',id);
+      if (confirm('Tem certeza que deseja excluir esta trilha?'))
+        sendAction('delete', id);
     }
-    function verDetalhes(id){window.location.href='{% url "trilhas:ver_etapas" %}?id='+encodeURIComponent(id);}
+
+    // ✅ Corrigido: leva corretamente ao Django
+    function verDetalhes(id){
+      window.location.href = '/trilhas/detalhes-da-trilha/?id=' + encodeURIComponent(id);
+    }
   </script>
 </body>
 </html>

@@ -5,8 +5,9 @@ from django.views.decorators.csrf import csrf_exempt
 from trilhas.models import Trilha, ProgressoTrilha, Etapa, Topico, ProgressoTopico
 
 
-
-
+# -----------------------------
+# DASHBOARD
+# -----------------------------
 def dashboard_view(request):
     user = request.user
 
@@ -24,12 +25,20 @@ def dashboard_view(request):
     }
     return render(request, 'trilhas/dashboard.html', context)
 
+
+# -----------------------------
+# PÁGINA DE TRILHAS PRÉ-DEFINIDAS
+# -----------------------------
 def predefined_paths_view(request):
     return render(request, 'trilhas/predefined-paths.html')
 
 
-def study_guide_view(request):
-    trilha_id = request.GET.get('id')
+# -----------------------------
+# DETALHES DA TRILHA (CORRIGIDO)
+# -----------------------------
+def study_guide_view(request, pk=None):
+    # compatível com formato antigo (?id=2) e novo (/detalhes-da-trilha/2/)
+    trilha_id = pk or request.GET.get('id')
     trilha = get_object_or_404(Trilha, id=trilha_id)
 
     # Etapas e tópicos
@@ -38,7 +47,11 @@ def study_guide_view(request):
     for etapa in etapas:
         topicos_data = []
         for topico in etapa.topicos.all():
-            concluido = ProgressoTopico.objects.filter(user=request.user, topico=topico, concluido=True).exists()
+            concluido = ProgressoTopico.objects.filter(
+                user=request.user,
+                topico=topico,
+                concluido=True
+            ).exists()
             topicos_data.append({
                 "id": topico.id,
                 "text": topico.texto,
@@ -65,14 +78,21 @@ def study_guide_view(request):
         "etapas_data": etapas_data,
         "projeto": projeto,
         "progresso_percentual": int(progresso.progresso_percentual),
-        "topicos_concluidos": ProgressoTopico.objects.filter(user=request.user, topico__etapa__trilha=trilha,
-                                                             concluido=True).count(),
+        "topicos_concluidos": ProgressoTopico.objects.filter(
+            user=request.user,
+            topico__etapa__trilha=trilha,
+            concluido=True
+        ).count(),
         "total_topicos": sum(len(et['topics']) for et in etapas_data),
         "stroke_offset": stroke_offset,
     }
 
     return render(request, 'trilhas/study-guide.html', context)
 
+
+# -----------------------------
+# TOGGLE DE TÓPICO (MARCAR COMO CONCLUÍDO)
+# -----------------------------
 @csrf_exempt
 @login_required
 def toggle_topico(request):
@@ -109,6 +129,9 @@ def toggle_topico(request):
     return JsonResponse({"success": False, "error": "Método inválido"})
 
 
+# -----------------------------
+# MINHAS TRILHAS
+# -----------------------------
 @csrf_exempt
 @login_required
 def all_paths_view(request):

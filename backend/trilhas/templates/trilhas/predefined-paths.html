@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!--suppress ALL -->
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -7,9 +8,6 @@
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/global.css' %}">
   <link rel="stylesheet" href="{% static 'css/todasTrilhas.css' %}">
-
-  <style>
-</style>
 </head>
 <body>
   <nav class="navbar">
@@ -134,7 +132,7 @@
     function renderPaths(pathsToRender) {
       const grid = document.getElementById('pathsGrid');
       grid.innerHTML = pathsToRender.map(path => `
-        <div class="card path-card fade-in" onclick="window.location.href='path-details.html?id=${path.id}'">
+        <div class="card path-card fade-in" onclick="window.location.href='/trilhas/detalhes-da-trilha/?id=${path.id}'">
           <div class="path-header">
             <span class="path-category">${path.categoryLabel}</span>
           </div>
@@ -162,30 +160,26 @@
       const buttons = document.querySelectorAll('.filter-btn');
       buttons.forEach(btn => btn.classList.remove('active'));
       event.target.classList.add('active');
-
       filterPaths();
     }
 
     function filterPaths() {
       const searchTerm = document.getElementById('searchInput').value.toLowerCase();
       let filtered = paths;
-
       if (currentCategory !== 'all') {
         filtered = filtered.filter(path => path.category === currentCategory);
       }
-
       if (searchTerm) {
         filtered = filtered.filter(path =>
           path.title.toLowerCase().includes(searchTerm) ||
           path.description.toLowerCase().includes(searchTerm)
         );
       }
-
       renderPaths(filtered);
     }
 
     function startPath(pathId) {
-      window.location.href = `path-details.html?id=${pathId}`;
+      window.location.href = '/trilhas/detalhes-da-trilha/?id=' + pathId;
     }
 
     function toggleUserMenu() {
