@@ -1,4 +1,4 @@
-# create_trilhas_with_progress.py
+# create_trilhas_with_progress.py (Versao sem acentos)
 from django.contrib.auth import get_user_model
 from trilhas.models import (
     Categoria, Trilha, Etapa, Topico, Projeto,
@@ -9,8 +9,8 @@ from django.utils import timezone
 User = get_user_model()
 
 # CONFIG
-TARGET_EMAIL = "fenrir@gmail.com"
-MARK_FIRST_TOPIC_COMPLETED = False  # set True if you want the first topic marked as completed
+TARGET_EMAIL = "fenrir2@gmail.com"
+MARK_FIRST_TOPIC_COMPLETED = False
 
 # Get the existing user
 user = User.objects.filter(email=TARGET_EMAIL).first()
@@ -21,18 +21,18 @@ else:
     print(f"Found user: {user.username}")
 
     # --- Create category ---
-    categoria, _ = Categoria.objects.get_or_create(nome="Programação")
+    categoria, _ = Categoria.objects.get_or_create(nome="Programacao")
 
-    # --- Trilhas data ---
+    # --- Trilhas data (SEM ACENTOS) ---
     trilhas_data = [
         {
-            "titulo": "Introdução à Programação",
-            "descricao": "Aprenda os conceitos básicos de lógica e algoritmos.",
+            "titulo": "Introducao a Programacao",
+            "descricao": "Aprenda os conceitos basicos de logica e algoritmos.",
             "dificuldade": "iniciante",
         },
         {
             "titulo": "Desenvolvimento Web com Django",
-            "descricao": "Crie aplicações web completas com Django.",
+            "descricao": "Crie aplicacoes web completas com Django.",
             "dificuldade": "intermediario",
         },
         {
@@ -56,7 +56,7 @@ else:
         # Save to user's saved trilhas (ManyToMany)
         trilha.usuarios_salvos.add(user)
 
-        # --- Add Etapas and Topicos ---
+        # --- Add Etapas and Topicos (SEM ACENTOS) ---
         for i in range(1, 4):
             etapa, _ = Etapa.objects.get_or_create(
                 trilha=trilha,
@@ -68,16 +68,16 @@ else:
                 Topico.objects.get_or_create(
                     etapa=etapa,
                     ordem=j,
-                    defaults={"texto": f"Conteúdo do tópico {j} da {etapa.titulo}"},
+                    defaults={"texto": f"Conteudo do topico {j} da {etapa.titulo}"},
                 )
 
-        # --- Add one Projeto ---
+        # --- Add one Projeto (SEM ACENTOS) ---
         Projeto.objects.get_or_create(
             trilha=trilha,
             ordem=1,
             defaults={
                 "titulo": f"Projeto Final - {trilha.titulo}",
-                "descricao": "Desenvolva um projeto prático aplicando todo o conhecimento aprendido.",
+                "descricao": "Desenvolva um projeto pratico aplicando todo o conhecimento aprendido.",
             },
         )
 
@@ -105,9 +105,7 @@ else:
                 }
             )
 
-            # Optionally mark the very first topic of the first trilha as completed
             if MARK_FIRST_TOPIC_COMPLETED and t_index == 1 and idx == 1:
-                # use the model's helper method if available
                 try:
                     pt.salvar_conclusao(concluido=True)
                 except Exception:

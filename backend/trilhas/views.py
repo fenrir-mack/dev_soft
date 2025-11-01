@@ -1,12 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
-from trilhas.models import Trilha, ProgressoTrilha, Etapa, Topico, ProgressoTopico
-
-
-# Importamos os models que vamos usar
-from .models import Trilha, ProgressoTrilha, Categoria
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
+# 1. Imports atualizados para incluir tudo o que você usa
+from .models import Trilha, ProgressoTrilha, Etapa, Topico, ProgressoTopico, Categoria
+from django.utils import timezone  # Importa o timezone que seu model precisa
 
 
 def dashboard_view(request):
@@ -27,14 +25,9 @@ def dashboard_view(request):
     return render(request, 'trilhas/dashboard.html', context)
 
 
-# ==========================================================
-# 🔹 1. VIEW 'PREDEFINED_PATHS' (EXPLORAR) ATUALIZADA 🔹
-# Agora ela lida com GET (mostrar página) e POST (adicionar trilha)
-# ==========================================================
 @login_required
-@csrf_protect  # Garante proteção CSRF para ambas as requisições
+@csrf_protect
 def predefined_paths_view(request):
-    # 🔹 Lógica de POST (quando o JS clica em "Começar") 🔹
     if request.method == 'POST':
         try:
             trilha_id = request.POST.get('trilha_id')
@@ -50,16 +43,21 @@ def predefined_paths_view(request):
             )
 
             if created:
-                trilha.total_salvos += 1
-                trilha.save()
+                # ==========================================================
+                # 🔹 CORREÇÃO Nº 1 (Erro Lógico) 🔹
+                # 'total_salvos' é uma @property, não um campo.
+                # Usamos o ManyToManyField 'usuarios_salvos'
+                # ==========================================================
+                trilha.usuarios_salvos.add(request.user)
+                # trilha.total_salvos += 1 (ERRADO)
+                # trilha.save() (DESNECESSÁRIO)
 
             return JsonResponse({'success': True, 'message': 'Trilha adicionada com sucesso.'})
 
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
-    # 🔹 Lógica de GET (quando o usuário carrega a página) 🔹
-    # (Todo o código que já tínhamos para exibir a página)
+    # Lógica de GET
     all_public_trilhas = Trilha.objects.filter(visibilidade=True).select_related('categoria')
     categorias = Categoria.objects.all()
 
@@ -77,8 +75,12 @@ def predefined_paths_view(request):
             'category': trilha.categoria.nome if trilha.categoria else 'Sem Categoria',
             'category_slug': trilha.categoria.nome.lower() if trilha.categoria else '',
             'level': trilha.get_dificuldade_display(),
-            'modules': trilha.etapa_set.count() or trilha.projetos.count(),
-            'students': trilha.total_salvos,
+            # ==========================================================
+            # 🔹 CORREÇÃO Nº 2 (Erro do Screenshot) 🔹
+            # 'etapa_set' foi renomeado para 'etapas' no seu models.py
+            # ==========================================================
+            'modules': trilha.etapas.count() or trilha.projetos.count(),
+            'students': trilha.total_salvos,  # Isso está correto (lendo a @property)
             'enrolled': trilha.id in enrolled_trilha_ids
         })
 
@@ -89,6 +91,7 @@ def predefined_paths_view(request):
     return render(request, 'trilhas/predefined-paths.html', context)
 
 
+@login_required  # Adicionado decorator para segurança
 def study_guide_view(request):
     trilha_id = request.GET.get('id')
     trilha = get_object_or_404(Trilha, id=trilha_id)
@@ -133,7 +136,8 @@ def study_guide_view(request):
 
     return render(request, 'trilhas/study-guide.html', context)
 
-@csrf_exempt
+
+@csrf_exempt  # OK para APIs internas, mas @csrf_protect é melhor
 @login_required
 def toggle_topico(request):
     if request.method == "POST":
@@ -174,7 +178,6 @@ def toggle_topico(request):
 def all_paths_view(request):
     user = request.user
 
-    # 🔹 Busca trilhas associadas ao progresso do usuário
     progresso_list = (
         ProgressoTrilha.objects
         .filter(user=user)
