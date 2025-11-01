@@ -6,7 +6,7 @@ from trilhas.models import Trilha, ProgressoTrilha, Etapa, Topico, ProgressoTopi
 
 
 
-
+@login_required(login_url="/")
 def dashboard_view(request):
     user = request.user
 

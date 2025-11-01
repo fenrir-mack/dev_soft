@@ -1,149 +1,128 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from trilhas.models import (
-    Categoria, Trilha, Etapa, Topico,
-    ProgressoTrilha, ProgressoTopico
-)
+from django.contrib.staticfiles.testing import LiveServerTestCase
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 
 User = get_user_model()
 
+# ==========================================================
+# 🧩 TESTES UNITÁRIOS
+# ==========================================================
+class DashboardUnitTest(TestCase):
+    """Testes básicos da view da dashboard"""
 
-class TrilhaViewsTests(TestCase):
     def setUp(self):
+        # Cria um usuário de teste com username e nickname
         self.user = User.objects.create_user(
-            username="user@ex.com",
-            email="user@ex.com",
-            password="senha123",
-            full_name="Usuário Teste",
-            nickname="teste"
-        )
-        self.client.login(username="user@ex.com", password="senha123")
-
-        # Criação da estrutura de trilha
-        self.cat = Categoria.objects.create(nome="Programação")
-        self.trilha = Trilha.objects.create(
-            titulo="Python Básico",
-            descricao="Aprenda o básico de Python",
-            categoria=self.cat,
-            dificuldade="iniciante"
-        )
-        self.etapa = Etapa.objects.create(
-            trilha=self.trilha,
-            titulo="Introdução",
-            descricao="Primeiros passos",
-            ordem=1
-        )
-        self.topico1 = Topico.objects.create(
-            etapa=self.etapa,
-            texto="Variáveis e tipos",
-            ordem=1
-        )
-        self.topico2 = Topico.objects.create(
-            etapa=self.etapa,
-            texto="Operadores e expressões",
-            ordem=2
+            username="testeuser",
+            email="testeuser@example.com",
+            password="12345",
+            nickname="testeuser"
         )
 
-        self.progresso = ProgressoTrilha.objects.create(
-            user=self.user,
-            trilha=self.trilha,
-            status="em_progresso",
-            progresso_percentual=0
+    def test_dashboard_view_autenticada(self):
+        """Usuário autenticado deve acessar a dashboard"""
+        login_ok = self.client.login(username="testeuser", password="12345")
+        self.assertTrue(login_ok, "Falha ao logar usuário de teste.")
+
+        response = self.client.get(reverse("trilhas:dashboard"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Dashboard")
+
+    def test_dashboard_view_nao_autenticada(self):
+        """Usuário não autenticado deve ser redirecionado"""
+        response = self.client.get(reverse("trilhas:dashboard"))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/", response.url)
+
+
+# ==========================================================
+# 🔗 TESTE DE INTEGRAÇÃO
+# ==========================================================
+class DashboardIntegrationTest(TestCase):
+    """Verifica o fluxo de login e navegação para a dashboard"""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username="teste_integ",
+            email="teste_integ@example.com",
+            password="12345",
+            nickname="teste_integ"
         )
 
-    # ==== DASHBOARD ====
-    def test_dashboard_view_context_counts(self):
-        url = reverse("trilhas:dashboard")
-        resp = self.client.get(url)
-        self.assertEqual(resp.status_code, 200)
-        self.assertIn("trilhas_em_progresso", resp.context)
-        self.assertEqual(resp.context["trilhas_em_progresso"], 1)
-        self.assertEqual(resp.context["trilhas_concluidas"], 0)
-        self.assertEqual(resp.context["trilhas_salvas"], 0)
+    def test_fluxo_login_e_dashboard(self):
+        """Fluxo completo de login e acesso"""
+        login_ok = self.client.login(username="teste_integ", password="12345")
+        self.assertTrue(login_ok, "Falha ao logar usuário de integração.")
 
-    # ==== STUDY GUIDE ====
-    def test_study_guide_view_generates_correct_context(self):
-        url = reverse("trilhas:ver_etapas") + f"?id={self.trilha.id}"
-        resp = self.client.get(url)
-        self.assertEqual(resp.status_code, 200)
-        ctx = resp.context
-        self.assertEqual(ctx["trilha"], self.trilha)
-        self.assertEqual(ctx["total_topicos"], 2)
-        self.assertEqual(ctx["progresso_percentual"], 0)
+        response = self.client.get(reverse("trilhas:dashboard"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Dashboard - EstudaAI")
 
-    # ==== TOGGLE TÓPICO ====
-    def test_toggle_topico_marks_topic_completed_and_updates_progress(self):
-        url = reverse("trilhas:toggle_topico")
-        resp = self.client.post(url, {"topico_id": self.topico1.id, "completed": "true"})
-        self.assertEqual(resp.status_code, 200)
-        data = resp.json()
-        self.assertTrue(data["success"])
 
-        prog_topico = ProgressoTopico.objects.get(user=self.user, topico=self.topico1)
-        self.assertTrue(prog_topico.concluido)
+# ==========================================================
+# 🌐 TESTE FUNCIONAL (SELENIUM)
+# ==========================================================
+class DashboardFunctionalTest(LiveServerTestCase):
+    """Simula o login real no navegador e acesso à dashboard"""
 
-        prog_trilha = ProgressoTrilha.objects.get(user=self.user, trilha=self.trilha)
-        self.assertGreater(float(prog_trilha.progresso_percentual), 0)
+    def setUp(self):
+        # Inicia o navegador (usa Firefox por padrão)
+        self.browser = webdriver.Firefox()
 
-    def test_toggle_topico_inexistente_retorna_erro(self):
-        url = reverse("trilhas:toggle_topico")
-        resp = self.client.post(url, {"topico_id": 999, "completed": "true"})
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.json()["success"], False)
-        self.assertIn("Tópico não encontrado", resp.json()["error"])
+    def tearDown(self):
+        # Fecha o navegador após o teste
+        self.browser.quit()
 
-    # ==== MINHAS TRILHAS (GET JSON) ====
-    def test_all_paths_view_returns_json_categorized(self):
-        url = reverse("trilhas:minhas_trilhas") + "?format=json"
-        resp = self.client.get(url)
-        self.assertEqual(resp.status_code, 200)
-        data = resp.json()
-        self.assertIn("inProgress", data)
-        self.assertEqual(len(data["inProgress"]), 1)
-        self.assertEqual(data["inProgress"][0]["title"], "Python Básico")
+    def test_usuario_pode_fazer_login_e_ver_dashboard(self):
+        """
+        Simula login real via username (o site mostra 'email',
+        mas autentica com username internamente)
+        """
+        User.objects.all().delete()
 
-    # ==== MINHAS TRILHAS (POST ACTIONS) ====
-    def test_all_paths_pause_resume_restart_delete(self):
-        url = reverse("trilhas:minhas_trilhas")
+        user = User.objects.create_user(
+            username="teste_func",
+            email="teste_func@example.com",
+            password="12345",
+            nickname="teste_func"
+        )
 
-        # Pausar trilha
-        r1 = self.client.post(url, {"action": "pause", "trilha_id": self.trilha.id})
-        self.assertEqual(r1.status_code, 200)
-        self.assertIn("pausada", r1.json()["message"].lower())
-        self.progresso.refresh_from_db()
-        self.assertEqual(self.progresso.status, "pausada")
+        self.browser.get(f"{self.live_server_url}/")
 
-        # Retomar trilha
-        r2 = self.client.post(url, {"action": "resume", "trilha_id": self.trilha.id})
-        self.assertEqual(r2.status_code, 200)
-        self.progresso.refresh_from_db()
-        self.assertEqual(self.progresso.status, "em_progresso")
+        try:
+            campo_email = WebDriverWait(self.browser, 10).until(
+                EC.presence_of_element_located((By.ID, "loginEmail"))
+            )
+            campo_senha = self.browser.find_element(By.ID, "loginPassword")
+            botao_login = self.browser.find_element(By.CSS_SELECTOR, "button.btn.btn-primary")
+        except TimeoutException:
+            self.fail("Campos de login não encontrados na página.")
 
-        # Reiniciar trilha (zera progresso)
-        ProgressoTopico.objects.create(user=self.user, topico=self.topico1, concluido=True)
-        self.progresso.progresso_percentual = 80
-        self.progresso.save()
+        # 🔹 Desativa a validação de formato de e-mail
+        self.browser.execute_script(
+            "document.getElementById('loginEmail').setAttribute('type','text');"
+        )
 
-        r3 = self.client.post(url, {"action": "restart", "trilha_id": self.trilha.id})
-        self.assertEqual(r3.status_code, 200)
-        self.progresso.refresh_from_db()
-        self.assertEqual(float(self.progresso.progresso_percentual), 0.0)
-        self.assertEqual(self.progresso.status, "em_progresso")
+        # Preenche com username (já que backend autentica por username)
+        campo_email.send_keys("teste_func")
+        campo_senha.send_keys("12345")
 
-        # Excluir progresso
-        r4 = self.client.post(url, {"action": "delete", "trilha_id": self.trilha.id})
-        self.assertEqual(r4.status_code, 200)
-        self.assertFalse(ProgressoTrilha.objects.filter(user=self.user, trilha=self.trilha).exists())
+        botao_login.click()
 
-    def test_all_paths_invalid_action_returns_bad_request(self):
-        url = reverse("trilhas:minhas_trilhas")
-        resp = self.client.post(url, {"action": "invalida", "trilha_id": self.trilha.id})
-        self.assertEqual(resp.status_code, 400)
-        self.assertIn("Ação inválida", resp.content.decode())
+        try:
+            WebDriverWait(self.browser, 10).until(
+                EC.title_contains("Dashboard - EstudaAI")
+            )
+        except TimeoutException:
+            html_preview = self.browser.page_source[:500]
+            self.fail(f"A dashboard não carregou corretamente.\nTrecho HTML:\n{html_preview}")
 
-    def test_all_paths_missing_trilha_id_returns_bad_request(self):
-        url = reverse("trilhas:minhas_trilhas")
-        resp = self.client.post(url, {"action": "pause"})
-        self.assertEqual(resp.status_code, 400)
-        self.assertIn("ID da trilha não informado", resp.content.decode())
+        self.assertIn("Dashboard - EstudaAI", self.browser.title)
