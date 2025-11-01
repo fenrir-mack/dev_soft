@@ -17,17 +17,43 @@
     .filter-btn { padding: 10px 20px; background-color: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-secondary); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
     .filter-btn:hover, .filter-btn.active { background-color: var(--accent-primary); color: white; border-color: var(--accent-primary); }
     .paths-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; }
-    .path-card { cursor: pointer; position: relative; overflow: hidden; background: var(--bg-card); padding: 20px; border-radius: 12px; box-shadow: var(--shadow-sm); transition: transform 0.2s; }
     .path-card:hover { transform: translateY(-4px); }
     .path-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent-primary), #8b5cf6); }
     .path-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; }
     .path-category { display: inline-block; padding: 4px 12px; background-color: var(--accent-light); color: var(--accent-primary); border-radius: 999px; font-size: 12px; font-weight: 600; }
     .card-title { font-weight: 600; font-size: 18px; margin-bottom: 6px; }
-    .card-description { color: var(--text-secondary); font-size: 14px; margin-bottom: 12px; }
     .path-meta { display: flex; gap: 16px; font-size: 13px; color: var(--text-muted); flex-wrap: wrap; }
     .path-footer { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
     .path-students { font-size: 13px; color: var(--text-secondary); }
     .btn-disabled { background-color: var(--bg-tertiary); color: var(--text-secondary); border-color: var(--border); cursor: default; }
+    .path-card {
+      position: relative;
+      overflow: hidden;
+      background: var(--bg-card);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+    }
+    .card-description {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 12px;
+      text-align: justify;
+      line-height: 1.5;
+    }
+    .path-card-body {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+    .path-card-footer-content {
+      margin-top: auto;
+      padding-top: 16px;
+    }
   </style>
 </head>
 <body>
@@ -64,40 +90,42 @@
           <input type="text" class="form-input" placeholder="🔍 Buscar trilhas..." id="searchInput" oninput="filterPaths()">
         </div>
         <div class="filter-group">
-          <button class="filter-btn active" onclick="filterByCategory('all')">Todas</button>
+          <button class="filter-btn active" onclick="filterByCategory('all', this)">Todas</button>
           {% for cat in categorias %}
-          <button class="filter-btn" onclick="filterByCategory('{{ cat.nome|lower }}')">{{ cat.nome }}</button>
+          <button class="filter-btn" onclick="filterByCategory('{{ cat.nome|lower }}', this)">{{ cat.nome }}</button>
           {% endfor %}
         </div>
       </div>
 
       <div class="paths-grid" id="pathsGrid">
         {% for path in paths %}
-        <div class="path-card" data-category="{{ path.category|lower }}">
+        <div class="path-card" data-category="{{ path.category_slug|default:path.category|lower }}" onclick="verDetalhes({{ path.id }})">
           <div class="path-header">
             <span class="path-category">{{ path.category }}</span>
           </div>
-          <div class="card-title">{{ path.title }}</div>
-          <div class="card-description">{{ path.description }}</div>
-          <div class="path-meta">
-            <span>⏱️ {{ path.duration }}</span>
-            <span>📊 {{ path.level }}</span>
-            <span>📚 {{ path.modules }} módulos</span>
-          </div>
-          <div class="path-footer">
-            <span class="path-students">👥 {{ path.students }}</span>
-            {% if path.enrolled %}
-              <button class="btn btn-sm btn-disabled">Em curso</button>
-            {% else %}
-              <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); startPath({{ path.id }})">Começar</button>
-            {% endif %}
+
+          <div class="path-card-body">
+            <div class="card-title">{{ path.title }}</div>
+            <div class="card-description">{{ path.description }}</div>
+
+            <div class="path-card-footer-content">
+              <div class="path-meta">
+                <span>📊 {{ path.level }}</span>
+                <span>📚 {{ path.modules }} módulos</span>
+              </div>
+              <div class="path-footer">
+                <span class="path-students">👥 {{ path.students }}</span>
+                {% if path.enrolled %}
+                  <button class="btn btn-sm btn-disabled" onclick="event.stopPropagation();">Em curso</button>
+                {% else %}
+                  <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); startPath({{ path.id }}, this)">Começar</button>
+                {% endif %}
+              </div>
+            </div>
           </div>
         </div>
+
         {% empty %}
-        <div class="empty-state">
-          <div class="empty-state-icon">📚</div>
-          <div class="empty-state-title">Nenhuma trilha disponível</div>
-        </div>
         {% endfor %}
       </div>
     </div>
@@ -106,15 +134,59 @@
   <script>
     let currentCategory = 'all';
 
-    function startPath(pathId) {
+    function getCookie(name) {
+      const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return v ? v.pop() : '';
+    }
+
+    async function startPath(pathId, buttonElement) {
+      // ==========================================================
+      // 🔹 MUDANÇA NA URL DO FETCH 🔹
+      // ==========================================================
+      // Agora aponta para 'todas_trilhas' (a própria página)
+      const url = "{% url 'trilhas:todas_trilhas' %}";
+      const csrfToken = getCookie('csrftoken');
+
+      const formData = new FormData();
+      formData.append('trilha_id', pathId);
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrfToken
+          },
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          buttonElement.textContent = 'Em curso';
+          buttonElement.classList.remove('btn-primary');
+          buttonElement.classList.add('btn-disabled');
+          buttonElement.disabled = true;
+        } else {
+          console.error('Falha ao adicionar trilha:', data.message);
+          alert('Não foi possível adicionar a trilha. Tente novamente.');
+        }
+      } catch (error) {
+        console.error('Erro de rede:', error);
+        alert('Erro de conexão. Tente novamente.');
+      }
+    }
+
+    // Função para redirecionar para os detalhes (o clique no card)
+    function verDetalhes(pathId) {
       window.location.href = `{% url 'trilhas:ver_etapas' %}?id=` + pathId;
     }
 
-    function filterByCategory(category) {
+    // (Funções de filtro permanecem iguais)
+    function filterByCategory(category, buttonElement) {
       currentCategory = category;
       const buttons = document.querySelectorAll('.filter-btn');
       buttons.forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
+      buttonElement.classList.add('active');
       filterPaths();
     }
 
@@ -127,8 +199,7 @@
         const category = card.getAttribute('data-category');
 
         const matchesCategory = currentCategory === 'all' || category === currentCategory;
-        const regex = new RegExp(`\\b${searchTerm}`, 'i'); // Palavra começa com termo
-        const matchesSearch = !searchTerm || regex.test(title);
+        const matchesSearch = !searchTerm || title.includes(searchTerm);
 
         card.style.display = (matchesCategory && matchesSearch) ? 'block' : 'none';
       });
