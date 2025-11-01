@@ -7,7 +7,6 @@
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/global.css' %}">
   <link rel="stylesheet" href="{% static 'css/dashboardteste.css' %}">
-
 </head>
 <body>
   <nav class="navbar">
@@ -35,34 +34,32 @@
     <div class="container">
       <div class="page-header">
         <h1 class="page-title">
-             Bem-vindo de volta! <span class="emoji">👋</span>
+          Bem-vindo de volta! <span class="emoji">👋</span>
         </h1>
         <p class="page-subtitle">Continue sua jornada de aprendizado</p>
       </div>
 
       <div class="stats-grid">
-          <div class="stat-card">
-              <div class="stat-label">Trilhas em Progresso</div>
-              <div class="stat-value">{{ trilhas_em_progresso }}</div>
-          </div>
-          <div class="stat-card">
-              <div class="stat-label">Trilhas Salvas</div>
-              <div class="stat-value">{{ trilhas_salvas }}</div>
-          </div>
-          <div class="stat-card">
-              <div class="stat-label">Trilhas Concluídas</div>
-              <div class="stat-value">{{ trilhas_concluidas }}</div>
-          </div>
+        <div class="stat-card">
+          <div class="stat-label">Trilhas em Progresso</div>
+          <div class="stat-value">{{ trilhas_em_progresso }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Trilhas Salvas</div>
+          <div class="stat-value">{{ trilhas_salvas }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Trilhas Concluídas</div>
+          <div class="stat-value">{{ trilhas_concluidas }}</div>
+        </div>
       </div>
-
 
       <div class="section-header">
         <h2 class="section-title">Ações Rápidas</h2>
       </div>
 
-      <!-- Added "Minhas Trilhas" quick action -->
       <div class="quick-actions">
-        <a href="{% url 'trilhas:minhas_trilhas' %}"" class="action-card">
+        <a href="{% url 'trilhas:minhas_trilhas' %}" class="action-card">
           <div class="action-icon">📋</div>
           <div class="action-title">Minhas Trilhas</div>
           <div class="action-description">Gerencie suas trilhas</div>
@@ -78,11 +75,10 @@
           <div class="action-description">Personalize com IA</div>
         </a>
       </div>
-      <!-- </CHANGE> -->
 
       <div class="section-header">
         <h2 class="section-title">Minhas Trilhas em Progresso</h2>
-        <a href="predefined-paths.html" class="btn btn-ghost btn-sm">Ver todas</a>
+        <a href="{% url 'trilhas:todas_trilhas' %}" class="btn btn-ghost btn-sm">Ver todas</a>
       </div>
 
       <div class="grid grid-cols-3">
@@ -123,37 +119,32 @@
         {% else %}
           <div>Nenhuma trilha em progresso</div>
         {% endif %}
-    </div>
-
+      </div>
     </div>
   </main>
 
   <script>
-    // Load user data
+    // Atualiza nome e avatar
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     if (user.name) {
       document.getElementById('userName').textContent = user.name;
       document.querySelector('.user-avatar').textContent = user.name.charAt(0).toUpperCase();
     }
 
+    // Corrigido: logout redireciona corretamente para a página de login Django
     function toggleUserMenu() {
       if (confirm('Deseja sair?')) {
         localStorage.removeItem('user');
-        window.location.href = 'index.html';
+        window.location.href = "{% url 'login' %}";
       }
     }
 
     function togglePathMenu(event, pathId) {
       event.stopPropagation();
       const menu = document.getElementById(`path-menu-${pathId}`);
-
-      // Close all other menus
       document.querySelectorAll('.path-menu').forEach(m => {
-        if (m.id !== `path-menu-${pathId}`) {
-          m.classList.remove('show');
-        }
+        if (m.id !== `path-menu-${pathId}`) m.classList.remove('show');
       });
-
       menu.classList.toggle('show');
     }
 
@@ -166,19 +157,14 @@
       if (confirm('Tem certeza que deseja excluir esta trilha do seu progresso?')) {
         alert(`Trilha ${pathId} excluída com sucesso!`);
         document.getElementById(`path-menu-${pathId}`).classList.remove('show');
-        // Remove logic here
       }
     }
 
-    // Close menus when clicking outside
     document.addEventListener('click', function(event) {
       if (!event.target.closest('.path-menu-btn')) {
-        document.querySelectorAll('.path-menu').forEach(m => {
-          m.classList.remove('show');
-        });
+        document.querySelectorAll('.path-menu').forEach(m => m.classList.remove('show'));
       }
     });
-    // </CHANGE>
   </script>
 </body>
 </html>
