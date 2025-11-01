@@ -74,8 +74,15 @@ class DashboardFunctionalTest(LiveServerTestCase):
     """Simula o login real no navegador e acesso à dashboard"""
 
     def setUp(self):
-        # Inicia o navegador (usa Firefox por padrão)
-        self.browser = webdriver.Firefox()
+
+        from selenium.webdriver.chrome.options import Options
+
+        options = Options()
+        options.add_argument("--headless")  # sem interface gráfica
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+
+        self.browser = webdriver.Chrome(options=options)
 
     def tearDown(self):
         # Fecha o navegador após o teste
