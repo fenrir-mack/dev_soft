@@ -1,5 +1,5 @@
 import google.generativeai as genai
-from prompt import build_prompt
+from .prompt import build_prompt
 import json
 import os
 from dotenv import load_dotenv
