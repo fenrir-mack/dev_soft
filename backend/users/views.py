@@ -2,45 +2,38 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.views.decorators.csrf import ensure_csrf_cookie
 
 User = get_user_model()
 
-def _normalize_email(value: str) -> str:
-    return (value or "").strip().lower()
-
 def _titlecase_name(value: str) -> str:
-    parts = (value or "").split()
+    parts = value.split()
     return " ".join(p.capitalize() for p in parts)
 
-@ensure_csrf_cookie
 def index_view(request):
     active_tab = 'login'  # default
 
     if request.method == 'POST':
-        type_access = request.POST.get('action')
-
-        # captura bruta
+        type_access = request.POST.get('action') #login ou signin
         raw_email = request.POST.get('email')
         password = request.POST.get('password')
-        email = _normalize_email(raw_email)
+        email = raw_email.strip().lower() if raw_email else ''
 
         if type_access == "login":
             user = authenticate(request, username=email, password=password)
             if user is not None:
-                login(request, user)  # Django rotaciona a sessão
+                login(request, user)
                 return redirect('trilhas:dashboard')
             else:
                 messages.error(request, 'Email ou senha incorretos.')
                 active_tab = 'login'
 
         elif type_access == 'signup':
-            raw_name = request.POST.get('name') or ""
+            raw_name = request.POST.get('name')
             nickname = request.POST.get('nickname')
             confirm_password = request.POST.get('confirm_password')
             active_tab = 'signup'
 
-            name = _titlecase_name(raw_name)
+            name = _titlecase_name(raw_name or '')
 
             if password != confirm_password:
                 messages.error(request, 'As senhas não coincidem.')
@@ -52,9 +45,9 @@ def index_view(request):
                 user = User.objects.create_user(
                     username=email,
                     email=email,
-                    password=password,   # não alterar senha
-                    full_name=name,      # Title Case
-                    nickname=nickname,   # preservar
+                    password=password,
+                    full_name=name,
+                    nickname=nickname,
                 )
                 login(request, user)
                 return redirect('trilhas:dashboard')
@@ -87,4 +80,10 @@ def index_view(request):
         }
         return render(request, 'users/index.html', context)
 
-    return render(request, 'users/index.html', {'active_tab': active_tab})
+    # ✅ Agora inclui as variáveis prefill padrão no GET
+    return render(request, 'users/index.html', {
+        'active_tab': active_tab,
+        'prefill_email': '',
+        'prefill_name': '',
+        'prefill_nickname': '',
+    })

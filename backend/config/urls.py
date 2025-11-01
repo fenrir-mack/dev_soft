@@ -13,6 +13,5 @@ urlpatterns = [
     path('dashboard/', RedirectView.as_view(url=reverse_lazy('trilhas:dashboard'), permanent=False)),
     path('explorar/', RedirectView.as_view(url=reverse_lazy('trilhas:todas_trilhas'), permanent=False)),
     path('detalhes-da-trilha/', RedirectView.as_view(url=reverse_lazy('trilhas:ver_etapas'), permanent=False)),
-    path('velho-detalhes-da-trilha/', RedirectView.as_view(url=reverse_lazy('trilhas:velho_ver_etapas'), permanent=False)),
     path('minhas-trilhas/', RedirectView.as_view(url=reverse_lazy('trilhas:minhas_trilhas'), permanent=False)),
 ]
