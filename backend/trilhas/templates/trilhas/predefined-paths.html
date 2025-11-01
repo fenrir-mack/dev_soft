@@ -37,7 +37,7 @@
     <div class="container-wide">
       <div class="page-header">
         <h1 class="page-title">Trilhas de Aprendizagem</h1>
-        <p class="page-subtitle">Explore trilhas curadas por especialistas</p>
+        <p class="page-subtitle">Explore Trilhas Publicas Feitas Por Usuários</p>
       </div>
 
       <div class="filters">
@@ -45,165 +45,120 @@
           <input type="text" class="form-input" placeholder="🔍 Buscar trilhas..." id="searchInput" oninput="filterPaths()">
         </div>
         <div class="filter-group">
-          <button class="filter-btn active" onclick="filterByCategory('all')">Todas</button>
-          <button class="filter-btn" onclick="filterByCategory('programacao')">Programação</button>
-          <button class="filter-btn" onclick="filterByCategory('data')">Data Science</button>
-          <button class="filter-btn" onclick="filterByCategory('web')">Web Dev</button>
-          <button class="filter-btn" onclick="filterByCategory('mobile')">Mobile</button>
+          <button class="filter-btn active" onclick="filterByCategory('all', this)">Todas</button>
+          {% for cat in categorias %}
+          <button class="filter-btn" onclick="filterByCategory('{{ cat.nome|lower }}', this)">{{ cat.nome }}</button>
+          {% endfor %}
         </div>
       </div>
 
       <div class="paths-grid" id="pathsGrid">
-        <!-- Paths will be rendered here -->
+        {% for path in paths %}
+        <div class="path-card" data-category="{{ path.category_slug|default:path.category|lower }}" onclick="verDetalhes({{ path.id }})">
+          <div class="path-header">
+            <span class="path-category">{{ path.category }}</span>
+          </div>
+
+          <div class="path-card-body">
+            <div class="card-title">{{ path.title }}</div>
+            <div class="card-description">{{ path.description }}</div>
+
+            <div class="path-card-footer-content">
+              <div class="path-meta">
+                <span>📊 {{ path.level }}</span>
+                <span>📚 {{ path.modules }} módulos</span>
+              </div>
+              <div class="path-footer">
+                <span class="path-students">👥 {{ path.students }}</span>
+                {% if path.enrolled %}
+                  <button class="btn btn-sm btn-disabled" onclick="event.stopPropagation();">Em curso</button>
+                {% else %}
+                  <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); startPath({{ path.id }}, this)">Começar</button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {% empty %}
+        {% endfor %}
       </div>
     </div>
   </main>
 
   <script>
-    const paths = [
-      {
-        id: 1,
-        title: 'Python para Data Science',
-        description: 'Aprenda Python aplicado à análise de dados, visualização e machine learning com bibliotecas essenciais.',
-        category: 'data',
-        categoryLabel: 'Data Science',
-        duration: '40 horas',
-        level: 'Intermediário',
-        modules: 12,
-        students: 1234
-      },
-      {
-        id: 2,
-        title: 'Desenvolvimento Web Full Stack',
-        description: 'Do frontend ao backend: HTML, CSS, JavaScript, React, Node.js e bancos de dados.',
-        category: 'web',
-        categoryLabel: 'Web Dev',
-        duration: '60 horas',
-        level: 'Avançado',
-        modules: 18,
-        students: 2156
-      },
-      {
-        id: 3,
-        title: 'Machine Learning Fundamentals',
-        description: 'Conceitos essenciais de aprendizado de máquina, algoritmos e aplicações práticas.',
-        category: 'data',
-        categoryLabel: 'Data Science',
-        duration: '35 horas',
-        level: 'Intermediário',
-        modules: 10,
-        students: 987
-      },
-      {
-        id: 4,
-        title: 'JavaScript Moderno',
-        description: 'ES6+, async/await, promises, módulos e as melhores práticas do JavaScript atual.',
-        category: 'programacao',
-        categoryLabel: 'Programação',
-        duration: '25 horas',
-        level: 'Iniciante',
-        modules: 8,
-        students: 3421
-      },
-      {
-        id: 5,
-        title: 'React Native para Mobile',
-        description: 'Desenvolva aplicativos mobile nativos para iOS e Android usando React Native.',
-        category: 'mobile',
-        categoryLabel: 'Mobile',
-        duration: '45 horas',
-        level: 'Intermediário',
-        modules: 14,
-        students: 1567
-      },
-      {
-        id: 6,
-        title: 'SQL e Bancos de Dados',
-        description: 'Domine SQL, modelagem de dados e otimização de queries em bancos relacionais.',
-        category: 'programacao',
-        categoryLabel: 'Programação',
-        duration: '30 horas',
-        level: 'Iniciante',
-        modules: 9,
-        students: 2890
-      }
-    ];
-
     let currentCategory = 'all';
 
-    function renderPaths(pathsToRender) {
-      const grid = document.getElementById('pathsGrid');
-      grid.innerHTML = pathsToRender.map(path => `
-        <div class="card path-card fade-in" onclick="window.location.href='path-details.html?id=${path.id}'">
-          <div class="path-header">
-            <span class="path-category">${path.categoryLabel}</span>
-          </div>
-          <div class="card-header">
-            <div class="card-title">${path.title}</div>
-            <div class="card-description">${path.description}</div>
-          </div>
-          <div class="path-meta">
-            <span>⏱️ ${path.duration}</span>
-            <span>📊 ${path.level}</span>
-            <span>📚 ${path.modules} módulos</span>
-          </div>
-          <div class="path-footer">
-            <span class="path-students">👥 ${path.students.toLocaleString()} estudantes</span>
-            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); startPath(${path.id})">
-              Começar
-            </button>
-          </div>
-        </div>
-      `).join('');
+    function getCookie(name) {
+      const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return v ? v.pop() : '';
     }
 
-    function filterByCategory(category) {
+    async function startPath(pathId, buttonElement) {
+      // ==========================================================
+      // 🔹 MUDANÇA NA URL DO FETCH 🔹
+      // ==========================================================
+      // Agora aponta para 'todas_trilhas' (a própria página)
+      const url = "{% url 'trilhas:todas_trilhas' %}";
+      const csrfToken = getCookie('csrftoken');
+
+      const formData = new FormData();
+      formData.append('trilha_id', pathId);
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrfToken
+          },
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          buttonElement.textContent = 'Em curso';
+          buttonElement.classList.remove('btn-primary');
+          buttonElement.classList.add('btn-disabled');
+          buttonElement.disabled = true;
+        } else {
+          console.error('Falha ao adicionar trilha:', data.message);
+          alert('Não foi possível adicionar a trilha. Tente novamente.');
+        }
+      } catch (error) {
+        console.error('Erro de rede:', error);
+        alert('Erro de conexão. Tente novamente.');
+      }
+    }
+
+    // Função para redirecionar para os detalhes (o clique no card)
+    function verDetalhes(pathId) {
+      window.location.href = `{% url 'trilhas:ver_etapas' %}?id=` + pathId;
+    }
+
+    // (Funções de filtro permanecem iguais)
+    function filterByCategory(category, buttonElement) {
       currentCategory = category;
       const buttons = document.querySelectorAll('.filter-btn');
       buttons.forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
-
+      buttonElement.classList.add('active');
       filterPaths();
     }
 
     function filterPaths() {
       const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-      let filtered = paths;
+      const cards = document.querySelectorAll('.path-card');
 
-      if (currentCategory !== 'all') {
-        filtered = filtered.filter(path => path.category === currentCategory);
-      }
+      cards.forEach(card => {
+        const title = card.querySelector('.card-title').textContent.toLowerCase();
+        const category = card.getAttribute('data-category');
 
-      if (searchTerm) {
-        filtered = filtered.filter(path =>
-          path.title.toLowerCase().includes(searchTerm) ||
-          path.description.toLowerCase().includes(searchTerm)
-        );
-      }
+        const matchesCategory = currentCategory === 'all' || category === currentCategory;
+        const matchesSearch = !searchTerm || title.includes(searchTerm);
 
-      renderPaths(filtered);
+        card.style.display = (matchesCategory && matchesSearch) ? 'block' : 'none';
+      });
     }
-
-    function startPath(pathId) {
-      window.location.href = `path-details.html?id=${pathId}`;
-    }
-
-    function toggleUserMenu() {
-      if (confirm('Deseja sair?')) {
-        localStorage.removeItem('user');
-        window.location.href = 'index.html';
-      }
-    }
-
-    // Load user data
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user.name) {
-      document.getElementById('userName').textContent = user.name;
-      document.querySelector('.user-avatar').textContent = user.name.charAt(0).toUpperCase();
-    }
-
-    // Initial render
-    renderPaths(paths);
   </script>
 </body>
 </html>

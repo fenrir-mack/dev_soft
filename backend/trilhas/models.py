@@ -1,10 +1,8 @@
 from django.db import models
+from django.contrib.auth.models import User
 from django.conf import settings
 from django.utils import timezone
 
-# -------------------------------
-# MODELOS PRINCIPAIS
-# -------------------------------
 class Categoria(models.Model):
     nome = models.CharField(max_length=100)
     def __str__(self):
@@ -75,10 +73,6 @@ class Projeto(models.Model):
     def __str__(self):
         return f"{self.trilha.titulo} - Projeto {self.titulo}"
 
-
-# -------------------------------
-# PROGRESSO DO USUÁRIO
-# -------------------------------
 class ProgressoTrilha(models.Model):
     STATUS_CHOICES = [
         ('em_progresso', 'Em Progresso'),
@@ -88,6 +82,8 @@ class ProgressoTrilha(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     trilha = models.ForeignKey(Trilha, on_delete=models.CASCADE, related_name='progresso_usuarios')
+
+    # Dados específicos do progresso do usuário
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='em_progresso')
     progresso_percentual = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
     data_inicio = models.DateTimeField(auto_now_add=True)

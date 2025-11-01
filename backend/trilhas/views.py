@@ -5,6 +5,8 @@ from django.views.decorators.csrf import csrf_exempt
 from trilhas.models import Trilha, ProgressoTrilha, Etapa, Topico, ProgressoTopico
 
 
+# Importamos os models que vamos usar
+from .models import Trilha, ProgressoTrilha, Categoria
 
 
 def dashboard_view(request):
@@ -24,8 +26,67 @@ def dashboard_view(request):
     }
     return render(request, 'trilhas/dashboard.html', context)
 
+
+# ==========================================================
+# 🔹 1. VIEW 'PREDEFINED_PATHS' (EXPLORAR) ATUALIZADA 🔹
+# Agora ela lida com GET (mostrar página) e POST (adicionar trilha)
+# ==========================================================
+@login_required
+@csrf_protect  # Garante proteção CSRF para ambas as requisições
 def predefined_paths_view(request):
-    return render(request, 'trilhas/predefined-paths.html')
+    # 🔹 Lógica de POST (quando o JS clica em "Começar") 🔹
+    if request.method == 'POST':
+        try:
+            trilha_id = request.POST.get('trilha_id')
+            if not trilha_id:
+                return JsonResponse({'success': False, 'message': 'ID da trilha não enviado.'}, status=400)
+
+            trilha = get_object_or_404(Trilha, id=trilha_id, visibilidade=True)
+
+            progresso, created = ProgressoTrilha.objects.get_or_create(
+                user=request.user,
+                trilha=trilha,
+                defaults={'status': 'em_progresso', 'progresso_percentual': 0.0}
+            )
+
+            if created:
+                trilha.total_salvos += 1
+                trilha.save()
+
+            return JsonResponse({'success': True, 'message': 'Trilha adicionada com sucesso.'})
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+    # 🔹 Lógica de GET (quando o usuário carrega a página) 🔹
+    # (Todo o código que já tínhamos para exibir a página)
+    all_public_trilhas = Trilha.objects.filter(visibilidade=True).select_related('categoria')
+    categorias = Categoria.objects.all()
+
+    enrolled_trilha_ids = ProgressoTrilha.objects.filter(
+        user=request.user,
+        trilha__in=all_public_trilhas
+    ).values_list('trilha_id', flat=True)
+
+    path_data = []
+    for trilha in all_public_trilhas:
+        path_data.append({
+            'id': trilha.id,
+            'title': trilha.titulo,
+            'description': trilha.descricao,
+            'category': trilha.categoria.nome if trilha.categoria else 'Sem Categoria',
+            'category_slug': trilha.categoria.nome.lower() if trilha.categoria else '',
+            'level': trilha.get_dificuldade_display(),
+            'modules': trilha.etapa_set.count() or trilha.projetos.count(),
+            'students': trilha.total_salvos,
+            'enrolled': trilha.id in enrolled_trilha_ids
+        })
+
+    context = {
+        'paths': path_data,
+        'categorias': categorias
+    }
+    return render(request, 'trilhas/predefined-paths.html', context)
 
 
 def study_guide_view(request):
@@ -121,7 +182,6 @@ def all_paths_view(request):
         .order_by('data_inicio')
     )
 
-    # 🔹 Se for requisição GET com ?format=json → envia os dados pro JS
     if request.method == 'GET' and request.GET.get('format') == 'json':
         def serialize_trilha(p):
             trilha = p.trilha
@@ -139,22 +199,17 @@ def all_paths_view(request):
             "completed": [serialize_trilha(p) for p in progresso_list if p.status == 'concluida'],
         })
 
-    # 🔹 POST → pausa, retoma, reinicia ou deleta trilha
     if request.method == 'POST':
         action = request.POST.get('action')
         trilha_id = request.POST.get('trilha_id')
-
         if not trilha_id:
             return HttpResponseBadRequest("ID da trilha não informado.")
-
         trilha = get_object_or_404(Trilha, id=trilha_id)
-
         progresso, created = ProgressoTrilha.objects.get_or_create(
             user=user,
             trilha=trilha,
             defaults={'status': 'em_progresso', 'progresso_percentual': 0.0}
         )
-
         if action == 'pause':
             progresso.status = 'pausada'
             progresso.save()
@@ -180,7 +235,6 @@ def all_paths_view(request):
         else:
             return HttpResponseBadRequest("Ação inválida.")
 
-    # 🔹 Renderização normal
     return render(request, 'trilhas/all-paths.html', {
         "pathsData": {
             "inProgress": [p.trilha for p in progresso_list if p.status == 'em_progresso'],
