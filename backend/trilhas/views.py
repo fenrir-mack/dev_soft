@@ -24,7 +24,7 @@ def all_paths_view(request):
     Página Minhas Trilhas:
     - GET → mostra as trilhas do usuário atual, divididas por status
       - Se for GET + ?format=json → retorna JSON com trilhas
-    - POST → permite ações (pausar, retomar, reiniciar, excluir progresso)
+    - POST → permite ações (pausar, retomar, reiniciar, excluir progresso, concluir)
     """
 
     user = request.user
@@ -86,6 +86,14 @@ def all_paths_view(request):
         elif action == 'delete':
             progresso.delete()
             return JsonResponse({'success': True, 'message': f'Progresso da trilha "{trilha.titulo}" excluído com sucesso!'})
+
+        #Botao concluir trilha=========================
+        elif action == 'complete':
+            progresso.status = 'concluida'
+            progresso.progresso_percentual = 100.0 # Garante a consistência
+            progresso.save()
+            return JsonResponse({'success': True, 'message': f'Trilha "{trilha.titulo}" concluída com sucesso!'})
+        # ==========================================================
 
         else:
             return HttpResponseBadRequest("Ação inválida.")
