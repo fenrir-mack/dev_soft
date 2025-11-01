@@ -54,12 +54,33 @@
       </div>
 
       <div class="paths-grid" id="pathsGrid">
-        <!-- Paths will be rendered here -->
-      </div>
+        </div>
     </div>
   </main>
 
   <script>
+    // --- CÓDIGO DE LÓGICA DO USUÁRIO E LOGOUT ---
+
+    // Load user data (Igual na dashboard)
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user.name) {
+      document.getElementById('userName').textContent = user.name;
+      document.querySelector('.user-avatar').textContent = user.name.charAt(0).toUpperCase();
+    }
+
+    // Função de Logout (Corrigida)
+    function toggleUserMenu() {
+      if (confirm('Deseja sair?')) {
+        localStorage.removeItem('user');
+        // CORREÇÃO APLICADA AQUI:
+        window.location.href = "{% url 'login' %}";
+      }
+    }
+
+    // --- FIM DO CÓDIGO DE LÓGICA DO USUÁRIO ---
+
+
+    // Lógica da página (filtros, renderização, etc.)
     const paths = [
       {
         id: 1,
@@ -186,20 +207,6 @@
 
     function startPath(pathId) {
       window.location.href = `path-details.html?id=${pathId}`;
-    }
-
-    function toggleUserMenu() {
-      if (confirm('Deseja sair?')) {
-        localStorage.removeItem('user');
-        window.location.href = 'index.html';
-      }
-    }
-
-    // Load user data
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user.name) {
-      document.getElementById('userName').textContent = user.name;
-      document.querySelector('.user-avatar').textContent = user.name.charAt(0).toUpperCase();
     }
 
     // Initial render

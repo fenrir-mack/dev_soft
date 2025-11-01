@@ -3,10 +3,183 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Guia de Estudos - EstudaAI</title>
+  <title>Criar Trilha Personalizada - EstudaAI</title>
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/global.css' %}">
-  <link rel="stylesheet" href="{% static 'css/descricaoTrilha.css' %}">
+  <style>
+    /* O CSS está correto, mantido aqui */
+    .main-content {
+      padding: 48px 0;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .page-title {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+      font-size: 16px;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .custom-path-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .input-section {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 32px;
+    }
+
+    .examples {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .example-chip {
+      padding: 8px 16px;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .example-chip:hover {
+      background-color: var(--accent-light);
+      color: var(--accent-primary);
+      border-color: var(--accent-primary);
+    }
+
+    .generate-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+    }
+
+    .result-section {
+      display: none;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+    }
+
+    .result-section.show {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 48px;
+    }
+
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid var(--bg-tertiary);
+      border-top-color: var(--accent-primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .generated-path {
+      display: none;
+    }
+
+    .generated-path.show {
+      display: block;
+    }
+
+    .path-overview {
+      margin-bottom: 32px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .path-title-generated {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .path-description-generated {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .modules-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .module-item {
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+    }
+
+    .module-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+
+    .module-number {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-primary);
+    }
+
+    .module-duration {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .module-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .module-description {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+    }
+  </style>
 </head>
 <body>
   <nav class="navbar">
@@ -18,159 +191,201 @@
       <ul class="navbar-menu">
         <li><a href="{% url 'trilhas:dashboard' %}">Dashboard</a></li>
         <li><a href="{% url 'trilhas:minhas_trilhas' %}">Minhas Trilhas</a></li>
-        <li><a href="{% url 'trilhas:todas_trilhas' %}" class="active">Explorar</a></li>
-        <li><a href="{% url 'trilha_personalizada' %}">Criar Trilha</a></li>
+        <li><a href="{% url 'trilhas:todas_trilhas' %}">Explorar</a></li>
+        <li><a href="{% url 'trilha_personalizada' %}" class="active">Criar Trilha</a></li>
       </ul>
       <div class="navbar-actions">
         <div class="user-profile" onclick="toggleUserMenu()">
-          <div class="user-avatar">{{ request.user.nickname|first|upper }}</div>
-          <span id="userName">{{ request.user.nickname }}</span>
+          <div class="user-avatar"></div>
+          <span id="userName"></span>
         </div>
       </div>
     </div>
   </nav>
 
   <main class="main-content">
-    <div class="container-wide">
-      <div class="path-hero">
-          <span class="path-category">{{ trilha.categoria.nome }}</span>
-          <h1 class="path-title">{{ trilha.titulo }}</h1>
-          <p class="path-description">{{ trilha.descricao }}</p>
-          <div class="path-stats">
-              <span class="path-stat">📊 {{ trilha.get_dificuldade_display }}</span>
-              <span class="path-stat">📚 {{ trilha.etapas.count }} etapas</span>
-              <span class="path-stat">🎯 {{ trilha.projetos.count }} projeto(s) final(is)</span>
-          </div>
+    <div class="container">
+      <div class="page-header">
+        <h1 class="page-title">✨ Criar Trilha Personalizada</h1>
+        <p class="page-subtitle">Descreva seus objetivos de aprendizado e nossa IA criará uma trilha personalizada para você</p>
       </div>
 
-      <div class="content-grid">
-          <div class="guide-section" id="guideSection">
-              {% for etapa in etapas_data %}
-              <div class="study-card">
-                  <div class="study-header">
-                      <div style="flex:1;">
-                          <div class="study-number">{{ etapa.number }}</div>
-                          <div class="study-title">{{ etapa.title }}</div>
-                      </div>
-                  </div>
-                  <div class="study-description">{{ etapa.description }}</div>
-                  <div class="study-topics">
-                      {% for topico in etapa.topics %}
-                      <div class="topic-item" data-id="{{ topico.id }}">
-                          <div class="topic-checkbox {% if topico.completed %}checked{% endif %}" id="topic-{{ topico.id }}">
-                              {% if topico.completed %}✓{% endif %}
-                          </div>
-                          <div class="topic-text">{{ topico.text }}</div>
-                      </div>
-                      {% endfor %}
-                  </div>
-              </div>
-              {% endfor %}
-
-              {% if projeto %}
-              <div class="project-card">
-                  <span class="project-badge">🎯 PROJETO FINAL</span>
-                  <h2 class="project-title">{{ projeto.titulo }}</h2>
-                  <p class="project-description">{{ projeto.descricao }}</p>
-              </div>
-              {% endif %}
+      <div class="custom-path-container">
+        <div class="input-section">
+          <div class="form-group">
+            <label class="form-label" for="learningGoal">
+              Descreva o que você quer aprender
+            </label>
+            <textarea
+              id="learningGoal"
+              class="form-textarea"
+              placeholder="Ex: Quero aprender desenvolvimento web com foco em React e Node.js para criar aplicações full stack..."
+              rows="6"
+            ></textarea>
           </div>
 
-          <aside class="sidebar">
-              <div class="progress-card">
-                  <h3 class="progress-title">Seu Progresso</h3>
-                  <div class="progress-circle">
-                      <svg width="120" height="120">
-                          <defs>
-                              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                  <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
-                                  <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
-                              </linearGradient>
-                          </defs>
-                          <circle class="progress-circle-bg" cx="60" cy="60" r="52"></circle>
-                          <circle class="progress-circle-fill" cx="60" cy="60" r="52"
-                                  stroke-dasharray="326.73"
-                                  stroke-dashoffset="{{ stroke_offset }}"
-                                  id="progressCircle"></circle>
-                      </svg>
-                      <div class="progress-text" id="progressText">{{ progresso_percentual }}%</div>
-                  </div>
-                  <div class="progress-stats">
-                      <div class="progress-stat">
-                          <span class="progress-stat-label">Concluído</span>
-                          <span class="progress-stat-value" id="completedTopics">{{ topicos_concluidos }}/{{ total_topicos }} tópicos</span>
-                      </div>
-                  </div>
-              </div>
-              <button class="btn btn-primary" style="width: 100%;">▶️ Continuar Estudando</button>
-          </aside>
+          <div class="form-group">
+            <label class="form-label">Exemplos de objetivos:</label>
+            <div class="examples">
+              <span class="example-chip" onclick="setExample('Quero aprender Python para análise de dados e machine learning')">
+                Python para Data Science
+              </span>
+              <span class="example-chip" onclick="setExample('Preciso dominar JavaScript moderno e React para desenvolvimento frontend')">
+                JavaScript e React
+              </span>
+              <span class="example-chip" onclick="setExample('Quero criar aplicativos mobile com React Native')">
+                Desenvolvimento Mobile
+              </span>
+              <span class="example-chip" onclick="setExample('Desejo aprender sobre inteligência artificial e deep learning')">
+                IA e Deep Learning
+              </span>
+            </div>
+          </div>
+
+          <button class="btn btn-primary generate-btn" onclick="generatePath()">
+            ✨ Gerar Trilha Personalizada
+          </button>
+        </div>
+
+        <div class="result-section" id="resultSection">
+          <div class="loading" id="loadingState">
+            <div class="loading-spinner"></div>
+            <p style="color: var(--text-secondary);">Gerando sua trilha personalizada...</p>
+          </div>
+
+          <div class="generated-path" id="generatedPath">
+            <div class="path-overview">
+              <h2 class="path-title-generated" id="pathTitle"></h2>
+              <p class="path-description-generated" id="pathDescription"></p>
+            </div>
+
+            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 20px;">Módulos da Trilha</h3>
+            <div class="modules-list" id="modulesList"></div>
+
+            <div class="action-buttons">
+              <button class="btn btn-primary" onclick="savePath()">
+                💾 Salvar Trilha
+              </button>
+              <button class="btn btn-secondary" onclick="resetForm()">
+                🔄 Gerar Nova Trilha
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </main>
 
-<script>
-  const totalTopicos = {{ total_topicos }};
-  const progressCircle = document.getElementById('progressCircle');
-  const progressText = document.getElementById('progressText');
-  const completedTopicsEl = document.getElementById('completedTopics');
-
-  // Adiciona eventos aos tópicos existentes
-  document.querySelectorAll('.topic-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const topicId = item.getAttribute('data-id');
-      toggleTopic(topicId);
-    });
-  });
-
-  function toggleTopic(topicId) {
-    const checkbox = document.getElementById(`topic-${topicId}`);
-    const isChecked = checkbox.classList.contains('checked');
-    const newStatus = !isChecked;
-
-    // Atualiza visualmente
-    if (newStatus) {
-      checkbox.classList.add('checked');
-      checkbox.textContent = '✓';
-    } else {
-      checkbox.classList.remove('checked');
-      checkbox.textContent = '';
+  <script>
+    function setExample(text) {
+      document.getElementById('learningGoal').value = text;
     }
 
-    // Atualiza progresso
-    updateProgress();
+    function generatePath() {
+      const goal = document.getElementById('learningGoal').value.trim();
 
-    // Envia para o backend
-    fetch("{% url 'trilhas:toggle_topico' %}", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "X-CSRFToken": "{{ csrf_token }}"
-      },
-      body: `topico_id=${topicId}&completed=${newStatus}`
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (!data.success) {
-        console.error("Erro ao atualizar tópico:", data.error);
+      if (!goal) {
+        alert('Por favor, descreva seu objetivo de aprendizado');
+        return;
       }
-    })
-    .catch(err => console.error("Erro na requisição:", err));
-  }
 
-  function updateProgress() {
-    const completedTopics = document.querySelectorAll('.topic-checkbox.checked').length;
-    const percentage = Math.round((completedTopics / totalTopicos) * 100);
+      const resultSection = document.getElementById('resultSection');
+      const loadingState = document.getElementById('loadingState');
+      const generatedPath = document.getElementById('generatedPath');
 
-    progressText.textContent = percentage + '%';
-    completedTopicsEl.textContent = `${completedTopics}/${totalTopicos} tópicos`;
+      resultSection.classList.add('show');
+      loadingState.style.display = 'block';
+      generatedPath.classList.remove('show');
 
-    const circumference = 326.73;
-    const offset = circumference - (percentage / 100) * circumference;
-    progressCircle.style.strokeDashoffset = offset;
-  }
+      // Simulate AI generation
+      setTimeout(() => {
+        loadingState.style.display = 'none';
+        displayGeneratedPath(goal);
+        generatedPath.classList.add('show');
+      }, 2500);
+    }
 
-  // Inicializa o progresso
-  updateProgress();
-</script>
+    function displayGeneratedPath(goal) {
+      // Simulate AI-generated content
+      const pathData = {
+        title: 'Trilha Personalizada: ' + goal.substring(0, 50) + '...',
+        description: 'Esta trilha foi criada especialmente para você com base nos seus objetivos. Ela inclui os conceitos fundamentais, práticas intermediárias e projetos avançados para dominar o tema.',
+        modules: [
+          {
+            number: 1,
+            title: 'Fundamentos e Introdução',
+            description: 'Conceitos básicos, configuração do ambiente e primeiros passos.',
+            duration: '8 horas'
+          },
+          {
+            number: 2,
+            title: 'Conceitos Intermediários',
+            description: 'Aprofundamento nos principais conceitos e técnicas.',
+            duration: '12 horas'
+          },
+          {
+            number: 3,
+            title: 'Práticas Avançadas',
+            description: 'Técnicas avançadas e melhores práticas da indústria.',
+            duration: '10 horas'
+          },
+          {
+            number: 4,
+            title: 'Projeto Prático',
+            description: 'Desenvolvimento de um projeto completo aplicando todo o conhecimento.',
+            duration: '15 horas'
+          },
+          {
+            number: 5,
+            title: 'Otimização e Deploy',
+            description: 'Otimização de performance e publicação do projeto.',
+            duration: '8 horas'
+          }
+        ]
+      };
+
+      document.getElementById('pathTitle').textContent = pathData.title;
+      document.getElementById('pathDescription').textContent = pathData.description;
+
+      const modulesList = document.getElementById('modulesList');
+      modulesList.innerHTML = pathData.modules.map(module => `
+        <div class="module-item">
+          <div class="module-header">
+            <span class="module-number">MÓDULO ${module.number}</span>
+            <span class="module-duration">⏱️ ${module.duration}</span>
+          </div>
+          <div class="module-title">${module.title}</div>
+          <div class="module-description">${module.description}</div>
+        </div>
+      `).join('');
+    }
+
+    function savePath() {
+      alert('Trilha salva com sucesso! Você pode acessá-la no seu dashboard.');
+      // CORREÇÃO APLICADA AQUI: USANDO URL DO DJANGO
+      window.location.href = "{% url 'trilhas:dashboard' %}";
+    }
+
+    function resetForm() {
+      document.getElementById('learningGoal').value = '';
+      document.getElementById('resultSection').classList.remove('show');
+      document.getElementById('generatedPath').classList.remove('show');
+    }
+
+    function toggleUserMenu() {
+      if (confirm('Deseja sair?')) {
+        localStorage.removeItem('user');
+        // CORREÇÃO CRUCIAL APLICADA AQUI: USANDO URL DO DJANGO
+        window.location.href = "{% url 'login' %}";
+      }
+    }
+
+    // Load user data
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user.name) {
+      document.getElementById('userName').textContent = user.name;
+      document.querySelector('.user-avatar').textContent = user.name.charAt(0).toUpperCase();
+    }
+  </script>
 </body>
 </html>

@@ -38,7 +38,6 @@
         <p class="page-subtitle">Gerencie todas as suas trilhas de aprendizagem</p>
       </div>
 
-      <!-- Grids -->
       <div class="section">
         <div class="section-header">
           <h2 class="section-title">Em Progresso</h2>
@@ -64,6 +63,26 @@
   </main>
 
   <script>
+    // --- CÓDIGO ADICIONADO DA DASHBOARD ---
+
+    // Atualiza nome e avatar (para manter consistência com dashboard)
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user.name) {
+      document.getElementById('userName').textContent = user.name;
+      document.querySelector('.user-avatar').textContent = user.name.charAt(0).toUpperCase();
+    }
+
+    // Função de Logout (A função que faltava)
+    function toggleUserMenu() {
+      if (confirm('Deseja sair?')) {
+        localStorage.removeItem('user');
+        window.location.href = "{% url 'login' %}";
+      }
+    }
+
+    // --- FIM DO CÓDIGO ADICIONADO ---
+
+
     // Helpers
     function getCookie(name) {
       const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
@@ -133,7 +152,7 @@
       return div;
     }
 
-    // Toggle menu
+    // Toggle menu (Este é o menu dos cards, não o do usuário)
     function toggleMenu(event, id) {
       event.stopPropagation();
       document.querySelectorAll('.path-menu').forEach(m=>m.id!==`menu-${id}`?m.classList.remove('show'):null);
