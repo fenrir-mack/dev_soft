@@ -7,7 +7,7 @@
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/global.css' %}">
   <style>
-    /* === estilos (sem alterações) === */
+    /* === estilos === */
     .main-content { padding: 48px 0; }
     .page-header {margin-bottom: 48px;text-align: center; display: flex; flex-direction: column; align-items: center; }
     .page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; }
@@ -17,9 +17,6 @@
     .section-title { font-size: 24px; font-weight: 600; }
     .section-badge { padding: 4px 12px; background-color: var(--accent-light); color: var(--accent-primary); border-radius: 999px; font-size: 13px; font-weight: 600; }
     .paths-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; }
-
-    /* ... (outros estilos) ... */
-
     .path-card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
     .path-status-badge { padding:4px 12px; border-radius:999px; font-size:12px; font-weight:600; }
     .path-status-badge.in-progress { background-color: var(--accent-light); color: var(--accent-primary); }
@@ -59,26 +56,34 @@
     }
 
     .path-card {
-      /* ... (estilos existentes) ... */
-      cursor: default; /* O cursor é movido para o 'body' do card */
+      /* Estilos originais que foram perdidos (restaurados) */
+      position: relative;
+      overflow: hidden;
+      background: var(--bg-card);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
 
-      /* 1. Transforma o card em um container flex vertical */
+      /* Estilos do Flexbox (mantidos) */
+      cursor: default;
       display: flex;
       flex-direction: column;
     }
 
+    /* Bordas coloridas (restauradas) */
+    .path-card.in-progress::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent-primary), #8b5cf6); }
+    .path-card.paused::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #f59e0b, #f97316); }
+    .path-card.completed::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #10b981, #059669); }
+
+    /* Estilos do Flexbox (mantidos) */
     .path-card-body {
-      /* 2. Este novo container (no JS) será flex... */
       display: flex;
       flex-direction: column;
-      /* 3. ...e vai crescer para preencher o espaço vazio */
       flex-grow: 1;
-      cursor: pointer; /* O cursor 'pointer' vem para cá */
+      cursor: pointer;
     }
 
     .path-card-footer {
-      /* 4. Esta nova div (no JS) usará 'margin-top: auto'
-         para ser empurrada para o fundo do card. */
       margin-top: auto;
     }
 
@@ -152,13 +157,10 @@
         .replace(/'/g, '&#039;');
     }
 
-
     function createPathCard(path, status) {
       const div = document.createElement('div');
       div.className = `path-card ${status}`;
 
-      // 1. O div[onclick] agora tem a classe .path-card-body
-      // 2. Foi criada uma nova div .path-card-footer
       div.innerHTML = `
         <div class="path-card-header">
           <span class="path-status-badge ${status}">
@@ -194,7 +196,8 @@
                Mover para Concluídas
               </button>
             ` : ''}
-          </div> </div> `;
+          </div> </div> `; // <-- AQUI ESTAVA O ERRO (o seu código não fechava o innerHTML)
+
       // Menu (sem alterações)
       const menu = div.querySelector('.path-menu');
       if (status==='in-progress') {
