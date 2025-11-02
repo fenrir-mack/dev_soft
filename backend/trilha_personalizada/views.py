@@ -18,6 +18,7 @@ genai.configure(api_key=api_key)
 model = genai.GenerativeModel("models/gemini-2.5-flash")
 
 
+
 @csrf_exempt
 def custom_path_view(request):
     if request.method == "POST":
