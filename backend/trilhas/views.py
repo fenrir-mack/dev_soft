@@ -12,9 +12,11 @@ def dashboard_view(request):
 
     trilhas_em_progresso = ProgressoTrilha.objects.filter(user=user, status='em_progresso').count()
     trilhas_concluidas = ProgressoTrilha.objects.filter(user=user, status='concluida').count()
-    trilhas_salvas = ProgressoTrilha.objects.filter(user=user, status='pausada').count()
+    # Modificado para refletir a contagem real de "salvos" do modelo Trilha
+    trilhas_salvas = user.trilhas_salvas.count()
 
-    ultimas_trilhas = ProgressoTrilha.objects.filter(user=user).select_related('trilha').order_by('-data_ultima_modificacao')[:3]
+    ultimas_trilhas = ProgressoTrilha.objects.filter(user=user).select_related('trilha').order_by(
+        '-data_ultima_modificacao')[:3]
 
     context = {
         'trilhas_em_progresso': trilhas_em_progresso,
@@ -43,14 +45,8 @@ def predefined_paths_view(request):
             )
 
             if created:
-                # ==========================================================
-                # 🔹 CORREÇÃO Nº 1 (Erro Lógico) 🔹
-                # 'total_salvos' é uma @property, não um campo.
-                # Usamos o ManyToManyField 'usuarios_salvos'
-                # ==========================================================
+                # Adiciona o usuário ao ManyToManyField 'usuarios_salvos'
                 trilha.usuarios_salvos.add(request.user)
-                # trilha.total_salvos += 1 (ERRADO)
-                # trilha.save() (DESNECESSÁRIO)
 
             return JsonResponse({'success': True, 'message': 'Trilha adicionada com sucesso.'})
 
@@ -75,12 +71,9 @@ def predefined_paths_view(request):
             'category': trilha.categoria.nome if trilha.categoria else 'Sem Categoria',
             'category_slug': trilha.categoria.nome.lower() if trilha.categoria else '',
             'level': trilha.get_dificuldade_display(),
-            # ==========================================================
-            # 🔹 CORREÇÃO Nº 2 (Erro do Screenshot) 🔹
-            # 'etapa_set' foi renomeado para 'etapas' no seu models.py
-            # ==========================================================
+            # Renomeado de 'etapa_set' para 'etapas' (conforme seu models.py)
             'modules': trilha.etapas.count() or trilha.projetos.count(),
-            'students': trilha.total_salvos,  # Isso está correto (lendo a @property)
+            'students': trilha.total_salvos,  # Lê a @property
             'enrolled': trilha.id in enrolled_trilha_ids
         })
 
@@ -152,28 +145,24 @@ def toggle_topico(request):
 
         # Marca o progresso do tópico
         progresso, created = ProgressoTopico.objects.get_or_create(user=user, topico=topico)
-        progresso.concluido = completed
-        progresso.save()
 
-        # Atualiza o progresso da trilha correspondente
-        trilha = topico.etapa.trilha
-        total = ProgressoTopico.objects.filter(topico__etapa__trilha=trilha, user=user).count()
-        concluidos = ProgressoTopico.objects.filter(topico__etapa__trilha=trilha, user=user, concluido=True).count()
-        percentual = (concluidos / total) * 100 if total > 0 else 0
+        # Chama seu método de modelo, que é mais robusto
+        progresso.salvar_conclusao(concluido=completed)
 
-        progresso_trilha, _ = ProgressoTrilha.objects.get_or_create(user=user, trilha=trilha)
-        progresso_trilha.progresso_percentual = percentual
-        progresso_trilha.save()
+        # O método salvar_conclusao já chama progresso_trilha.atualizar_progresso()
+        # Então, o código manual de cálculo percentual aqui não é mais necessário
+        # Apenas pegamos o valor atualizado para retornar no JSON
+        progresso_trilha = ProgressoTrilha.objects.get(user=user, trilha=topico.etapa.trilha)
 
-        # Print visível no terminal também (além do log)
-        print(f"[OK] {user.username}: Tópico {topico_id} atualizado — progresso da trilha agora {percentual:.2f}%")
+        print(
+            f"[OK] {user.username}: Tópico {topico_id} atualizado — progresso da trilha agora {progresso_trilha.progresso_percentual:.2f}%")
 
-        return JsonResponse({"success": True, "progress": percentual})
+        return JsonResponse({"success": True, "progress": progresso_trilha.progresso_percentual})
 
     return JsonResponse({"success": False, "error": "Método inválido"})
 
 
-@csrf_exempt
+@csrf_exempt  # CSRF é necessário para POST, @csrf_protect seria melhor
 @login_required
 def all_paths_view(request):
     user = request.user
@@ -207,41 +196,64 @@ def all_paths_view(request):
         trilha_id = request.POST.get('trilha_id')
         if not trilha_id:
             return HttpResponseBadRequest("ID da trilha não informado.")
+
         trilha = get_object_or_404(Trilha, id=trilha_id)
-        progresso, created = ProgressoTrilha.objects.get_or_create(
-            user=user,
-            trilha=trilha,
-            defaults={'status': 'em_progresso', 'progresso_percentual': 0.0}
-        )
+
+        # Usamos get_object_or_404 para garantir que o progresso exista para ações
+        if action != 'resume':  # Ação 'resume' pode criar um novo progresso
+            progresso = get_object_or_404(ProgressoTrilha, user=user, trilha=trilha)
+
         if action == 'pause':
             progresso.status = 'pausada'
             progresso.save()
             return JsonResponse({'success': True, 'message': f'Trilha \"{trilha.titulo}\" pausada com sucesso!'})
 
         elif action == 'resume':
-            progresso.status = 'em_progresso'
-            progresso.save()
+            # get_or_create é melhor aqui, caso o usuário tenha deletado e queira recomeçar
+            progresso, created = ProgressoTrilha.objects.get_or_create(
+                user=user,
+                trilha=trilha,
+                defaults={'status': 'em_progresso', 'progresso_percentual': 0.0}
+            )
+            if not created:
+                progresso.status = 'em_progresso'
+                progresso.save()
             return JsonResponse({'success': True, 'message': f'Trilha \"{trilha.titulo}\" retomada!'})
 
         elif action == 'restart':
             progresso.progresso_percentual = 0.0
             progresso.status = 'em_progresso'
             progresso.save()
-            ProgressoTopico.objects.filter(user=user, topico__etapa__trilha=trilha).update(concluido=False)
+            ProgressoTopico.objects.filter(user=user, topico__etapa__trilha=trilha).update(concluido=False,
+                                                                                           data_conclusao=None)
             return JsonResponse({'success': True, 'message': f'Trilha \"{trilha.titulo}\" reiniciada!'})
 
+        # ==========================================================
+        # 🔹 ÁREA CORRIGIDA 🔹
+        # ==========================================================
         elif action == 'delete':
+            progresso = get_object_or_404(ProgressoTrilha, user=user, trilha=trilha)
+
+            # 1. Deleta o progresso principal (ProgressoTrilha)
             progresso.delete()
+
+            # 2. Deleta os progressos dos tópicos (ProgressoTopico)
             ProgressoTopico.objects.filter(user=user, topico__etapa__trilha=trilha).delete()
-            return JsonResponse({'success': True, 'message': f'Progresso da trilha \"{trilha.titulo}\" excluído com sucesso!'})
+
+            # 3. [LINHA ADICIONADA] Remove o usuário da contagem de "salvos" (Trilha.usuarios_salvos)
+            trilha.usuarios_salvos.remove(user)
+
+            return JsonResponse(
+                {'success': True, 'message': f'Progresso da trilha \"{trilha.titulo}\" excluído com sucesso!'})
 
         else:
             return HttpResponseBadRequest("Ação inválida.")
 
+    # Lógica de GET (para renderizar o HTML da página 'minhas_trilhas')
     return render(request, 'trilhas/all-paths.html', {
         "pathsData": {
-            "inProgress": [p.trilha for p in progresso_list if p.status == 'em_progresso'],
-            "paused": [p.trilha for p in progresso_list if p.status == 'pausada'],
-            "completed": [p.trilha for p in progresso_list if p.status == 'concluida'],
+            "inProgress": [p for p in progresso_list if p.status == 'em_progresso'],
+            "paused": [p for p in progresso_list if p.status == 'pausada'],
+            "completed": [p for p in progresso_list if p.status == 'concluida'],
         }
     })

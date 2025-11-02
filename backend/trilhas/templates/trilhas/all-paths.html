@@ -38,7 +38,6 @@
         <p class="page-subtitle">Gerencie todas as suas trilhas de aprendizagem</p>
       </div>
 
-      <!-- Grids -->
       <div class="section">
         <div class="section-header">
           <h2 class="section-title">Em Progresso</h2>
@@ -64,6 +63,14 @@
   </main>
 
   <script>
+
+    function toggleUserMenu() {
+      if (confirm('Deseja sair?')) {
+        localStorage.removeItem('user');
+        window.location.href = 'index.html'; // Redireciona para index.html
+      }
+    }
+
     // Helpers
     function getCookie(name) {
       const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
