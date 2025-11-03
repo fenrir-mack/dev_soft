@@ -23,6 +23,9 @@
       </ul>
       <div class="navbar-actions">
         <div class="user-profile" onclick="toggleUserMenu()">
+          <form id="logoutForm" action="{% url 'logout' %}" method="post" style="display:none;">
+            {% csrf_token %}
+          </form>
           <div class="user-avatar">{{ request.user.nickname|first|upper }}</div>
           <span id="userName">{{ request.user.nickname }}</span>
         </div>
@@ -109,6 +112,12 @@
   </main>
 
 <script>
+    function toggleUserMenu() {
+  if (confirm('Deseja sair da sua conta?')) {
+        document.getElementById('logoutForm').submit();
+      }
+    }
+
   const totalTopicos = {{ total_topicos }};
   const progressCircle = document.getElementById('progressCircle');
   const progressText = document.getElementById('progressText');

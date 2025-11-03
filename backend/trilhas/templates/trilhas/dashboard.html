@@ -24,6 +24,9 @@
       </ul>
       <div class="navbar-actions">
         <div class="user-profile" onclick="toggleUserMenu()">
+          <form id="logoutForm" action="{% url 'logout' %}" method="post" style="display:none;">
+            {% csrf_token %}
+          </form>
           <div class="user-avatar">{{ request.user.nickname|first|upper }}</div>
           <span id="userName">{{ request.user.nickname }}</span>
         </div>
@@ -137,11 +140,11 @@
     }
 
     function toggleUserMenu() {
-      if (confirm('Deseja sair?')) {
-        localStorage.removeItem('user');
-        window.location.href = 'index.html';
+        if (confirm('Deseja sair da sua conta?')) {
+          document.getElementById('logoutForm').submit();
+        }
       }
-    }
+
 
     function togglePathMenu(event, pathId) {
       event.stopPropagation();
