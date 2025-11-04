@@ -110,13 +110,8 @@ class ProgressoTrilha(models.Model):
         else:
             self.progresso_percentual = 0
 
-        if self.progresso_percentual == 100:
-            self.status = 'concluida'
-        else:
-            self.status = 'em_progresso'
-
         self.data_ultima_modificacao = timezone.now()
-        self.save()
+        self.save(update_fields=['progresso_percentual', 'data_ultima_modificacao'])
 
 
 class ProgressoTopico(models.Model):

@@ -49,7 +49,8 @@ def explorar_view(request):
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
     all_public_trilhas = Trilha.objects.filter(visibilidade=True).select_related('categoria')
-    categorias = Categoria.objects.all()
+
+    categorias = Categoria.objects.filter(trilha__visibilidade=True).distinct()
 
     enrolled_trilha_ids = ProgressoTrilha.objects.filter(
         user=request.user,
@@ -77,8 +78,8 @@ def explorar_view(request):
     return render(request, 'trilhas/explorar.html', context)
 
 
-@login_required  # Adicionado decorator para segurança
-def study_guide_view(request):
+@login_required
+def detalhes_da_trilha_view(request):
     trilha_id = request.GET.get('id')
     trilha = get_object_or_404(Trilha, id=trilha_id)
 
@@ -101,12 +102,9 @@ def study_guide_view(request):
             "topics": topicos_data
         })
 
-    # Projeto final
     projeto = trilha.projetos.first()
 
-    # Progresso do usuário
     progresso, _ = ProgressoTrilha.objects.get_or_create(user=request.user, trilha=trilha)
-    circunferencia = 326.73
     stroke_offset = 326.73 - (float(progresso.progresso_percentual) / 100) * 326.73
 
     context = {
@@ -120,7 +118,7 @@ def study_guide_view(request):
         "stroke_offset": stroke_offset,
     }
 
-    return render(request, 'trilhas/study-guide.html', context)
+    return render(request, 'trilhas/detalhes-da-trilha.html', context)
 
 
 @csrf_exempt  # OK para APIs internas, mas @csrf_protect é melhor
@@ -155,9 +153,8 @@ def toggle_topico(request):
     return JsonResponse({"success": False, "error": "Método inválido"})
 
 
-@csrf_exempt  # CSRF é necessário para POST, @csrf_protect seria melhor
 @login_required
-def all_paths_view(request):
+def minhas_trilhas_view(request):
     user = request.user
 
     progresso_list = (
@@ -192,8 +189,7 @@ def all_paths_view(request):
 
         trilha = get_object_or_404(Trilha, id=trilha_id)
 
-        # Usamos get_object_or_404 para garantir que o progresso exista para ações
-        if action != 'resume':  # Ação 'resume' pode criar um novo progresso
+        if action != 'resume':
             progresso = get_object_or_404(ProgressoTrilha, user=user, trilha=trilha)
 
         if action == 'pause':
@@ -202,7 +198,6 @@ def all_paths_view(request):
             return JsonResponse({'success': True, 'message': f'Trilha \"{trilha.titulo}\" pausada com sucesso!'})
 
         elif action == 'resume':
-            # get_or_create é melhor aqui, caso o usuário tenha deletado e queira recomeçar
             progresso, created = ProgressoTrilha.objects.get_or_create(
                 user=user,
                 trilha=trilha,
@@ -217,33 +212,32 @@ def all_paths_view(request):
             progresso.progresso_percentual = 0.0
             progresso.status = 'em_progresso'
             progresso.save()
-            ProgressoTopico.objects.filter(user=user, topico__etapa__trilha=trilha).update(concluido=False,
-                                                                                           data_conclusao=None)
+            ProgressoTopico.objects.filter(user=user, topico__etapa__trilha=trilha).update(concluido=False,data_conclusao=None)
             return JsonResponse({'success': True, 'message': f'Trilha \"{trilha.titulo}\" reiniciada!'})
 
-        # ==========================================================
-        # 🔹 ÁREA CORRIGIDA 🔹
-        # ==========================================================
         elif action == 'delete':
             progresso = get_object_or_404(ProgressoTrilha, user=user, trilha=trilha)
 
-            # 1. Deleta o progresso principal (ProgressoTrilha)
             progresso.delete()
 
-            # 2. Deleta os progressos dos tópicos (ProgressoTopico)
             ProgressoTopico.objects.filter(user=user, topico__etapa__trilha=trilha).delete()
 
-            # 3. [LINHA ADICIONADA] Remove o usuário da contagem de "salvos" (Trilha.usuarios_salvos)
             trilha.usuarios_salvos.remove(user)
 
             return JsonResponse(
                 {'success': True, 'message': f'Progresso da trilha \"{trilha.titulo}\" excluído com sucesso!'})
 
+        elif action == 'complete':
+            progresso = get_object_or_404(ProgressoTrilha, user=user, trilha=trilha)
+            progresso.status = 'concluida'
+            progresso.progresso_percentual = 100.0
+            progresso.save()
+            return JsonResponse({'success': True, 'message': f'Trilha "{trilha.titulo}" marcada como concluída!'})
+
         else:
             return HttpResponseBadRequest("Ação inválida.")
 
-    # Lógica de GET (para renderizar o HTML da página 'minhas_trilhas')
-    return render(request, 'trilhas/all-paths.html', {
+    return render(request, 'trilhas/minhas-trilhas.html', {
         "pathsData": {
             "inProgress": [p for p in progresso_list if p.status == 'em_progresso'],
             "paused": [p for p in progresso_list if p.status == 'pausada'],

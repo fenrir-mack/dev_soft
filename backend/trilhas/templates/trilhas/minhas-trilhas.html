@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Minhas Trilhas - EstudaAI</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <link rel="stylesheet" href="{% static 'css/minhasTrilhas.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+<nav class="navbar">
+    <div class="container navbar-content">
+        <a href="{% url 'trilhas:dashboard' %}" class="navbar-brand">
+            <div class="logo">🎓</div>
+            <span>EstudaAI</span>
+        </a>
+        <ul class="navbar-menu">
+            <li><a href="{% url 'trilhas:dashboard' %}">Dashboard</a></li>
+            <li><a href="{% url 'trilhas:minhas_trilhas' %}" class="active">Minhas Trilhas</a></li>
+            <li><a href="{% url 'trilhas:todas_trilhas' %}">Explorar</a></li>
+            <li><a href="{% url 'trilha_personalizada:trilha_personalizada' %}">Criar Trilha</a></li>
+        </ul>
+        <div class="navbar-actions">
+            <div class="user-profile" onclick="toggleUserMenu()">
+                <form id="logoutForm" action="{% url 'logout' %}" method="post" style="display:none;">
+                    {% csrf_token %}
+                </form>
+                <div class="user-avatar">{{ request.user.nickname|first|upper }}</div>
+                <span id="userName">{{ request.user.nickname }}</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="main-content">
+    <div class="container-wide">
+        <div class="page-header">
+            <h1 class="page-title">Minhas Trilhas</h1>
+            <p class="page-subtitle">Gerencie todas as suas trilhas de aprendizagem</p>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Em Progresso</h2>
+                <span class="section-badge" id="inProgressCount">0</span>
+            </div>
+            <div class="paths-grid" id="inProgressGrid"></div>
+        </div>
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Pausadas</h2>
+                <span class="section-badge" id="pausedCount">0</span>
+            </div>
+            <div class="paths-grid" id="pausedGrid"></div>
+        </div>
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Concluídas</h2>
+                <span class="section-badge" id="completedCount">0</span>
+            </div>
+            <div class="paths-grid" id="completedGrid"></div>
+        </div>
+    </div>
+</main>
+
+<script>
+
+    function toggleUserMenu() {
+        if (confirm('Deseja sair da sua conta?')) {
+            document.getElementById('logoutForm').submit();
+        }
+    }
+
+    function getCookie(name) {
+        const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return v ? v.pop() : '';
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function createPathCard(path, status) {
+        const div = document.createElement('div');
+        div.className = `path-card ${status}`;
+        div.innerHTML = `
+        <div class="path-card-header">
+          <span class="path-status-badge ${status}">
+            ${status === 'in-progress' ? '➡️ Em Progresso' : status === 'paused' ? '⏸️ Pausada' : '✅ Concluída'}
+          </span>
+          <div style="position:relative;">
+            <button class="path-menu-btn" onclick="toggleMenu(event, ${path.id})">⋮</button>
+            <div class="path-menu" id="menu-${path.id}"></div>
+          </div>
+        </div>
+
+        <div class="path-card-body" onclick="verDetalhes(${path.id})">
+
+          <div class="card-title" style="font-weight:600; margin-bottom:6px;">${escapeHtml(path.title)}</div>
+          <div class="card-description">${escapeHtml(path.description)}</div>
+
+          <div class="path-card-footer">
+            <div class="path-meta">
+              <span>📊 ${escapeHtml(path.level)}</span>
+            </div>
+
+            ${status !== 'completed' ? `<div class="path-progress">
+              <div class="progress-label">
+                <span>Progresso</span><span>${path.progress}%</span>
+              </div>
+              <div class="progress-bar" style="background:var(--bg-tertiary); height:8px; border-radius:6px;">
+                <div style="width:${path.progress}%; background:var(--accent-primary); height:8px; border-radius:6px;"></div>
+              </div>
+            </div>` : ''}
+
+            ${status === 'in-progress' && Math.round(path.progress) === 100 ? `
+              <button class="complete-btn" onclick="completeTrilha(event, ${path.id})">
+                Mover para Concluídas
+              </button>
+            ` : ''}
+
+          </div> </div> `;
+
+        const menu = div.querySelector('.path-menu');
+        if (status === 'in-progress') {
+            menu.innerHTML = `
+          <div class="path-menu-item" onclick="pauseTrilha(${path.id})">⏸️ Pausar trilha</div>
+          <div class="path-menu-item" onclick="verDetalhes(${path.id})">👁️ Ver detalhes</div>
+          <div class="path-menu-item danger" onclick="deleteTrilha(${path.id})">🗑️ Excluir trilha</div>
+        `;
+        } else if (status === 'paused') {
+            menu.innerHTML = `
+          <div class="path-menu-item" onclick="resumeTrilha(${path.id})">▶️ Retomar trilha</div>
+          <div class="path-menu-item" onclick="verDetalhes(${path.id})">👁️ Ver detalhes</div>
+          <div class="path-menu-item danger" onclick="deleteTrilha(${path.id})">🗑️ Excluir trilha</div>
+        `;
+        } else {
+            menu.innerHTML = `
+          <div class="path-menu-item" onclick="restartTrilha(${path.id})">🔄 Refazer trilha</div>
+          <div class="path-menu-item" onclick="verDetalhes(${path.id})">👁️ Ver detalhes</div>
+          <div class="path-menu-item danger" onclick="deleteTrilha(${path.id})">🗑️ Excluir trilha</div>
+        `;
+        }
+        return div;
+    }
+
+    function toggleMenu(event, id) {
+        event.stopPropagation();
+        document.querySelectorAll('.path-menu').forEach(m => m.id !== `menu-${id}` ? m.classList.remove('show') : null);
+        document.getElementById(`menu-${id}`)?.classList.toggle('show');
+    }
+
+    document.addEventListener('click', () => document.querySelectorAll('.path-menu').forEach(m => m.classList.remove('show')));
+
+    document.addEventListener('DOMContentLoaded', async () => await carregarEExibir());
+
+    async function carregarEExibir() {
+        try {
+            const url = "{% url 'trilhas:minhas_trilhas' %}?format=json";
+            const res = await fetch(url, {credentials: 'same-origin'});
+            if (!res.ok) throw new Error('Falha ao buscar trilhas');
+            const data = await res.json();
+            populateGrid('inProgressGrid', data.inProgress, 'in-progress');
+            populateGrid('pausedGrid', data.paused, 'paused');
+            populateGrid('completedGrid', data.completed, 'completed');
+        } catch (err) {
+            console.error(err);
+            document.getElementById('inProgressGrid').innerHTML = '<div class="empty-state"><div class="empty-state-title">Erro ao carregar trilhas</div></div>';
+            document.getElementById('pausedGrid').innerHTML = '';
+            document.getElementById('completedGrid').innerHTML = '';
+        }
+    }
+
+    function populateGrid(gridId, items, status) {
+        const grid = document.getElementById(gridId);
+        const countEl = document.getElementById(gridId.replace('Grid', 'Count'));
+        grid.innerHTML = '';
+        countEl.textContent = items.length || 0;
+        if (!items || items.length === 0) {
+            grid.innerHTML = `<div class="empty-state">
+          <div class="empty-state-icon">📚</div>
+          <div class="empty-state-title">Nenhuma trilha ${status === 'in-progress' ? 'em progresso' : status === 'paused' ? 'pausada' : 'concluída'}</div>
+          <div class="empty-state-description">${status === 'in-progress' ? 'Comece' : status === 'paused' ? 'Pause' : 'Conclua'} uma trilha para aparecer aqui </div>
+        </div>`;
+            return;
+        }
+        items.forEach(p => {
+            const path = {
+                id: p.id,
+                title: p.title || p.titulo || 'Sem título',
+                description: p.description || p.descricao || '',
+                duration: p.duration || '—',
+                level: p.level || '—',
+                progress: typeof p.progress === 'number' ? p.progress : (p.progress || 0)
+            };
+            grid.appendChild(createPathCard(path, status));
+        });
+    }
+
+    async function sendAction(action, trilhaId) {
+        const url = "{% url 'trilhas:minhas_trilhas' %}";
+        const body = `action=${encodeURIComponent(action)}&trilha_id=${encodeURIComponent(trilhaId)}`;
+        const res = await fetch(url, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': getCookie('csrftoken')},
+            body
+        });
+      if(res.ok){try{const json=await res.json();}catch(e){}await carregarEExibir();}
+      else {const text=await res.text();console.error('Erro ação:',res.status,text);alert('Erro ao executar ação');}
+    }
+
+    const swalDark = Swal.mixin({
+      background: '#1c1c1c',       // dark background
+      color: '#e0e0e0',            // light text
+      confirmButtonColor: '#7c3aed', // purple (matches your accent)
+      cancelButtonColor: '#dc2626',  // red for cancel
+      buttonsStyling: true,
+      customClass: {
+        popup: 'swal2-dark-popup',
+        title: 'swal2-dark-title',
+        confirmButton: 'swal2-confirm',
+        cancelButton: 'swal2-cancel'
+      }
+    });
+
+    function completeTrilha(event, id) {
+          event.stopPropagation();
+
+          swalDark.fire({
+            title: '🎉 Concluir trilha?',
+            text: 'Tem certeza de que deseja marcar esta trilha como concluída?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sim, concluir!',
+            cancelButtonText: 'Cancelar',
+          }).then((result) => {
+            if (result.isConfirmed) {
+              sendAction('complete', id);
+              swalDark.fire({
+                title: '✅ Concluída!',
+                text: 'Sua trilha foi movida para Concluídas.',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+              });
+            }
+          });
+        }
+
+
+    function pauseTrilha(id) {
+          swalDark.fire({
+            title: '⏸️ Pausar trilha?',
+            text: 'Você poderá retomá-la mais tarde.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sim, pausar',
+            cancelButtonText: 'Cancelar'
+          }).then(result => {
+            if (result.isConfirmed) {
+              sendAction('pause', id);
+              swalDark.fire({
+                title: '⏸️ Pausada!',
+                text: 'A trilha foi pausada com sucesso.',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+              });
+            }
+          });
+        }
+
+
+    function resumeTrilha(id) {
+      swalDark.fire({
+        title: '▶️ Retomar trilha?',
+        text: 'Continue de onde parou.',
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, retomar',
+        cancelButtonText: 'Cancelar'
+      }).then(result => {
+        if (result.isConfirmed) {
+          sendAction('resume', id);
+          swalDark.fire({
+            title: '🚀 Retomada!',
+            text: 'A trilha foi retomada com sucesso.',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        }
+      });
+    }
+
+
+    function restartTrilha(id) {
+      swalDark.fire({
+        title: '🔄 Refazer trilha?',
+        text: 'Todo o progresso será reiniciado.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, reiniciar',
+        cancelButtonText: 'Cancelar'
+      }).then(result => {
+        if (result.isConfirmed) {
+          sendAction('restart', id);
+          swalDark.fire({
+            title: '🔁 Reiniciada!',
+            text: 'O progresso foi zerado.',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        }
+      });
+    }
+
+    function deleteTrilha(id) {
+          swalDark.fire({
+            title: '🗑️ Excluir trilha?',
+            text: 'Esta ação é permanente e não poderá ser desfeita.',
+            icon: 'error',
+            showCancelButton: true,
+            confirmButtonText: 'Sim, excluir',
+            cancelButtonText: 'Cancelar'
+          }).then(result => {
+            if (result.isConfirmed) {
+              sendAction('delete', id);
+              swalDark.fire({
+                title: '❌ Excluída!',
+                text: 'A trilha foi removida com sucesso.',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+              });
+            }
+          });
+        }
+
+
+
+    function verDetalhes(id) {
+        window.location.href = '{% url "trilhas:ver_etapas" %}?id=' + encodeURIComponent(id);
+    }
+</script>
+</body>
+</html>
