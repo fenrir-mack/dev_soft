@@ -1,4 +1,4 @@
-# create_trilhas_with_progress.py (Versao sem acentos)
+# create_trilhas_with_progress.py
 from django.contrib.auth import get_user_model
 from trilhas.models import (
     Categoria, Trilha, Etapa, Topico, Projeto,
@@ -9,8 +9,8 @@ from django.utils import timezone
 User = get_user_model()
 
 # CONFIG
-TARGET_EMAIL = "fenrir2@gmail.com"
-MARK_FIRST_TOPIC_COMPLETED = False
+TARGET_EMAIL = "fenrir@gmail.com"
+MARK_FIRST_TOPIC_COMPLETED = False  # set True if you want the first topic marked as completed
 
 # Get the existing user
 user = User.objects.filter(email=TARGET_EMAIL).first()
@@ -21,18 +21,18 @@ else:
     print(f"Found user: {user.username}")
 
     # --- Create category ---
-    categoria, _ = Categoria.objects.get_or_create(nome="Programacao")
+    categoria, _ = Categoria.objects.get_or_create(nome="Programação")
 
-    # --- Trilhas data (SEM ACENTOS) ---
+    # --- Trilhas data ---
     trilhas_data = [
         {
-            "titulo": "Introducao a Programacao",
-            "descricao": "Aprenda os conceitos basicos de logica e algoritmos.",
+            "titulo": "Introdução à Programação",
+            "descricao": "Aprenda os conceitos básicos de lógica e algoritmos.",
             "dificuldade": "iniciante",
         },
         {
             "titulo": "Desenvolvimento Web com Django",
-            "descricao": "Crie aplicacoes web completas com Django.",
+            "descricao": "Crie aplicações web completas com Django.",
             "dificuldade": "intermediario",
         },
         {
@@ -56,7 +56,7 @@ else:
         # Save to user's saved trilhas (ManyToMany)
         trilha.usuarios_salvos.add(user)
 
-        # --- Add Etapas and Topicos (SEM ACENTOS) ---
+        # --- Add Etapas and Topicos ---
         for i in range(1, 4):
             etapa, _ = Etapa.objects.get_or_create(
                 trilha=trilha,
@@ -68,16 +68,16 @@ else:
                 Topico.objects.get_or_create(
                     etapa=etapa,
                     ordem=j,
-                    defaults={"texto": f"Conteudo do topico {j} da {etapa.titulo}"},
+                    defaults={"texto": f"Conteúdo do tópico {j} da {etapa.titulo}"},
                 )
 
-        # --- Add one Projeto (SEM ACENTOS) ---
+        # --- Add one Projeto ---
         Projeto.objects.get_or_create(
             trilha=trilha,
             ordem=1,
             defaults={
                 "titulo": f"Projeto Final - {trilha.titulo}",
-                "descricao": "Desenvolva um projeto pratico aplicando todo o conhecimento aprendido.",
+                "descricao": "Desenvolva um projeto prático aplicando todo o conhecimento aprendido.",
             },
         )
 
@@ -105,7 +105,9 @@ else:
                 }
             )
 
+            # Optionally mark the very first topic of the first trilha as completed
             if MARK_FIRST_TOPIC_COMPLETED and t_index == 1 and idx == 1:
+                # use the model's helper method if available
                 try:
                     pt.salvar_conclusao(concluido=True)
                 except Exception:
@@ -128,3 +130,63 @@ else:
         print(f"Created or updated trilha: {trilha.titulo} (progress: {progresso_trilha.progresso_percentual}%)")
 
     print("Trilhas and progress created and assigned to user successfully.")
+
+# 1. IMPORTAÇÕES
+from django.contrib.auth import get_user_model
+from trilhas.models import Categoria, Trilha, Etapa, Topico, ProgressoTrilha, ProgressoTopico
+from django.utils import timezone
+
+# 2. CONFIGURAÇÃO
+TARGET_EMAIL = "fenrir@gmail.com" # Este email é o seu USERNAME
+print("--- Iniciando script [FORÇAR 100% EM PROGRESSO] ---")
+
+User = get_user_model()
+
+# 3. VERIFICA O USUÁRIO
+user = User.objects.get(username=TARGET_EMAIL)
+print(f"✅ Usuario encontrado: {user.username}")
+
+# 4. CRIAR UMA TRILHA NOVA DO ZERO
+print("Criando trilha de teste do zero...")
+cat, _ = Categoria.objects.get_or_create(nome="Testes de Status")
+trilha_teste, created = Trilha.objects.get_or_create(
+    titulo="Trilha de Teste 100% (Em Progresso)",
+    defaults={
+        "categoria": cat,
+        "descricao": "Trilha para testar o status 'em_progresso' com 100%.",
+        "visibilidade": False
+    }
+)
+if created:
+     print(f"   -> Trilha '{trilha_teste.titulo}' criada.")
+else:
+     print(f"   -> Trilha '{trilha_teste.titulo}' já existia, será utilizada.")
+
+etapa_teste, _ = Etapa.objects.get_or_create(trilha=trilha_teste, ordem=1, defaults={"titulo": "Etapa Única"})
+topico1_teste, _ = Topico.objects.get_or_create(etapa=etapa_teste, ordem=1, defaults={"texto": "Tópico de Teste 1"})
+topico2_teste, _ = Topico.objects.get_or_create(etapa=etapa_teste, ordem=2, defaults={"texto": "Tópico de Teste 2"})
+
+# 5. CRIAR PROGRESSO MANUALMENTE
+print("Marcando tópicos como concluídos (manualmente)...")
+pt1, _ = ProgressoTopico.objects.get_or_create(user=user, topico=topico1_teste)
+pt1.concluido = True
+pt1.data_conclusao = timezone.now()
+pt1.save()
+
+pt2, _ = ProgressoTopico.objects.get_or_create(user=user, topico=topico2_teste)
+pt2.concluido = True
+pt2.data_conclusao = timezone.now()
+pt2.save()
+
+# 6. FORÇAR O ESTADO DA TRILHA PRINCIPAL
+print("Forçando status da trilha principal...")
+progresso_trilha, _ = ProgressoTrilha.objects.get_or_create(user=user, trilha=trilha_teste)
+progresso_trilha.progresso_percentual = 100.00
+progresso_trilha.status = 'em_progresso'
+progresso_trilha.save()
+
+print("\n✅✅✅ SCRIPT CONCLUÍDO COM SUCESSO! ✅✅✅")
+print(f"Trilha: '{progresso_trilha.trilha.titulo}'")
+print(f"Status Final: '{progresso_trilha.status}'")
+print(f"Percentual Final: {progresso_trilha.progresso_percentual}%")
+print("Atualize sua página 'Minhas Trilhas'.")
