@@ -1,22 +1,19 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse, HttpResponseBadRequest
+from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
-# 1. Imports atualizados para incluir tudo o que você usa
-from .models import Trilha, ProgressoTrilha, Etapa, Topico, ProgressoTopico, Categoria
-from django.utils import timezone  # Importa o timezone que seu model precisa
+from .models import Trilha, ProgressoTrilha, Topico, ProgressoTopico, Categoria
 
 
+@login_required
 def dashboard_view(request):
     user = request.user
 
     trilhas_em_progresso = ProgressoTrilha.objects.filter(user=user, status='em_progresso').count()
     trilhas_concluidas = ProgressoTrilha.objects.filter(user=user, status='concluida').count()
-    # Modificado para refletir a contagem real de "salvos" do modelo Trilha
-    trilhas_salvas = user.trilhas_salvas.count()
+    trilhas_salvas = ProgressoTrilha.objects.filter(user=user, status='pausada').count()
 
-    ultimas_trilhas = ProgressoTrilha.objects.filter(user=user).select_related('trilha').order_by(
-        '-data_ultima_modificacao')[:3]
+    ultimas_trilhas = ProgressoTrilha.objects.filter(user=user).select_related('trilha').order_by('-data_ultima_modificacao')[:3]
 
     context = {
         'trilhas_em_progresso': trilhas_em_progresso,
@@ -28,8 +25,7 @@ def dashboard_view(request):
 
 
 @login_required
-@csrf_protect
-def predefined_paths_view(request):
+def explorar_view(request):
     if request.method == 'POST':
         try:
             trilha_id = request.POST.get('trilha_id')
@@ -45,7 +41,6 @@ def predefined_paths_view(request):
             )
 
             if created:
-                # Adiciona o usuário ao ManyToManyField 'usuarios_salvos'
                 trilha.usuarios_salvos.add(request.user)
 
             return JsonResponse({'success': True, 'message': 'Trilha adicionada com sucesso.'})
@@ -53,7 +48,6 @@ def predefined_paths_view(request):
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
-    # Lógica de GET
     all_public_trilhas = Trilha.objects.filter(visibilidade=True).select_related('categoria')
     categorias = Categoria.objects.all()
 
@@ -71,9 +65,8 @@ def predefined_paths_view(request):
             'category': trilha.categoria.nome if trilha.categoria else 'Sem Categoria',
             'category_slug': trilha.categoria.nome.lower() if trilha.categoria else '',
             'level': trilha.get_dificuldade_display(),
-            # Renomeado de 'etapa_set' para 'etapas' (conforme seu models.py)
-            'modules': trilha.etapas.count() or trilha.projetos.count(),
-            'students': trilha.total_salvos,  # Lê a @property
+            'etapas': trilha.etapas.count() or trilha.projetos.count(),
+            'students': trilha.total_salvos,
             'enrolled': trilha.id in enrolled_trilha_ids
         })
 
@@ -81,7 +74,7 @@ def predefined_paths_view(request):
         'paths': path_data,
         'categorias': categorias
     }
-    return render(request, 'trilhas/predefined-paths.html', context)
+    return render(request, 'trilhas/explorar.html', context)
 
 
 @login_required  # Adicionado decorator para segurança
