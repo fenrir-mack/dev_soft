@@ -73,6 +73,7 @@
         }
     }
 
+
     function getCookie(name) {
         const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
         return v ? v.pop() : '';
@@ -92,63 +93,73 @@
         const div = document.createElement('div');
         div.className = `path-card ${status}`;
         div.innerHTML = `
-        <div class="path-card-header">
-          <span class="path-status-badge ${status}">
-            ${status === 'in-progress' ? '➡️ Em Progresso' : status === 'paused' ? '⏸️ Pausada' : '✅ Concluída'}
-          </span>
-          <div style="position:relative;">
-            <button class="path-menu-btn" onclick="toggleMenu(event, ${path.id})">⋮</button>
-            <div class="path-menu" id="menu-${path.id}"></div>
-          </div>
-        </div>
-
-        <div class="path-card-body" onclick="verDetalhes(${path.id})">
-
-          <div class="card-title" style="font-weight:600; margin-bottom:6px;">${escapeHtml(path.title)}</div>
-          <div class="card-description">${escapeHtml(path.description)}</div>
-
-          <div class="path-card-footer">
-            <div class="path-meta">
-              <span>📊 ${escapeHtml(path.level)}</span>
+            <div class="path-card-header">
+                <span class="path-status-badge ${status}">
+                    ${status === 'in-progress' ? '➡️ Em Progresso' : status === 'paused' ? '⏸️ Pausada' : '✅ Concluída'}
+                </span>
+                <div style="position:relative;">
+                    <button class="path-menu-btn" onclick="toggleMenu(event, ${path.id})">⋮</button>
+                    <div class="path-menu" id="menu-${path.id}"></div>
+                </div>
             </div>
 
-            ${status !== 'completed' ? `<div class="path-progress">
-              <div class="progress-label">
-                <span>Progresso</span><span>${path.progress}%</span>
-              </div>
-              <div class="progress-bar" style="background:var(--bg-tertiary); height:8px; border-radius:6px;">
-                <div style="width:${path.progress}%; background:var(--accent-primary); height:8px; border-radius:6px;"></div>
-              </div>
-            </div>` : ''}
+            <div class="path-card-body">
+                <div class="card-title" style="font-weight:600; margin-bottom:6px;">${escapeHtml(path.title)}</div>
+                <div class="card-description">${escapeHtml(path.description)}</div>
 
-            ${status === 'in-progress' && Math.round(path.progress) === 100 ? `
-              <button class="complete-btn" onclick="completeTrilha(event, ${path.id})">
-                Mover para Concluídas
-              </button>
-            ` : ''}
+                <div class="path-card-footer">
+                    <div class="path-meta">
+                        <span>📊 ${escapeHtml(path.level)}</span>
+                    </div>
 
-          </div> </div> `;
+                    ${status !== 'completed' ? `
+                    <div class="path-progress">
+                        <div class="progress-label">
+                            <span>Progresso</span><span>${path.progress}%</span>
+                        </div>
+                        <div class="progress-bar" style="background:var(--bg-tertiary); height:8px; border-radius:6px;">
+                            <div style="width:${path.progress}%; background:var(--accent-primary); height:8px; border-radius:6px;"></div>
+                        </div>
+                    </div>` : ''}
 
+                    ${status === 'in-progress' && Math.round(path.progress) === 100 ? `
+                        <button class="complete-btn" onclick="completeTrilha(event, ${path.id})">
+                            Mover para Concluídas
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+
+        // 🔹 Agora o event listener fica fora do template
+        div.addEventListener('click', (e) => {
+            // Evita abrir detalhes se o clique for num botão ou menu
+            if (e.target.closest('button') || e.target.closest('.path-menu-item')) return;
+            verDetalhes(path.id);
+        });
+
+        // 🔹 Monta o menu conforme o status
         const menu = div.querySelector('.path-menu');
         if (status === 'in-progress') {
             menu.innerHTML = `
-          <div class="path-menu-item" onclick="pauseTrilha(${path.id})">⏸️ Pausar trilha</div>
-          <div class="path-menu-item" onclick="verDetalhes(${path.id})">👁️ Ver detalhes</div>
-          <div class="path-menu-item danger" onclick="deleteTrilha(${path.id})">🗑️ Excluir trilha</div>
-        `;
+                <div class="path-menu-item" onclick="pauseTrilha(${path.id})">⏸️ Pausar trilha</div>
+                <div class="path-menu-item" onclick="verDetalhes(${path.id})">👁️ Ver detalhes</div>
+                <div class="path-menu-item danger" onclick="deleteTrilha(${path.id})">🗑️ Excluir trilha</div>
+            `;
         } else if (status === 'paused') {
             menu.innerHTML = `
-          <div class="path-menu-item" onclick="resumeTrilha(${path.id})">▶️ Retomar trilha</div>
-          <div class="path-menu-item" onclick="verDetalhes(${path.id})">👁️ Ver detalhes</div>
-          <div class="path-menu-item danger" onclick="deleteTrilha(${path.id})">🗑️ Excluir trilha</div>
-        `;
+                <div class="path-menu-item" onclick="resumeTrilha(${path.id})">▶️ Retomar trilha</div>
+                <div class="path-menu-item" onclick="verDetalhes(${path.id})">👁️ Ver detalhes</div>
+                <div class="path-menu-item danger" onclick="deleteTrilha(${path.id})">🗑️ Excluir trilha</div>
+            `;
         } else {
             menu.innerHTML = `
-          <div class="path-menu-item" onclick="restartTrilha(${path.id})">🔄 Refazer trilha</div>
-          <div class="path-menu-item" onclick="verDetalhes(${path.id})">👁️ Ver detalhes</div>
-          <div class="path-menu-item danger" onclick="deleteTrilha(${path.id})">🗑️ Excluir trilha</div>
-        `;
+                <div class="path-menu-item" onclick="restartTrilha(${path.id})">🔄 Refazer trilha</div>
+                <div class="path-menu-item" onclick="verDetalhes(${path.id})">👁️ Ver detalhes</div>
+                <div class="path-menu-item danger" onclick="deleteTrilha(${path.id})">🗑️ Excluir trilha</div>
+            `;
         }
+
         return div;
     }
 

@@ -80,10 +80,26 @@ def explorar_view(request):
 
 @login_required
 def detalhes_da_trilha_view(request):
-    trilha_id = request.GET.get('id')
+    trilha_id = request.GET.get('id') or request.POST.get('trilha_id')
     trilha = get_object_or_404(Trilha, id=trilha_id)
 
-    # Etapas e tópicos
+    # Se for POST (salvar trilha)
+    if request.method == "POST":
+        progresso, created = ProgressoTrilha.objects.get_or_create(
+            user=request.user,
+            trilha=trilha,
+            defaults={"status": "em_progresso", "progresso_percentual": 0.0}
+        )
+
+        if created:
+            trilha.usuarios_salvos.add(request.user)
+            message = "Trilha salva com sucesso!"
+        else:
+            message = "Você já salvou esta trilha."
+
+        return JsonResponse({"success": True, "message": message})
+
+    # Se for GET (mostrar trilha)
     etapas = trilha.etapas.prefetch_related('topicos').all()
     etapas_data = []
     for etapa in etapas:
@@ -103,25 +119,35 @@ def detalhes_da_trilha_view(request):
         })
 
     projeto = trilha.projetos.first()
+    progresso = ProgressoTrilha.objects.filter(user=request.user, trilha=trilha).first()
+    if progresso:
+        progresso_percentual = int(progresso.progresso_percentual)
+        topicos_concluidos = ProgressoTopico.objects.filter(
+            user=request.user,
+            topico__etapa__trilha=trilha,
+            concluido=True
+        ).count()
+    else:
+        progresso_percentual = 0
+        topicos_concluidos = 0
 
-    progresso, _ = ProgressoTrilha.objects.get_or_create(user=request.user, trilha=trilha)
-    stroke_offset = 326.73 - (float(progresso.progresso_percentual) / 100) * 326.73
+    stroke_offset = 326.73 - (progresso_percentual / 100) * 326.73
 
     context = {
         "trilha": trilha,
         "etapas_data": etapas_data,
         "projeto": projeto,
-        "progresso_percentual": int(progresso.progresso_percentual),
-        "topicos_concluidos": ProgressoTopico.objects.filter(user=request.user, topico__etapa__trilha=trilha,
-                                                             concluido=True).count(),
+        "progresso_percentual": progresso_percentual,
+        "topicos_concluidos": topicos_concluidos,
         "total_topicos": sum(len(et['topics']) for et in etapas_data),
         "stroke_offset": stroke_offset,
+        "tem_progresso": progresso is not None,
     }
 
     return render(request, 'trilhas/detalhes-da-trilha.html', context)
 
 
-@csrf_exempt  # OK para APIs internas, mas @csrf_protect é melhor
+
 @login_required
 def toggle_topico(request):
     if request.method == "POST":

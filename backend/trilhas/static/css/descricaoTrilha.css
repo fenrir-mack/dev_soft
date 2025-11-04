@@ -387,3 +387,30 @@
     font-size: 17px;
   }
 }
+
+.save-button-container {
+  transition: all 0.3s ease;
+}
+
+.save-button-container.hidden {
+  margin: 0;
+  padding: 0;
+  height: 0;
+  overflow: hidden;
+}
+.save-button-placeholder {
+  display: none;
+}
+
+.save-button-container.placeholder-active .save-roadmap-btn {
+  display: none;
+}
+
+.save-button-container.placeholder-active .save-button-placeholder {
+  display: block;
+}
+
+/* opcional: animação suave */
+.save-button-container {
+  transition: all 0.3s ease;
+}

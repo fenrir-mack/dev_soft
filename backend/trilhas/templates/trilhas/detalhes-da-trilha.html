@@ -7,6 +7,16 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/global.css' %}">
     <link rel="stylesheet" href="{% static 'css/descricaoTrilha.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+  const swalDark = Swal.mixin({
+    background: '#1e1e2f',
+    color: '#fff',
+    confirmButtonColor: '#6366f1',
+    cancelButtonColor: '#4b5563',
+  });
+</script>
+
 
 </head>
 <body>
@@ -47,10 +57,13 @@
                 <span class="path-stat">🎯 {{ trilha.projetos.count }} projeto(s) final(is)</span>
             </div>
             <div class="save-button-container full-width">
-                <button class="save-roadmap-btn" onclick="saveRoadmap()">
-                    <span class="save-btn-icon">💾</span>
-                    <span class="save-btn-text">Salvar Trilha</span>
-                </button>
+              {% if not tem_progresso %}
+              <button class="save-roadmap-btn" onclick="saveRoadmap(event, {{ trilha.id }})">
+                <span class="save-btn-icon">💾</span>
+                <span class="save-btn-text">Salvar Trilha</span>
+              </button>
+              {% endif %}
+              <div class="save-button-placeholder"></div>
             </div>
         </div>
 
@@ -112,10 +125,12 @@
                         </div>
                     </div>
                     <div class="save-button-container full-width">
-                            <button class="save-roadmap-btn" onclick="saveRoadmap()">
-                                <span class="save-btn-icon">💾</span>
-                                <span class="save-btn-text">Salvar Trilha</span>
-                            </button>
+                      {% if not tem_progresso %}
+                      <button class="save-roadmap-btn" onclick="saveRoadmap(event, {{ trilha.id }})">
+                        <span class="save-btn-icon">💾</span>
+                        <span class="save-btn-text">Salvar Trilha</span>
+                      </button>
+                      {% endif %}
                     </div>
             </aside>
         </div>
@@ -128,6 +143,69 @@
             document.getElementById('logoutForm').submit();
         }
     }
+
+function saveRoadmap(event, id) {
+  event.stopPropagation();
+
+  swalDark.fire({
+    title: '💾 Salvar trilha?',
+    text: 'Deseja adicionar esta trilha à sua lista de estudos?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Sim, salvar!',
+    cancelButtonText: 'Cancelar',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch(window.location.href, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: `trilha_id=${id}`
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          swalDark.fire({
+            title: '✅ Trilha salva!',
+            text: data.message,
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+          });
+
+
+        // Anima o sumiço dos dois botões (todas as instâncias)
+        document.querySelectorAll(".save-button-container").forEach(container => {
+          container.classList.add("placeholder-active");
+
+          const button = container.querySelector(".save-roadmap-btn");
+          const placeholder = container.querySelector(".save-button-placeholder");
+          if (button) button.style.display = "none";
+          if (placeholder) placeholder.style.display = "block";
+        });
+
+
+        } else {
+          swalDark.fire({
+            title: '⚠️ Ops!',
+            text: data.message,
+            icon: 'warning'
+          });
+        }
+      })
+      .catch(err => {
+        console.error("Erro ao salvar trilha:", err);
+        swalDark.fire({
+          title: '❌ Erro!',
+          text: 'Não foi possível salvar a trilha. Tente novamente.',
+          icon: 'error'
+        });
+      });
+    }
+  });
+}
 
     const totalTopicos = {{ total_topicos }};
     const progressCircle = document.getElementById('progressCircle');
