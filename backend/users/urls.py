@@ -6,5 +6,5 @@ from . import views
 
 urlpatterns = [
     path('', views.index_view, name='login'),
-    path('logout/',csrf_exempt(auth_views.LogoutView.as_view(next_page='login')),name='logout'),
+    path('logout/', csrf_exempt(auth_views.LogoutView.as_view(next_page='login')), name='logout'),
 ]

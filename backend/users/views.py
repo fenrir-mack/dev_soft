@@ -5,18 +5,19 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+
 def _titlecase_name(value: str) -> str:
     parts = value.split()
     return " ".join(p.capitalize() for p in parts)
 
-def index_view(request):
-    active_tab = 'login'  # default
 
+def index_view(request):
+    active_tab = 'login'
     if request.method == 'POST':
-        type_access = request.POST.get('action') #login ou signin
+        type_access = request.POST.get('action')  # login ou signup
         raw_email = request.POST.get('email')
         password = request.POST.get('password')
-        email = raw_email.strip().lower() if raw_email else ''
+        email = raw_email.strip().lower()
 
         if type_access == "login":
             user = authenticate(request, username=email, password=password)
@@ -31,9 +32,8 @@ def index_view(request):
             raw_name = request.POST.get('name')
             nickname = request.POST.get('nickname')
             confirm_password = request.POST.get('confirm_password')
-            active_tab = 'signup'
-
             name = _titlecase_name(raw_name or '')
+            active_tab = 'signup'
 
             if password != confirm_password:
                 messages.error(request, 'As senhas não coincidem.')
@@ -54,7 +54,7 @@ def index_view(request):
 
         elif type_access == 'reset_password':
             confirm_password = request.POST.get('confirm_password')
-            active_tab = 'reset'  # mantém UI de reset aberta se der erro
+            active_tab = 'reset'
 
             if not email:
                 messages.error(request, 'Informe um e-mail válido.')
@@ -64,8 +64,7 @@ def index_view(request):
                 try:
                     user = User.objects.get(username=email)
                 except User.DoesNotExist:
-                    # mensagem neutra (não revelar se a conta existe)
-                    messages.error(request, 'Se o e-mail existir, enviaremos a confirmação.')
+                    messages.error(request, 'Email não existe')
                 else:
                     user.set_password(password)
                     user.save()
@@ -80,7 +79,6 @@ def index_view(request):
         }
         return render(request, 'users/index.html', context)
 
-    # ✅ Agora inclui as variáveis prefill padrão no GET
     return render(request, 'users/index.html', {
         'active_tab': active_tab,
         'prefill_email': '',
