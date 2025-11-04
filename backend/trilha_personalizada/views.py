@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 import google.generativeai as genai
 from .prompt import build_prompt
@@ -19,7 +20,7 @@ model = genai.GenerativeModel("models/gemini-2.5-flash")
 
 
 
-@csrf_exempt
+@login_required
 def custom_path_view(request):
     if request.method == "POST":
         tema = request.POST.get("tema_trilha", "").strip()
@@ -74,7 +75,7 @@ def custom_path_view(request):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
 
-    return render(request, 'trilha_personalizada/custom-path.html')
+    return render(request, 'trilha_personalizada/trilhas-personalizadas.html')
 
 @csrf_exempt
 def salvar_trilha_view(request):
@@ -94,10 +95,10 @@ def salvar_trilha_view(request):
                 titulo=trilha_data.get('titulo', 'Nova Trilha'),
                 descricao=trilha_data.get('descricao', ''),
                 dificuldade=trilha_data.get('dificuldade', 'iniciante'),
-                visibilidade=False,  # ← visibilidade = 0
+                visibilidade=False,
             )
 
-            # 🔹 Cria as etapas e seus tópicos
+            # 🔹 Cria as etapas e tópicos
             for etapa_data in etapas_data:
                 etapa = Etapa.objects.create(
                     trilha=trilha,
@@ -119,7 +120,17 @@ def salvar_trilha_view(request):
                     ordem=int(projeto_data.get('ordem') or 0)
                 )
 
-            # 🔹 Redireciona para a página de detalhes
+            # 🟢 Cria progresso inicial (0%) pro usuário logado
+            if request.user.is_authenticated:
+                from trilhas.models import ProgressoTrilha
+                ProgressoTrilha.objects.create(
+                    user=request.user,
+                    trilha=trilha,
+                    progresso_percentual=0.0,
+                    status='em_progresso'
+                )
+
+            # 🔹 Redireciona
             redirect_url = reverse('trilhas:ver_etapas') + f'?id={trilha.id}'
             return JsonResponse({'redirect_url': redirect_url})
 

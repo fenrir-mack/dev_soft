@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -118,6 +118,14 @@ function generatePath() {
   loadingState.style.display = 'block';
   generatedPath.style.display = 'none';
 
+  // 🔽 Scroll suave até o resultado assim que o botão é clicado
+  setTimeout(() => {
+    resultSection.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+  }, 100);
+
   fetch("{% url 'trilha_personalizada:trilha_personalizada' %}", {
     method: 'POST',
     headers: {
@@ -209,5 +217,13 @@ function resetForm() {
         }
       }
 </script>
+<button id="scrollBottomBtn" class="scroll-bottom-btn" title="Ir para o final">🡳</button>
+<script>document.getElementById('scrollBottomBtn').addEventListener('click', () => {
+  window.scrollTo({
+    top: document.body.scrollHeight,
+    behavior: 'smooth'
+  });
+});
+ </script>
 </body>
 </html>

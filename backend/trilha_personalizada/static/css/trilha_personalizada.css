@@ -289,3 +289,79 @@
   gap: 12px;
   margin-top: 32px;
 }
+
+.difficulty-group {
+  margin-bottom: 28px;
+}
+
+.form-label {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.difficulty-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  width: 100%;
+  padding: 14px 16px;
+  background-color: var(--bg-tertiary);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.25s ease;
+  cursor: pointer;
+
+  background-image: linear-gradient(45deg, transparent 50%, var(--accent-primary) 50%),
+                    linear-gradient(135deg, var(--accent-primary) 50%, transparent 50%);
+  background-position: calc(100% - 20px) calc(1.2em + 2px), calc(100% - 15px) calc(1.2em + 2px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.difficulty-select:hover {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.15);
+}
+
+.difficulty-select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+}
+
+/* Para uma leve transição de cor quando muda o valor */
+.difficulty-select option {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-weight: 500;
+  border: none;
+}
+.scroll-bottom-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease, background 0.3s ease;
+  z-index: 1000;
+}
+
+.scroll-bottom-btn:hover {
+  transform: translateY(2px) scale(1.1);
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+}
