@@ -175,11 +175,18 @@ function displayGeneratedPath(data) {
         <div class="project-item">
           <span class="project-badge">🎯 ${/final|conclus/i.test(item.titulo) ? 'PROJETO FINAL' : 'PROJETO'}</span>
           <div class="project-title">${item.titulo}</div>
-          <div class="project-description">${item.descricao}</div>
+          <div class="project-description">${formatMarkdown(item.descricao)}</div>
         </div>`;
     }
   });
 }
+function formatMarkdown(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')   // **negrito**
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')               // *itálico*
+    .replace(/\n\n/g, '<br><br>');                      // quebra de parágrafo
+}
+
 
 // 🚀 Função de salvar trilha no backend e redirecionar
 function savePath() {
