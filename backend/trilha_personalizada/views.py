@@ -18,7 +18,7 @@ api_key = os.getenv("API_KEY")
 genai.configure(api_key=api_key)
 model = genai.GenerativeModel("models/gemini-2.5-flash")
 
-
+#teste
 
 @login_required
 def custom_path_view(request):
