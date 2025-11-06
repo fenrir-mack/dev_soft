@@ -9,7 +9,7 @@ from django.utils import timezone
 User = get_user_model()
 
 # CONFIG
-TARGET_EMAIL = "fenrir@gmail.com"
+TARGET_EMAIL = "10437300@mackenzista.com.br"
 MARK_FIRST_TOPIC_COMPLETED = False  # set True if you want the first topic marked as completed
 
 # Get the existing user

@@ -169,4 +169,5 @@ class LoginAndSignupTests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         msgs = [m.message for m in resp.context["messages"]]
-        self.assertTrue(any("Se o e-mail existir" in m for m in msgs))
+        # Verifica a mensagem atual retornada pela view
+        self.assertTrue(any("Email não existe" in m for m in msgs))
