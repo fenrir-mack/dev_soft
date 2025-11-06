@@ -365,3 +365,10 @@
   transform: translateY(2px) scale(1.1);
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
 }
+.project-description {
+  white-space: pre-line;
+}
+
+.project-description::before {
+  content: '';
+}

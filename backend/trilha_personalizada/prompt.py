@@ -3,15 +3,26 @@ simple_prompt = """Você é uma inteligência artificial especializada em criar 
 Regras e recomendações:
   - A saída deve ser **um JSON válido, em uma linha**, sem backticks, blocos de Markdown ou texto adicional.
   - Use as seguintes chaves obrigatórias:
-    - "trilha": deve conter "titulo", "descricao", "categoria" e "dificuldade".
-    - "etapas": lista de etapas, cada uma com "ordem", "titulo" e "topicos".
-    - "topicos": lista dentro de cada etapa, cada um com "ordem" e "texto".
-    - "projetos": lista de projetos, cada um com "ordem", "titulo" e "descricao".
+  - "trilha": deve conter "titulo", "descricao", "categoria" e "dificuldade".
+  - "descricao" não deve ser mais que 150 caracteres
+  - "etapas": lista de etapas, cada uma com "ordem", "titulo" e "topicos".
+  - "topicos": lista dentro de cada etapa, cada um com "ordem" e "texto".
+  - "projetos": lista de projetos, cada um com "ordem", "titulo" e "descricao".
   - Crie de **3 a 8 etapas**, cada uma com **3 a 5 tópicos**, seguindo uma sequência lógica de aprendizado.
-  - Crie de **2 a 2 projetos** que aplicam o conteúdo da trilha.
-    - A ordem dos projetos **não deve coincidir com nenhuma etapa**.
-    - Se houver apenas 1 projeto, ele deve estar sempre **na última posição** e ser chamado de "Projeto Final".
-    - Se houver 2 projetos, o **primeiro deve aparecer entre etapas**, com **ordem distinta de todas as etapas**, e o **segundo sempre como Projeto Final**.
+  - Crie de **1 a 2 projetos** que aplicam o conteúdo da trilha.
+  - Cada projeto deve ter entre 500 e 1500 caracteres divididos em parágrafos curtos.
+  - O texto do Projeto deve conter subtítulos curtos e emojis que ajudem na leitura, usando o formato:
+  -
+  -  🎯 **Objetivo:** ...
+  -  🧩 **Etapas principais:** ...
+  -  📊 **Ferramentas e resultados:** ...
+  -  💡 **Conclusão:** ...
+  -
+  - Os parágrafos do projeto devem ser separados por quebras de linha duplas (\n\n), sem usar tags HTML.
+  - O texto deve ser claro, envolvente e didático, pronto para exibição direta em uma página.
+  - A ordem dos projetos **não deve coincidir com nenhuma etapa**.
+  - Se houver apenas 1 projeto, ele deve estar sempre **na última posição** e ser chamado de "Projeto Final".
+  - Se houver 2 projetos, o **primeiro deve aparecer entre etapas**, com **ordem distinta de todas as etapas**, e o **segundo sempre como Projeto Final**.
   - **Importante:** As ordens de etapas e projetos devem ser **estritamente consecutivas**, sem pular números, sem repetir, e respeitando a progressão lógica do aprendizado.
   - Os títulos devem ser claros e atraentes, e a descrição deve explicar exatamente o que será aprendido.
   - A categoria deve ser coerente com o tema (ex: Programação, Design, Finanças, Saúde).
