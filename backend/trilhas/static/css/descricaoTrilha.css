@@ -414,3 +414,11 @@
 .save-button-container {
   transition: all 0.3s ease;
 }
+
+.project-description {
+  white-space: pre-line;
+}
+
+.project-description::before {
+  content: '';
+}
