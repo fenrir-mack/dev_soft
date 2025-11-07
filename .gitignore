@@ -10,7 +10,6 @@ env/
 .env
 
 # Django stuff
-*.sqlite3
 /staticfiles/
 media/
 

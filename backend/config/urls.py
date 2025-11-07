@@ -8,7 +8,6 @@ urlpatterns = [
     path('', include('users.urls')),
     path('trilhas/', include('trilhas.urls')),
     path('trilha-personalizada/', include('trilha_personalizada.urls')),
-    path('admin-page/', include('admin_custom.urls')),
 
     path('dashboard/', RedirectView.as_view(url=reverse_lazy('trilhas:dashboard'), permanent=False)),
     path('explorar/', RedirectView.as_view(url=reverse_lazy('trilhas:todas_trilhas'), permanent=False)),

@@ -2,16 +2,16 @@
 
 Membros:
 
-|  Nome  |    RA    |
-|:------:|:--------:|
-|Gustavo Ebeling de Almeida| 10436455 |
+|              Nome              |    RA    |
+|:------------------------------:|:--------:|
+|   Gustavo Ebeling de Almeida   | 10436455 |
 | Ian Erichsen Pacher De Araujo  | 10427607 |
-| Guilerme Guimaraes Lopes  | 10438391 |
-| Guilerme Diego Sanches | 10436672 |
-| Andre Tozi Magalhaes   | 10436460 |
-| Lucas Diniz Ferreira Masteguim   | 10437300 |
-| Lucas Oliveira Da Silva  | 10438940 |
-| Joao De Sa Calvano Bezerra  | 10436734 |
+|   Guilherme Guimaraes Lopes    | 10438391 |
+|    Guilherme Diego Sanches     | 10436672 |
+|      Andre Tozi Magalhaes      | 10436460 |
+| Lucas Diniz Ferreira Masteguim | 10437300 |
+|    Lucas Oliveira Da Silva     | 10438940 |
+|   João De Sa Calvano Bezerra   | 10436734 |
 
 
 ---
