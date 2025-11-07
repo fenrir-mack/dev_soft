@@ -1,239 +1,225 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EstudaAI - Login</title>
-  {% load static %}
-  <link rel="stylesheet" href="{% static 'css/global.css' %}">  <style>
-    .auth-container {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.1), transparent 50%),
-                  radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.1), transparent 50%);
-    }
-
-    .auth-card {
-      width: 100%;
-      max-width: 440px;
-      background-color: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 48px;
-      box-shadow: var(--shadow-lg);
-    }
-
-    .auth-header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-
-    .auth-logo {
-      width: 64px;
-      height: 64px;
-      background: linear-gradient(135deg, var(--accent-primary), #8b5cf6);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      margin: 0 auto 16px;
-    }
-
-    .auth-title {
-      font-size: 28px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .auth-subtitle {
-      color: var(--text-secondary);
-      font-size: 14px;
-    }
-
-    .auth-tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 32px;
-      background-color: var(--bg-tertiary);
-      padding: 4px;
-      border-radius: var(--radius-sm);
-    }
-
-    .auth-tab {
-      flex: 1;
-      padding: 10px;
-      background: transparent;
-      border: none;
-      color: var(--text-secondary);
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      border-radius: var(--radius-sm);
-      transition: all 0.2s;
-    }
-
-    .auth-tab.active {
-      background-color: var(--bg-card);
-      color: var(--text-primary);
-    }
-
-    .auth-form {
-      display: none;
-    }
-
-    .auth-form.active {
-      display: block;
-    }
-
-    .forgot-password {
-      text-align: right;
-      margin-top: -12px;
-      margin-bottom: 24px;
-    }
-
-    .forgot-password a {
-      color: var(--accent-primary);
-      text-decoration: none;
-      font-size: 13px;
-    }
-
-    .forgot-password a:hover {
-      text-decoration: underline;
-    }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin: 24px 0;
-      color: var(--text-muted);
-      font-size: 13px;
-    }
-
-    .divider::before,
-    .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background-color: var(--border);
-    }
-  </style>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>EstudaAI - Login</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <meta name="description" content="EstudaAI - plataforma inteligente de aprendizagem. Entre ou cadastre-se para acessar suas trilhas de estudo.">
 </head>
 <body>
-  <div class="auth-container">
+<div class="auth-container">
     <div class="auth-card fade-in">
-      <div class="auth-header">
-        <div class="auth-logo">🎓</div>
-        <h1 class="auth-title">EstudaAI</h1>
-        <p class="auth-subtitle">Sua plataforma inteligente de aprendizagem</p>
-      </div>
-
-      <div class="auth-tabs">
-        <button class="auth-tab active" onclick="switchTab('login')">Entrar</button>
-        <button class="auth-tab" onclick="switchTab('signup')">Cadastrar</button>
-      </div>
-
-      <!-- Login Form -->
-      <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
-        <div class="form-group">
-          <label class="form-label" for="loginEmail">Email</label>
-          <input type="email" id="loginEmail" class="form-input" placeholder="seu@email.com" required>
+        <div class="auth-header">
+            <div class="auth-logo">🎓</div>
+            <h1 class="auth-title">EstudaAI</h1>
+            <p class="auth-subtitle">Sua plataforma inteligente de aprendizagem</p>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="loginPassword">Senha</label>
-          <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required>
+        <div class="auth-tabs">
+            <button type="button" class="auth-tab tab-login active" onclick="switchTab('login')">Entrar</button>
+            <button type="button" class="auth-tab tab-signup" onclick="switchTab('signup')">Cadastrar</button>
         </div>
 
-        <div class="forgot-password">
-          <a href="#">Esqueceu a senha?</a>
-        </div>
+        <form id="authForm" class="auth-form active" method="POST" action="">
+            {% csrf_token %}
+            <input type="hidden" name="action" id="action" value="login">
 
-        <button type="submit" class="btn btn-primary" style="width: 100%;">
-          Entrar
-        </button>
-      </form>
+            <div class="form-group" id="nameGroup" style="display:none;">
+                <label class="form-label" for="signupName">Nome completo</label>
+                <input type="text" name="name" id="signupName" class="form-input" placeholder="Seu nome">
+            </div>
 
-      <!-- Signup Form -->
-      <form id="signupForm" class="auth-form" onsubmit="handleSignup(event)">
-        <div class="form-group">
-          <label class="form-label" for="signupName">Nome completo</label>
-          <input type="text" id="signupName" class="form-input" placeholder="Seu nome" required>
-        </div>
+            <div class="form-group" id="nicknameGroup" style="display:none;">
+                <label class="form-label" for="signupNickname">Nickname</label>
+                <input type="text" name="nickname" id="signupNickname" class="form-input" placeholder="Seu nickname">
+            </div>
 
-        <div class="form-group">
-          <label class="form-label" for="signupEmail">Email</label>
-          <input type="email" id="signupEmail" class="form-input" placeholder="seu@email.com" required>
-        </div>
+            <div class="form-group">
+                <label class="form-label" for="loginEmail" id="labelEmail">Email</label>
+                <input type="email" name="email" id="loginEmail" class="form-input" placeholder="seu@email.com" required>
+            </div>
 
-        <div class="form-group">
-          <label class="form-label" for="signupPassword">Senha</label>
-          <input type="password" id="signupPassword" class="form-input" placeholder="••••••••" required minlength="6">
-        </div>
+            <div class="form-group">
+                <label class="form-label" for="loginPassword" id="labelPassword">Senha</label>
+                <input type="password" name="password" id="loginPassword" class="form-input" placeholder="••••••••" required>
+            </div>
 
-        <div class="form-group">
-          <label class="form-label" for="signupConfirmPassword">Confirmar senha</label>
-          <input type="password" id="signupConfirmPassword" class="form-input" placeholder="••••••••" required minlength="6">
-          <div id="passwordError" class="form-error" style="display: none;">As senhas não coincidem</div>
-        </div>
+            <div class="form-group" id="confirmPasswordGroup" style="display:none;">
+                <label class="form-label" for="signupConfirmPassword" id="labelConfirm">Confirmar senha</label>
+                <input type="password" name="confirm_password" id="signupConfirmPassword" class="form-input" placeholder="••••••••">
+            </div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%;">
-          Criar conta
-        </button>
-      </form>
+            <div class="form-actions" style="display:flex; justify-content:space-between; align-items:center; margin:6px 0 12px">
+                <a href="#" id="btn-forgot" class="link" style="color:#9ca3af; text-decoration:underline;">Esqueceu sua senha?</a>
+                <a href="#" id="btn-cancel-reset" class="link" style="color:#9ca3af; text-decoration:underline; display:none;">Cancelar</a>
+            </div>
+
+            {% if messages %}
+            <div id="messages" class="messages-wrapper fade-in">
+                {% for message in messages %}
+                <div class="message-box {{ message.tags }}">
+                    <div class="message-icon">
+                        {% if 'success' in message.tags %}✅
+                        {% elif 'error' in message.tags or 'danger' in message.tags %}⚠️
+                        {% endif %}
+                    </div>
+                    <div class="message-content">
+                        <p class="message-text">{{ message }}</p>
+                    </div>
+                    <button class="message-close" onclick="this.parentElement.remove()">✕</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary" id="mainSubmit" style="width: 100%;">Entrar</button>
+        </form>
     </div>
-  </div>
+</div>
 
-  <script>
+<script>
+
     function switchTab(tab) {
-      const tabs = document.querySelectorAll('.auth-tab');
-      const forms = document.querySelectorAll('.auth-form');
+        const actionInput = document.getElementById('action');
+        const nameGroup = document.getElementById('nameGroup');
+        const nicknameGroup = document.getElementById('nicknameGroup');
+        const confirmGroup = document.getElementById('confirmPasswordGroup');
+        const tabs = document.querySelectorAll('.auth-tab');
+        const submitButton = document.getElementById('mainSubmit');
+        const nameInput = document.getElementById('signupName');
+        const nicknameInput = document.getElementById('signupNickname');
+        const confirmInput = document.getElementById('signupConfirmPassword');
+        const labelPassword = document.getElementById('labelPassword');
+        const btnForgot = document.getElementById('btn-forgot');
+        const btnCancelReset = document.getElementById('btn-cancel-reset');
 
-      tabs.forEach(t => t.classList.remove('active'));
-      forms.forEach(f => f.classList.remove('active'));
+        // se estava em reset, volta pro estado normal
+        if (typeof closeReset === 'function') closeReset();
 
-      if (tab === 'login') {
-        tabs[0].classList.add('active');
-        document.getElementById('loginForm').classList.add('active');
-      } else {
-        tabs[1].classList.add('active');
-        document.getElementById('signupForm').classList.add('active');
-      }
+        actionInput.value = tab;
+
+        if (tab === 'signup') {
+            nameGroup.style.display = 'block';
+            nicknameGroup.style.display = 'block';
+            confirmGroup.style.display = 'block';
+            nameInput.required = true;
+            nicknameInput.required = true;
+            confirmInput.required = true;
+
+            labelPassword.textContent = 'Senha';
+            submitButton.textContent = 'Cadastrar';
+
+            if (btnForgot) btnForgot.style.display = 'none';
+            if (btnCancelReset) btnCancelReset.style.display = 'none';
+        } else {
+            nameGroup.style.display = 'none';
+            nicknameGroup.style.display = 'none';
+            confirmGroup.style.display = 'none';
+            nameInput.required = false;
+            nicknameInput.required = false;
+            confirmInput.required = false;
+
+            labelPassword.textContent = 'Senha';
+            submitButton.textContent = 'Entrar';
+
+            if (btnForgot) btnForgot.style.display = 'inline';
+            if (btnCancelReset) btnCancelReset.style.display = 'none';
+        }
+
+        tabs.forEach(t => t.classList.remove('active'));
+        if (tab === 'login') document.querySelector('.tab-login').classList.add('active');
+        else document.querySelector('.tab-signup').classList.add('active');
     }
 
-    function handleLogin(event) {
-      event.preventDefault();
-      const email = document.getElementById('loginEmail').value;
-      const password = document.getElementById('loginPassword').value;
+    document.addEventListener('DOMContentLoaded', () => {
+        const activeTab = "{{ active_tab|default:'login' }}";
+        switchTab(activeTab);
 
-      // Simulate login
-      localStorage.setItem('user', JSON.stringify({ email, name: 'Usuário' }));
-      window.location.href = 'dashboard.html';
-    }
+        // Prefills
+        const prefillEmail = "{{ prefill_email|default:'' }}";
+        const prefillName = "{{ prefill_name|default:'' }}";
+        const prefillNickname = "{{ prefill_nickname|default:'' }}";
+        if (prefillEmail) document.getElementById('loginEmail').value = prefillEmail;
+        if (prefillName) document.getElementById('signupName').value = prefillName;
+        if (prefillNickname) document.getElementById('signupNickname').value = prefillNickname;
 
-    function handleSignup(event) {
-      event.preventDefault();
-      const name = document.getElementById('signupName').value;
-      const email = document.getElementById('signupEmail').value;
-      const password = document.getElementById('signupPassword').value;
-      const confirmPassword = document.getElementById('signupConfirmPassword').value;
-      const errorDiv = document.getElementById('passwordError');
+        // ===== RESET reaproveitando campos =====
+        const btnForgot = document.getElementById('btn-forgot');
+        const btnCancelReset = document.getElementById('btn-cancel-reset');
+        const actionInput = document.getElementById('action');
+        const submitButton = document.getElementById('mainSubmit');
 
-      if (password !== confirmPassword) {
-        errorDiv.style.display = 'block';
-        return;
-      }
+        const labelPassword = document.getElementById('labelPassword');
+        const passwordInput = document.getElementById('loginPassword');
+        const confirmGroup = document.getElementById('confirmPasswordGroup');
+        const confirmInput = document.getElementById('signupConfirmPassword');
+        const nameGroup = document.getElementById('nameGroup');
+        const nicknameGroup = document.getElementById('nicknameGroup');
 
-      errorDiv.style.display = 'none';
+        function openReset() {
+            actionInput.value = 'reset_password';
+            labelPassword.textContent = 'Nova senha';
+            passwordInput.placeholder = '••••••••';
 
-      // Simulate signup
-      localStorage.setItem('user', JSON.stringify({ email, name }));
-      window.location.href = 'dashboard.html';
-    }
-  </script>
+            confirmGroup.style.display = 'block';
+            confirmInput.required = true;
+
+            nameGroup.style.display = 'none';
+            nicknameGroup.style.display = 'none';
+
+            submitButton.textContent = 'Salvar nova senha';
+            if (btnForgot) btnForgot.style.display = 'none';
+            if (btnCancelReset) btnCancelReset.style.display = 'inline';
+        }
+
+        function closeReset() {
+            actionInput.value = 'login';
+            labelPassword.textContent = 'Senha';
+            confirmGroup.style.display = 'none';
+            confirmInput.required = false;
+            confirmInput.value = '';
+            submitButton.textContent = 'Entrar';
+            if (btnForgot) btnForgot.style.display = 'inline';
+            if (btnCancelReset) btnCancelReset.style.display = 'none';
+        }
+
+        // expõe para switchTab
+        window.closeReset = closeReset;
+
+        if (btnForgot) {
+            btnForgot.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (document.querySelector('.tab-login').classList.contains('active')) {
+                    openReset();
+                }
+            });
+        }
+        if (btnCancelReset) {
+            btnCancelReset.addEventListener('click', (e) => {
+                e.preventDefault();
+                closeReset();
+            });
+        }
+
+        if (activeTab === 'reset') openReset();
+
+        // ===== SINCRONIZA CSRF NO SUBMIT =====
+        const form = document.getElementById('authForm');
+        form.addEventListener('submit', () => {
+            const csrftoken = getCookie('csrftoken');
+            let hidden = form.querySelector('input[name="csrfmiddlewaretoken"]');
+            if (!hidden) {
+                hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'csrfmiddlewaretoken';
+                form.appendChild(hidden);
+            }
+            hidden.value = csrftoken;
+        });
+    });
+</script>
 </body>
 </html>

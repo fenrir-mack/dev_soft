@@ -1,0 +1,226 @@
+
+.main-content {
+  padding: 48px 0;
+}
+
+.page-header {
+  margin-bottom: 48px;
+}
+
+.page-title {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.page-subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-bottom: 48px;
+  max-width: 900px; /* evita esticar demais */
+
+}
+
+.stat-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+.stat-label {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  letter-spacing: 0.3px;
+}
+.stat-card:nth-child(1) {
+  border-top: 3px solid #3b82f6; /* azul */
+}
+.stat-card:nth-child(2) {
+  border-top: 3px solid #10b981; /* verde */
+}
+.stat-card:nth-child(3) {
+  border-top: 3px solid #f59e0b; /* amarelo */
+}
+
+
+.stat-value {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.path-card {
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.path-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-primary), #8b5cf6);
+}
+
+/* Added 3-dot menu styling for path cards */
+.path-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.path-menu-btn {
+  font-size: 24px;      /* maior tamanho */
+  padding: 8px 12px;    /* mais espaçamento */
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+}
+
+
+.path-menu-btn:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.path-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  min-width: 160px;
+  z-index: 100;
+  margin-top: 4px;
+}
+
+.path-menu.show {
+  display: block;
+}
+
+.path-menu-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.path-menu-item:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.path-menu-item:first-child {
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.path-menu-item:last-child {
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.path-menu-item.danger {
+  color: #ef4444;
+}
+/* </CHANGE> */
+
+.path-meta {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.path-progress {
+  margin-top: 16px;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 48px;
+}
+
+.action-card {
+  background: linear-gradient(135deg, var(--bg-card), var(--bg-tertiary));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  color: var(--text-primary);
+}
+
+.action-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-lg);
+}
+
+.action-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.action-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.action-description {
+  font-size: 13px;
+  color: var(--text-secondary);
+}

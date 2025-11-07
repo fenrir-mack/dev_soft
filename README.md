@@ -1,39 +1,31 @@
 #  EstudaAI – Sistema de Recomendação de Trilhas de Aprendizagem
 
 Membros:
-- Gustavo Ebeling de Almeida
-- Ian Erichsen Pacher De Araujo
-- Guilerme Guimaraes Lopes
-- Guilerme Diego Sanches
-- Andre Tozi Magalhaes 
-- Lucas Diniz Ferreira Masteguim 
-- Lucas Oliveira Da Silva
-- Joao De Sa Calvano Bezerra
 
-|  Nome  |    RA    |
-|:------:|:--------:|
-|Gustavo Ebeling de Almeida| 10436455 |
+|              Nome              |    RA    |
+|:------------------------------:|:--------:|
+|   Gustavo Ebeling de Almeida   | 10436455 |
 | Ian Erichsen Pacher De Araujo  | 10427607 |
-| Guilerme Guimaraes Lopes  | 10438391 |
-| Guilerme Diego Sanches | 10436672 |
-| Andre Tozi Magalhaes   | 10436460 |
-| Lucas Diniz Ferreira Masteguim   | 10437300 |
-| Lucas Oliveira Da Silva  | 10438940 |
-| Joao De Sa Calvano Bezerra  | 10436734 |
+|   Guilherme Guimaraes Lopes    | 10438391 |
+|    Guilherme Diego Sanches     | 10436672 |
+|      Andre Tozi Magalhaes      | 10436460 |
+| Lucas Diniz Ferreira Masteguim | 10437300 |
+|    Lucas Oliveira Da Silva     | 10438940 |
+|   João De Sa Calvano Bezerra   | 10436734 |
 
 
 ---
 
 ## Indice
 
-- [Installation](#installation)
+- [Instalar](#Instalar)
 - [Rodando o Django](#Rodando-o-Django)
 - [Next Steps](#next-steps)
 
 
 ---
 
-## Installation
+## Instalar
 
 1. No terminal do windows ou powershell, clone o repositorio no lugar que quiser:
 ````bash
@@ -59,6 +51,11 @@ venv\Scripts\activate
 ```bash
 pip install -r requirements.txt
 ```
+5. Crie uma API no site e coloque no arquivo .env diretamente depois de API_KEY= sem espaço, sem aspas  
+```bash
+https://aistudio.google.com/app/api-keys
+```
+    
 
 ---
 
@@ -103,7 +100,6 @@ Com isso voce deveria conseguir apertar o botão play no topo e ja conseguiria a
 
 ## Next Steps
 
-- See the YoutTrack page for more informations
 
 https://eemackenzie.youtrack.cloud/dashboard?id=169-0 
 

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia de Estudos - EstudaAI</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <link rel="stylesheet" href="{% static 'css/descricaoTrilha.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+  const swalDark = Swal.mixin({
+    background: '#1e1e2f',
+    color: '#fff',
+    confirmButtonColor: '#6366f1',
+    cancelButtonColor: '#4b5563',
+  });
+</script>
+
+
+</head>
+<body>
+<nav class="navbar">
+    <div class="container navbar-content">
+        <a href="{% url 'trilhas:dashboard' %}" class="navbar-brand">
+            <div class="logo">🎓</div>
+            <span>EstudaAI</span>
+        </a>
+        <ul class="navbar-menu">
+            <li><a href="{% url 'trilhas:dashboard' %}">Dashboard</a></li>
+            <li><a href="{% url 'trilhas:minhas_trilhas' %}">Minhas Trilhas</a></li>
+            <li><a href="{% url 'trilhas:todas_trilhas' %}">Explorar</a></li>
+            <li><a href="{% url 'trilha_personalizada:trilha_personalizada' %}">Criar Trilha</a></li>
+        </ul>
+        <div class="navbar-actions">
+            <div class="user-profile" onclick="toggleUserMenu()">
+                <form id="logoutForm" action="{% url 'logout' %}" method="post" style="display:none;">
+                    {% csrf_token %}
+                </form>
+                <div class="user-avatar">{{ request.user.nickname|first|upper }}</div>
+                <span id="userName">{{ request.user.nickname }}</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="main-content">
+    <div class="container-wide">
+        <div class="path-hero">
+
+            <span class="path-category">{{ trilha.categoria.nome }}</span>
+            <h1 class="path-title">{{ trilha.titulo }}</h1>
+            <p class="path-description">{{ trilha.descricao }}</p>
+            <div class="path-stats">
+                <span class="path-stat">📊 {{ trilha.get_dificuldade_display }}</span>
+                <span class="path-stat">📚 {{ trilha.etapas.count }} etapas</span>
+                <span class="path-stat">🎯 {{ trilha.projetos.count }} projeto(s) final(is)</span>
+            </div>
+            <div class="save-button-container full-width">
+              {% if not tem_progresso %}
+              <button class="save-roadmap-btn" onclick="saveRoadmap(event, {{ trilha.id }})">
+                <span class="save-btn-icon">💾</span>
+                <span class="save-btn-text">Salvar Trilha</span>
+              </button>
+              {% endif %}
+              <div class="save-button-placeholder"></div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="guide-section" id="guideSection">
+                {% for item in itens_data %}
+                  {% if item.tipo == "etapa" %}
+                    <div class="study-card">
+                        <div class="study-header">
+                            <div style="flex:1;">
+                                <div class="study-number">ETAPA {{ item.ordem }}</div>
+                                <div class="study-title">{{ item.titulo }}</div>
+                            </div>
+                        </div>
+                        <div class="study-topics">
+                            {% for topico in item.topics %}
+                            <div class="topic-item" data-id="{{ topico.id }}">
+                                <div class="topic-checkbox {% if topico.completed %}checked{% endif %}" id="topic-{{ topico.id }}">
+                                    {% if topico.completed %}✓{% endif %}
+                                </div>
+                                <div class="topic-text">{{ topico.text }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                  {% elif item.tipo == "projeto" %}
+                    <div class="project-card">
+                        <span class="project-badge">🎯 PROJETO {{ item.ordem }}</span>
+                        <h2 class="project-title">{{ item.titulo }}</h2>
+                        <p id="project-description-{{ item.id }}" class="project-description">{{ item.descricao|escapejs }}</p>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+                </div>
+            <aside class="sidebar">
+                <div class="progress-card">
+                    <h3 class="progress-title">Seu Progresso</h3>
+                        <div class="progress-circle">
+                            <svg width="120" height="120">
+                                <defs>
+                                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1"/>
+                                        <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1"/>
+                                    </linearGradient>
+                                </defs>
+                                <circle class="progress-circle-bg" cx="60" cy="60" r="52"></circle>
+                                <circle class="progress-circle-fill" cx="60" cy="60" r="52"
+                                        stroke-dasharray="326.73"
+                                        stroke-dashoffset="{{ stroke_offset }}"
+                                        id="progressCircle"></circle>
+                            </svg>
+                            <div class="progress-text" id="progressText">{{ progresso_percentual }}%</div>
+                        </div>
+                        <div class="progress-stats">
+                            <div class="progress-stat">
+                                <span class="progress-stat-label">Concluído</span>
+                                <span class="progress-stat-value" id="completedTopics">{{ topicos_concluidos }}/{{ total_topicos }} tópicos</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="save-button-container full-width">
+                      {% if not tem_progresso %}
+                      <button class="save-roadmap-btn" onclick="saveRoadmap(event, {{ trilha.id }})">
+                        <span class="save-btn-icon">💾</span>
+                        <span class="save-btn-text">Salvar Trilha</span>
+                      </button>
+                      {% endif %}
+                    </div>
+            </aside>
+        </div>
+    </div>
+</main>
+
+<script>
+    function toggleUserMenu() {
+        if (confirm('Deseja sair da sua conta?')) {
+            document.getElementById('logoutForm').submit();
+        }
+    }function formatMarkdown(text) {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')  // **negrito**
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')              // *itálico*
+    .replace(/\n{2,}/g, '<br><br>');                   // parágrafos
+}
+
+function decodeUnicode(str) {
+  try {
+    return JSON.parse(`"${str}"`);
+  } catch {
+    return str;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Seleciona todos os elementos de descrição de projeto
+  const elements = document.querySelectorAll(".project-description");
+
+  elements.forEach((el) => {
+    const rawText = el.textContent.trim();
+    const decoded = decodeUnicode(rawText);
+    el.innerHTML = formatMarkdown(decoded);
+  });
+});
+
+function saveRoadmap(event, id) {
+  event.stopPropagation();
+
+  swalDark.fire({
+    title: '💾 Salvar trilha?',
+    text: 'Deseja adicionar esta trilha à sua lista de estudos?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Sim, salvar!',
+    cancelButtonText: 'Cancelar',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch(window.location.href, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: `trilha_id=${id}`
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          swalDark.fire({
+            title: '✅ Trilha salva!',
+            text: data.message,
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+          });
+
+
+        // Anima o sumiço dos dois botões (todas as instâncias)
+        document.querySelectorAll(".save-button-container").forEach(container => {
+          container.classList.add("placeholder-active");
+
+          const button = container.querySelector(".save-roadmap-btn");
+          const placeholder = container.querySelector(".save-button-placeholder");
+          if (button) button.style.display = "none";
+          if (placeholder) placeholder.style.display = "block";
+        });
+
+
+        } else {
+          swalDark.fire({
+            title: '⚠️ Ops!',
+            text: data.message,
+            icon: 'warning'
+          });
+        }
+      })
+      .catch(err => {
+        console.error("Erro ao salvar trilha:", err);
+        swalDark.fire({
+          title: '❌ Erro!',
+          text: 'Não foi possível salvar a trilha. Tente novamente.',
+          icon: 'error'
+        });
+      });
+    }
+  });
+}
+
+    const totalTopicos = {{ total_topicos }};
+    const progressCircle = document.getElementById('progressCircle');
+    const progressText = document.getElementById('progressText');
+    const completedTopicsEl = document.getElementById('completedTopics');
+
+    // Adiciona eventos aos tópicos existentes
+    document.querySelectorAll('.topic-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const topicId = item.getAttribute('data-id');
+            toggleTopic(topicId);
+        });
+    });
+
+    function toggleTopic(topicId) {
+        const checkbox = document.getElementById(`topic-${topicId}`);
+        const isChecked = checkbox.classList.contains('checked');
+        const newStatus = !isChecked;
+
+        // Atualiza visualmente
+        if (newStatus) {
+            checkbox.classList.add('checked');
+            checkbox.textContent = '✓';
+        } else {
+            checkbox.classList.remove('checked');
+            checkbox.textContent = '';
+        }
+
+        // Atualiza progresso
+        updateProgress();
+
+        // Envia para o backend
+        fetch("{% url 'trilhas:toggle_topico' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: `topico_id=${topicId}&completed=${newStatus}`
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    console.error("Erro ao atualizar tópico:", data.error);
+                }
+            })
+            .catch(err => console.error("Erro na requisição:", err));
+    }
+
+    function updateProgress() {
+        const completedTopics = document.querySelectorAll('.topic-checkbox.checked').length;
+        const percentage = Math.round((completedTopics / totalTopicos) * 100);
+
+        progressText.textContent = percentage + '%';
+        completedTopicsEl.textContent = `${completedTopics}/${totalTopicos} tópicos`;
+
+        const circumference = 326.73;
+        const offset = circumference - (percentage / 100) * circumference;
+        progressCircle.style.strokeDashoffset = offset;
+    }
+
+    // Inicializa o progresso
+    updateProgress();
+</script>
+</body>
+</html>

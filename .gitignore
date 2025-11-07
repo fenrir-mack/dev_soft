@@ -7,9 +7,9 @@ __pycache__/
 # Virtual environment
 venv/
 env/
+.env
 
 # Django stuff
-*.sqlite3
 /staticfiles/
 media/
 

@@ -43,8 +43,6 @@ INSTALLED_APPS = [
     'users',                    # função de login
     'trilhas',                  # função de trilha
     'trilha_personalizada',     # função de trilha com LLM
-    'admin_custom',             # função de Admin
-
 ]
 
 
@@ -82,6 +80,11 @@ TEMPLATES = [
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'core', 'static')]
 
+LOGIN_URL = '/'
+LOGIN_REDIRECT_URL = '/trilhas/dashboard/'
+LOGOUT_REDIRECT_URL = '/'
+
+AUTH_USER_MODEL = 'users.CustomUser'
 
 
 WSGI_APPLICATION = 'config.wsgi.application'
@@ -138,3 +141,4 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
