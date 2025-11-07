@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
-from .models import Trilha, ProgressoTrilha, Topico, ProgressoTopico, Categoria
+from .models import Trilha, Etapa, Projeto, Topico, ProgressoTrilha, ProgressoTopico, Categoria
 
 
 @login_required
@@ -83,7 +83,7 @@ def detalhes_da_trilha_view(request):
     trilha_id = request.GET.get('id') or request.POST.get('trilha_id')
     trilha = get_object_or_404(Trilha, id=trilha_id)
 
-    # Se for POST (salvar trilha)
+    # POST: salvar trilha
     if request.method == "POST":
         progresso, created = ProgressoTrilha.objects.get_or_create(
             user=request.user,
@@ -99,52 +99,60 @@ def detalhes_da_trilha_view(request):
 
         return JsonResponse({"success": True, "message": message})
 
-    # Se for GET (mostrar trilha)
-    etapas = trilha.etapas.prefetch_related('topicos').all()
-    etapas_data = []
-    for etapa in etapas:
-        topicos_data = []
-        for topico in etapa.topicos.all():
-            concluido = ProgressoTopico.objects.filter(user=request.user, topico=topico, concluido=True).exists()
-            topicos_data.append({
-                "id": topico.id,
-                "text": topico.texto,
-                "completed": concluido
-            })
-        etapas_data.append({
-            "id": etapa.id,
-            "number": f"ETAPA {etapa.ordem}",
-            "title": etapa.titulo,
-            "topics": topicos_data
-        })
+    # Junta etapas e projetos usando o método do modelo
+    itens = trilha.itens_ordenados()
+    itens_data = []
 
-    projeto = trilha.projetos.first()
+    for item in itens:
+        if isinstance(item, Etapa):
+            topicos_data = []
+            for topico in item.topicos.all():
+                concluido = ProgressoTopico.objects.filter(
+                    user=request.user, topico=topico, concluido=True
+                ).exists()
+                topicos_data.append({
+                    "id": topico.id,
+                    "text": topico.texto,
+                    "completed": concluido,
+                })
+            itens_data.append({
+                "tipo": "etapa",
+                "id": item.id,
+                "ordem": item.ordem,
+                "titulo": item.titulo,
+                "topics": topicos_data,
+            })
+
+        elif isinstance(item, Projeto):
+            itens_data.append({
+                "tipo": "projeto",
+                "id": item.id,
+                "ordem": item.ordem,
+                "titulo": item.titulo,
+                "descricao": item.descricao,
+            })
+
     progresso = ProgressoTrilha.objects.filter(user=request.user, trilha=trilha).first()
-    if progresso:
-        progresso_percentual = int(progresso.progresso_percentual)
-        topicos_concluidos = ProgressoTopico.objects.filter(
-            user=request.user,
-            topico__etapa__trilha=trilha,
-            concluido=True
-        ).count()
-    else:
-        progresso_percentual = 0
-        topicos_concluidos = 0
+    progresso_percentual = int(progresso.progresso_percentual) if progresso else 0
+    topicos_concluidos = ProgressoTopico.objects.filter(
+        user=request.user,
+        topico__etapa__trilha=trilha,
+        concluido=True
+    ).count()
 
     stroke_offset = 326.73 - (progresso_percentual / 100) * 326.73
 
     context = {
         "trilha": trilha,
-        "etapas_data": etapas_data,
-        "projeto": projeto,
+        "itens_data": itens_data,
         "progresso_percentual": progresso_percentual,
         "topicos_concluidos": topicos_concluidos,
-        "total_topicos": sum(len(et['topics']) for et in etapas_data),
+        "total_topicos": sum(len(i["topics"]) for i in itens_data if i["tipo"] == "etapa"),
         "stroke_offset": stroke_offset,
         "tem_progresso": progresso is not None,
     }
 
-    return render(request, 'trilhas/detalhes-da-trilha.html', context)
+    return render(request, "trilhas/detalhes-da-trilha.html", context)
 
 
 

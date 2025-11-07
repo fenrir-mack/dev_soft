@@ -69,35 +69,36 @@
 
         <div class="content-grid">
             <div class="guide-section" id="guideSection">
-                {% for etapa in etapas_data %}
-                <div class="study-card">
-                    <div class="study-header">
-                        <div style="flex:1;">
-                            <div class="study-number">{{ etapa.number }}</div>
-                            <div class="study-title">{{ etapa.title }}</div>
-                        </div>
-                    </div>
-                    <div class="study-topics">
-                        {% for topico in etapa.topics %}
-                        <div class="topic-item" data-id="{{ topico.id }}">
-                            <div class="topic-checkbox {% if topico.completed %}checked{% endif %}"
-                                 id="topic-{{ topico.id }}">
-                                {% if topico.completed %}✓{% endif %}
+                {% for item in itens_data %}
+                  {% if item.tipo == "etapa" %}
+                    <div class="study-card">
+                        <div class="study-header">
+                            <div style="flex:1;">
+                                <div class="study-number">ETAPA {{ item.ordem }}</div>
+                                <div class="study-title">{{ item.titulo }}</div>
                             </div>
-                            <div class="topic-text">{{ topico.text }}</div>
                         </div>
-                        {% endfor %}
+                        <div class="study-topics">
+                            {% for topico in item.topics %}
+                            <div class="topic-item" data-id="{{ topico.id }}">
+                                <div class="topic-checkbox {% if topico.completed %}checked{% endif %}" id="topic-{{ topico.id }}">
+                                    {% if topico.completed %}✓{% endif %}
+                                </div>
+                                <div class="topic-text">{{ topico.text }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
-                </div>
+
+                  {% elif item.tipo == "projeto" %}
+                    <div class="project-card">
+                        <span class="project-badge">🎯 PROJETO {{ item.ordem }}</span>
+                        <h2 class="project-title">{{ item.titulo }}</h2>
+                        <p id="project-description-{{ item.id }}" class="project-description">{{ item.descricao|escapejs }}</p>
+                    </div>
+                  {% endif %}
                 {% endfor %}
-                {% if projeto %}
-                <div class="project-card">
-                    <span class="project-badge">🎯 PROJETO FINAL</span>
-                    <h2 class="project-title">{{ projeto.titulo }}</h2>
-                    <p id="projectDescription" class="project-description">{{ projeto.descricao|escapejs }}</p>
                 </div>
-                {% endif %}
-            </div>
             <aside class="sidebar">
                 <div class="progress-card">
                     <h3 class="progress-title">Seu Progresso</h3>
@@ -142,9 +143,7 @@
         if (confirm('Deseja sair da sua conta?')) {
             document.getElementById('logoutForm').submit();
         }
-    }
-
-function formatMarkdown(text) {
+    }function formatMarkdown(text) {
   return text
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')  // **negrito**
     .replace(/\*(.+?)\*/g, '<em>$1</em>')              // *itálico*
@@ -159,11 +158,15 @@ function decodeUnicode(str) {
   }
 }
 
-// Aplica formatação ao elemento
 document.addEventListener("DOMContentLoaded", () => {
-  const el = document.getElementById("projectDescription");
-  const rawText = decodeUnicode(el.textContent);
-  el.innerHTML = formatMarkdown(rawText);
+  // Seleciona todos os elementos de descrição de projeto
+  const elements = document.querySelectorAll(".project-description");
+
+  elements.forEach((el) => {
+    const rawText = el.textContent.trim();
+    const decoded = decodeUnicode(rawText);
+    el.innerHTML = formatMarkdown(decoded);
+  });
 });
 
 function saveRoadmap(event, id) {
