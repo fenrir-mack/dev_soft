@@ -1,14 +1,14 @@
-from django.test import TestCase, Client
-from django.urls import reverse
-from django.contrib.auth import get_user_model
-from django.contrib.staticfiles.testing import LiveServerTestCase
-
+from django.test import TestCase, LiveServerTestCase, Client
+from .models import (Categoria,Trilha,Etapa,Topico,Projeto,ProgressoTrilha,ProgressoTopico)
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-
+from decimal import Decimal
+from django.test import TestCase
+from django.urls import reverse
+from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
@@ -16,8 +16,6 @@ User = get_user_model()
 # 🧩 TESTES UNITÁRIOS - DASHBOARD
 # ==========================================================
 class DashboardUnitTest(TestCase):
-    """Testes básicos da view da dashboard"""
-
     def setUp(self):
         self.user = User.objects.create_user(
             username="testeuser",
@@ -25,7 +23,6 @@ class DashboardUnitTest(TestCase):
             password="12345",
             nickname="testeuser",
         )
-
     def test_dashboard_view_autenticada(self):
         """Usuário autenticado deve acessar a dashboard"""
         login_ok = self.client.login(username="testeuser", password="12345")
@@ -46,8 +43,6 @@ class DashboardUnitTest(TestCase):
 # 🔗 TESTE DE INTEGRAÇÃO - DASHBOARD
 # ==========================================================
 class DashboardIntegrationTest(TestCase):
-    """Verifica o fluxo de login e navegação para a dashboard"""
-
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(
@@ -130,12 +125,7 @@ class DashboardFunctionalTest(LiveServerTestCase):
             )
 
         self.assertIn("Dashboard - EstudaAI", self.browser.title)
-from django.test import TestCase, LiveServerTestCase, Client
-from django.contrib.auth import get_user_model
-from django.urls import reverse
-from trilhas.models import Trilha, Etapa, Topico, ProgressoTrilha, ProgressoTopico, Categoria
 
-User = get_user_model()
 
 # TESTES UNITÁRIOS
 class ProgressoTrilhaUnitarioTests(TestCase):
@@ -273,23 +263,10 @@ class MinhasTrilhasFunctionalTests(LiveServerTestCase):
             {"action": "resume", "trilha_id": self.trilha.id})
         self.assertEqual(response.status_code, 200)
         self.assertIn("retomada", response.json()["message"])
-from decimal import Decimal
 
-from django.test import TestCase
-from django.urls import reverse
-from django.contrib.auth import get_user_model
 
-from .models import (
-    Categoria,
-    Trilha,
-    Etapa,
-    Topico,
-    Projeto,
-    ProgressoTrilha,
-    ProgressoTopico,
-)
 
-User = get_user_model()
+
 
 
 # ==========================================================
