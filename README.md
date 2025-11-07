@@ -1,14 +1,6 @@
 #  EstudaAI – Sistema de Recomendação de Trilhas de Aprendizagem
 
 Membros:
-- Gustavo Ebeling de Almeida
-- Ian Erichsen Pacher De Araujo
-- Guilerme Guimaraes Lopes
-- Guilerme Diego Sanches
-- Andre Tozi Magalhaes 
-- Lucas Diniz Ferreira Masteguim 
-- Lucas Oliveira Da Silva
-- Joao De Sa Calvano Bezerra
 
 |  Nome  |    RA    |
 |:------:|:--------:|
@@ -26,14 +18,14 @@ Membros:
 
 ## Indice
 
-- [Installation](#installation)
+- [Instalar](#Instalar)
 - [Rodando o Django](#Rodando-o-Django)
 - [Next Steps](#next-steps)
 
 
 ---
 
-## Installation
+## Instalar
 
 1. No terminal do windows ou powershell, clone o repositorio no lugar que quiser:
 ````bash
@@ -59,6 +51,11 @@ venv\Scripts\activate
 ```bash
 pip install -r requirements.txt
 ```
+5. Crie uma API no site e coloque no arquivo .env diretamente depois de API_KEY= sem espaço, sem aspas  
+```bash
+https://aistudio.google.com/app/api-keys
+```
+    
 
 ---
 
@@ -103,7 +100,6 @@ Com isso voce deveria conseguir apertar o botão play no topo e ja conseguiria a
 
 ## Next Steps
 
-- See the YoutTrack page for more informations
 
 https://eemackenzie.youtrack.cloud/dashboard?id=169-0 
 

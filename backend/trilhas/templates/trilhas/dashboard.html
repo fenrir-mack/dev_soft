@@ -1,170 +1,165 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - EstudaAI</title>
-  {% load static %}
-  <link rel="stylesheet" href="{% static 'css/global.css' %}">
-  <link rel="stylesheet" href="{% static 'css/dashboardteste.css' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - EstudaAI</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboardteste.css' %}">
+
 </head>
 <body>
-  <nav class="navbar">
+<nav class="navbar">
     <div class="container navbar-content">
-      <a href="{% url 'trilhas:dashboard' %}" class="navbar-brand">
-        <div class="logo">🎓</div>
-        <span>EstudaAI</span>
-      </a>
-      <ul class="navbar-menu">
-        <li><a href="{% url 'trilhas:dashboard' %}" class="active">Dashboard</a></li>
-        <li><a href="{% url 'trilhas:minhas_trilhas' %}">Minhas Trilhas</a></li>
-        <li><a href="{% url 'trilhas:todas_trilhas' %}">Explorar</a></li>
-        <li><a href="{% url 'trilha_personalizada' %}">Criar Trilha</a></li>
-      </ul>
-      <div class="navbar-actions">
-        <div class="user-profile" onclick="toggleUserMenu()">
-          <div class="user-avatar">{{ request.user.nickname|first|upper }}</div>
-          <span id="userName">{{ request.user.nickname }}</span>
-        </div>
-      </div>
-    </div>
-  </nav>
-
-  <main class="main-content">
-    <div class="container">
-      <div class="page-header">
-        <h1 class="page-title">
-          Bem-vindo de volta! <span class="emoji">👋</span>
-        </h1>
-        <p class="page-subtitle">Continue sua jornada de aprendizado</p>
-      </div>
-
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">Trilhas em Progresso</div>
-          <div class="stat-value">{{ trilhas_em_progresso }}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Trilhas Salvas</div>
-          <div class="stat-value">{{ trilhas_salvas }}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Trilhas Concluídas</div>
-          <div class="stat-value">{{ trilhas_concluidas }}</div>
-        </div>
-      </div>
-
-      <div class="section-header">
-        <h2 class="section-title">Ações Rápidas</h2>
-      </div>
-
-      <div class="quick-actions">
-        <a href="{% url 'trilhas:minhas_trilhas' %}" class="action-card">
-          <div class="action-icon">📋</div>
-          <div class="action-title">Minhas Trilhas</div>
-          <div class="action-description">Gerencie suas trilhas</div>
+        <a href="{% url 'trilhas:dashboard' %}" class="navbar-brand">
+            <div class="logo">🎓</div>
+            <span>EstudaAI</span>
         </a>
-        <a href="{% url 'trilhas:todas_trilhas' %}" class="action-card">
-          <div class="action-icon">📚</div>
-          <div class="action-title">Trilhas Pré-definidas</div>
-          <div class="action-description">Explore trilhas curadas</div>
-        </a>
-        <a href="{% url 'trilha_personalizada' %}" class="action-card">
-          <div class="action-icon">✨</div>
-          <div class="action-title">Criar Trilha IA</div>
-          <div class="action-description">Personalize com IA</div>
-        </a>
-      </div>
-
-      <div class="section-header">
-        <h2 class="section-title">Minhas Trilhas em Progresso</h2>
-        <a href="{% url 'trilhas:todas_trilhas' %}" class="btn btn-ghost btn-sm">Ver todas</a>
-      </div>
-
-      <div class="grid grid-cols-3">
-        {% if ultimas_trilhas %}
-          {% for progresso in ultimas_trilhas %}
-            <div class="card path-card">
-              <div class="path-card-header">
-                <div style="flex:1;" onclick="window.location.href='{% url 'trilhas:ver_etapas' %}?id={{ progresso.trilha.id }}'">
-                  <div class="card-title">{{ progresso.trilha.titulo }}</div>
-                  <div class="card-description">{{ progresso.trilha.descricao }}</div>
-                </div>
-                <div style="position:relative;">
-                  <button class="path-menu-btn" onclick="togglePathMenu(event, {{ progresso.trilha.id }})">⋮</button>
-                  <div class="path-menu" id="path-menu-{{ progresso.trilha.id }}">
-                    <div class="path-menu-item" onclick="window.location.href='{% url 'trilhas:ver_etapas' %}?id={{ progresso.trilha.id }}'">
-                      👁️ Ver trilha
-                    </div>
-                    <div class="path-menu-item danger" onclick="deletePath({{ progresso.trilha.id }})">🗑️ Excluir trilha</div>
-                  </div>
-                </div>
-              </div>
-              <div onclick="window.location.href='{% url 'trilhas:ver_etapas' %}?id={{ progresso.trilha.id }}'">
-                <div class="path-meta">
-                  <span>📊 {{ progresso.trilha.get_dificuldade_display }}</span>
-                </div>
-                <div class="path-progress">
-                  <div class="progress-label">
-                    <span>Progresso</span>
-                    <span>{{ progresso.progresso_percentual|floatformat:0 }}%</span>
-                  </div>
-                  <div class="progress-bar">
-                    <div class="progress-fill" style="width: {{ progresso.progresso_percentual }}%"></div>
-                  </div>
-                </div>
-              </div>
+        <ul class="navbar-menu">
+            <li><a href="{% url 'trilhas:dashboard' %}" class="active">Dashboard</a></li>
+            <li><a href="{% url 'trilhas:minhas_trilhas' %}">Minhas Trilhas</a></li>
+            <li><a href="{% url 'trilhas:todas_trilhas' %}">Explorar</a></li>
+            <li><a href="{% url 'trilha_personalizada:trilha_personalizada' %}">Criar Trilha</a></li>
+        </ul>
+        <div class="navbar-actions">
+            <div class="user-profile" onclick="toggleUserMenu()">
+                <form id="logoutForm" action="{% url 'logout' %}" method="post" style="display:none;">
+                    {% csrf_token %}
+                </form>
+                <div class="user-avatar">{{ request.user.nickname|first|upper }}</div>
+                <span id="userName">{{ request.user.nickname }}</span>
             </div>
-          {% endfor %}
-        {% else %}
-          <div>Nenhuma trilha em progresso</div>
-        {% endif %}
-      </div>
+        </div>
     </div>
-  </main>
+</nav>
 
-  <script>
-    // Atualiza nome e avatar
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user.name) {
-      document.getElementById('userName').textContent = user.name;
-      document.querySelector('.user-avatar').textContent = user.name.charAt(0).toUpperCase();
-    }
+<main class="main-content">
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">
+                Bem-vindo de volta! <span class="emoji">👋</span>
+            </h1>
+            <p class="page-subtitle">Continue sua jornada de aprendizado</p>
+        </div>
 
-    // Corrigido: logout redireciona corretamente para a página de login Django
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Trilhas em Progresso</div>
+                <div class="stat-value">{{ trilhas_em_progresso }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Trilhas Salvas</div>
+                <div class="stat-value">{{ trilhas_salvas }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Trilhas Concluídas</div>
+                <div class="stat-value">{{ trilhas_concluidas }}</div>
+            </div>
+        </div>
+
+
+        <div class="section-header">
+            <h2 class="section-title">Ações Rápidas</h2>
+        </div>
+
+        <div class="quick-actions">
+            <a href="{% url 'trilhas:minhas_trilhas' %}" class="action-card">
+                <div class="action-icon">📋</div>
+                <div class="action-title">Minhas Trilhas</div>
+                <div class="action-description">Gerencie suas trilhas</div>
+            </a>
+            <a href="{% url 'trilhas:todas_trilhas' %}" class="action-card">
+                <div class="action-icon">📚</div>
+                <div class="action-title">Trilhas Pré-definidas</div>
+                <div class="action-description">Explore trilhas curadas</div>
+            </a>
+            <a href="{% url 'trilha_personalizada:trilha_personalizada' %}" class="action-card">
+                <div class="action-icon">✨</div>
+                <div class="action-title">Criar Trilha IA</div>
+                <div class="action-description">Personalize com IA</div>
+            </a>
+        </div>
+
+        <div class="section-header">
+            <h2 class="section-title">Minhas Trilhas em Progresso</h2>
+            <a href="{% url 'trilhas:minhas_trilhas' %}" class="btn btn-ghost btn-sm">Ver todas</a>
+        </div>
+
+        <div class="grid grid-cols-3">
+            {% if ultimas_trilhas %}
+            {% for trilha_usuario in ultimas_trilhas %}
+            <div class="card path-card" style="cursor: pointer;">
+                <div class="path-card-header">
+                    <div style="flex:1;"
+                         onclick="window.location.href='{% url 'trilhas:ver_etapas' %}?id={{ trilha_usuario.trilha.id }}'">
+                        <div class="card-title">{{ trilha_usuario.trilha.titulo }}</div>
+                        <div class="card-description">{{ trilha_usuario.trilha.descricao }}</div>
+                    </div>
+                    <div style="position:relative;">
+                        <button class="path-menu-btn" onclick="togglePathMenu(event, {{ trilha_usuario.trilha.id }})">⋮
+                        </button>
+                        <div class="path-menu" id="path-menu-{{ trilha_usuario.trilha.id }}">
+                            <div class="path-menu-item"
+                                 onclick="window.location.href='{% url 'trilhas:ver_etapas' %}?id={{ trilha_usuario.trilha.id }}'">
+                                👁️ Ver trilha
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div onclick="window.location.href='{% url 'trilhas:ver_etapas' %}?id={{ trilha_usuario.trilha.id }}'">
+                    <div class="path-meta">
+                        <span>📊 {{ trilha_usuario.trilha.get_dificuldade_display }}</span>
+                    </div>
+                    <div class="path-progress">
+                        <div class="progress-label">
+                            <span>Progresso</span>
+                            <span>{{ trilha_usuario.progresso_percentual|floatformat:0 }}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: {{ trilha_usuario.progresso_percentual }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div>Nenhuma trilha em progresso</div>
+            {% endif %}
+        </div>
+
+    </div>
+</main>
+
+<script>
     function toggleUserMenu() {
-      if (confirm('Deseja sair?')) {
-        localStorage.removeItem('user');
-        window.location.href = "{% url 'login' %}";
-      }
+        if (confirm('Deseja sair da sua conta?')) {
+            document.getElementById('logoutForm').submit();
+        }
     }
 
     function togglePathMenu(event, pathId) {
-      event.stopPropagation();
-      const menu = document.getElementById(`path-menu-${pathId}`);
-      document.querySelectorAll('.path-menu').forEach(m => {
-        if (m.id !== `path-menu-${pathId}`) m.classList.remove('show');
-      });
-      menu.classList.toggle('show');
+        event.stopPropagation();
+        const menu = document.getElementById(`path-menu-${pathId}`);
+
+        // Close all other menus
+        document.querySelectorAll('.path-menu').forEach(m => {
+            if (m.id !== `path-menu-${pathId}`) {
+                m.classList.remove('show');
+            }
+        });
+
+        menu.classList.toggle('show');
     }
 
-    function pausePath(pathId) {
-      alert(`Trilha ${pathId} pausada com sucesso!`);
-      document.getElementById(`path-menu-${pathId}`).classList.remove('show');
-    }
 
-    function deletePath(pathId) {
-      if (confirm('Tem certeza que deseja excluir esta trilha do seu progresso?')) {
-        alert(`Trilha ${pathId} excluída com sucesso!`);
-        document.getElementById(`path-menu-${pathId}`).classList.remove('show');
-      }
-    }
-
-    document.addEventListener('click', function(event) {
-      if (!event.target.closest('.path-menu-btn')) {
-        document.querySelectorAll('.path-menu').forEach(m => m.classList.remove('show'));
-      }
+    document.addEventListener('click', function (event) {
+        if (!event.target.closest('.path-menu-btn')) {
+            document.querySelectorAll('.path-menu').forEach(m => {
+                m.classList.remove('show');
+            });
+        }
     });
-  </script>
+</script>
 </body>
 </html>

@@ -1,116 +1,48 @@
-.main-content {
-  padding: 48px 0;
-}
 
-.page-header {
-  margin-bottom: 32px;
-}
-
-.page-title {
-  font-size: 36px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.page-subtitle {
-  font-size: 16px;
-  color: var(--text-secondary);
-}
-
-.filters {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
-}
-
-.search-box {
-  flex: 1;
-  min-width: 300px;
-}
-
-.filter-group {
-  display: flex;
-  gap: 8px;
-}
-
-.filter-btn {
-  padding: 10px 20px;
-  background-color: var(--bg-tertiary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.filter-btn:hover,
-.filter-btn.active {
-  background-color: var(--accent-primary);
-  color: white;
-  border-color: var(--accent-primary);
-}
-
-.paths-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 24px;
-}
-
-.path-card {
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-
-.path-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--accent-primary), #8b5cf6);
-}
-
-.path-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: start;
-  margin-bottom: 12px;
-}
-
-.path-category {
-  display: inline-block;
-  padding: 4px 12px;
-  background-color: var(--accent-light);
-  color: var(--accent-primary);
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.path-meta {
-  display: flex;
-  gap: 16px;
-  margin-top: 16px;
-  font-size: 13px;
-  color: var(--text-muted);
-  flex-wrap: wrap;
-}
-
-.path-footer {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.path-students {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
+    .main-content { padding: 48px 0; }
+    .page-header { margin-bottom: 32px; text-align: center; }
+    .page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; }
+    .page-subtitle { font-size: 16px; color: var(--text-secondary); }
+    .filters { display: flex; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; justify-content: center; }
+    .search-box { flex: 1; min-width: 300px; }
+    .filter-group { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .filter-btn { padding: 10px 20px; background-color: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-secondary); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .filter-btn:hover, .filter-btn.active { background-color: var(--accent-primary); color: white; border-color: var(--accent-primary); }
+    .paths-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; }
+    .path-card:hover { transform: translateY(-4px); }
+    .path-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent-primary), #8b5cf6); }
+    .path-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; }
+    .path-category { display: inline-block; padding: 4px 12px; background-color: var(--accent-light); color: var(--accent-primary); border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .card-title { font-weight: 600; font-size: 18px; margin-bottom: 6px; }
+    .path-meta { display: flex; gap: 16px; font-size: 13px; color: var(--text-muted); flex-wrap: wrap; }
+    .path-footer { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .path-students { font-size: 13px; color: var(--text-secondary); }
+    .btn-disabled { background-color: var(--bg-tertiary); color: var(--text-secondary); border-color: var(--border); cursor: default; }
+    .path-card {
+      position: relative;
+      overflow: hidden;
+      background: var(--bg-card);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+    }
+    .card-description {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 12px;
+      text-align: justify;
+      line-height: 1.5;
+    }
+    .path-card-body {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+    .path-card-footer-content {
+      margin-top: auto;
+      padding-top: 16px;
+    }
