@@ -94,7 +94,7 @@
                 <div class="project-card">
                     <span class="project-badge">🎯 PROJETO FINAL</span>
                     <h2 class="project-title">{{ projeto.titulo }}</h2>
-                    <p class="project-description">{{ projeto.descricao }}</p>
+                    <p id="projectDescription" class="project-description">{{ projeto.descricao|escapejs }}</p>
                 </div>
                 {% endif %}
             </div>
@@ -143,6 +143,28 @@
             document.getElementById('logoutForm').submit();
         }
     }
+
+function formatMarkdown(text) {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')  // **negrito**
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')              // *itálico*
+    .replace(/\n{2,}/g, '<br><br>');                   // parágrafos
+}
+
+function decodeUnicode(str) {
+  try {
+    return JSON.parse(`"${str}"`);
+  } catch {
+    return str;
+  }
+}
+
+// Aplica formatação ao elemento
+document.addEventListener("DOMContentLoaded", () => {
+  const el = document.getElementById("projectDescription");
+  const rawText = decodeUnicode(el.textContent);
+  el.innerHTML = formatMarkdown(rawText);
+});
 
 function saveRoadmap(event, id) {
   event.stopPropagation();
